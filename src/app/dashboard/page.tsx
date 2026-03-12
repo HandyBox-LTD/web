@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import type { JobsQuery, MeQuery } from '@codegen/schema'
+import type { MeQuery, TasksQuery } from '@codegen/schema'
 import { Badge, Button, Container, GlassCard } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 import { LandingHeader } from '../components'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { JOBS_QUERY } from '@/graphql/jobs'
+import { TASKS_QUERY } from '@/graphql/jobs'
 import { clearAuthToken } from '@/utils/auth'
 
 function formatPounds(pricePence: number) {
@@ -32,9 +32,9 @@ function formatDate(iso: string) {
   }).format(new Date(iso))
 }
 
-function getQuoteRange(quotes: Array<{ pricePence: number }>) {
-  if (quotes.length === 0) return null
-  const prices = quotes.map((quote) => quote.pricePence)
+function getOfferRange(offers: Array<{ pricePence: number }>) {
+  if (offers.length === 0) return null
+  const prices = offers.map((offer) => offer.pricePence)
   const min = Math.min(...prices)
   const max = Math.max(...prices)
   return min === max
@@ -54,52 +54,52 @@ export default function DashboardPage() {
   })
   const me = meData?.me ?? null
   const {
-    data: jobsData,
-    loading: jobsLoading,
-    error: jobsError,
-    refetch: refetchJobs,
-  } = useQuery<JobsQuery>(JOBS_QUERY, {
+    data: tasksData,
+    loading: tasksLoading,
+    error: tasksError,
+    refetch: refetchTasks,
+  } = useQuery<TasksQuery>(TASKS_QUERY, {
     fetchPolicy: 'network-only',
     skip: !me,
   })
-  const jobs = jobsData?.jobs ?? []
+  const tasks = tasksData?.tasks ?? []
 
-  const { myPostedJobs, myQuotes, quoteCountOnMyJobs } = useMemo(() => {
+  const { myPostedTasks, myOffers, offerCountOnMyTasks } = useMemo(() => {
     if (!me) {
       return {
-        myPostedJobs: [] as JobsQuery['jobs'],
-        myQuotes: [] as Array<{
-          job: JobsQuery['jobs'][number]
-          quote: JobsQuery['jobs'][number]['quotes'][number]
+        myPostedTasks: [] as TasksQuery['tasks'],
+        myOffers: [] as Array<{
+          task: TasksQuery['tasks'][number]
+          offer: TasksQuery['tasks'][number]['offers'][number]
         }>,
-        quoteCountOnMyJobs: 0,
+        offerCountOnMyTasks: 0,
       }
     }
 
-    const posted = jobs
-      .filter((job) => job.createdByUserId === me.id)
+    const posted = tasks
+      .filter((task) => task.createdByUserId === me.id)
       .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-    const submitted = jobs
-      .flatMap((job) =>
-        job.quotes
-          .filter((quote) => quote.handymanUserId === me.id)
-          .map((quote) => ({ job, quote })),
+    const submitted = tasks
+      .flatMap((task) =>
+        task.offers
+          .filter((offer) => offer.workerUserId === me.id)
+          .map((offer) => ({ task, offer })),
       )
       .sort(
-        (a, b) => Date.parse(b.quote.createdAt) - Date.parse(a.quote.createdAt),
+        (a, b) => Date.parse(b.offer.createdAt) - Date.parse(a.offer.createdAt),
       )
 
-    const quoteCount = posted.reduce(
-      (count, job) => count + job.quotes.length,
+    const offerCount = posted.reduce(
+      (count, task) => count + task.offers.length,
       0,
     )
 
     return {
-      myPostedJobs: posted,
-      myQuotes: submitted,
-      quoteCountOnMyJobs: quoteCount,
+      myPostedTasks: posted,
+      myOffers: submitted,
+      offerCountOnMyTasks: offerCount,
     }
-  }, [jobs, me])
+  }, [tasks, me])
 
   return (
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
                         colorPalette="blue"
                         onClick={() => {
                           void refetchMe()
-                          void refetchJobs()
+                          void refetchTasks()
                         }}
                       >
                         Refresh
@@ -193,48 +193,48 @@ export default function DashboardPage() {
                       <Text color="muted" fontSize="sm">
                         Posted tasks
                       </Text>
-                      <Heading size="lg">{myPostedJobs.length}</Heading>
+                      <Heading size="lg">{myPostedTasks.length}</Heading>
                     </Stack>
                   </GlassCard>
                   <GlassCard p={5}>
                     <Stack gap={1}>
                       <Text color="muted" fontSize="sm">
-                        Quotes on your tasks
+                        Offers on your tasks
                       </Text>
-                      <Heading size="lg">{quoteCountOnMyJobs}</Heading>
+                      <Heading size="lg">{offerCountOnMyTasks}</Heading>
                     </Stack>
                   </GlassCard>
                   <GlassCard p={5}>
                     <Stack gap={1}>
                       <Text color="muted" fontSize="sm">
-                        Quotes you submitted
+                        Offers you submitted
                       </Text>
-                      <Heading size="lg">{myQuotes.length}</Heading>
+                      <Heading size="lg">{myOffers.length}</Heading>
                     </Stack>
                   </GlassCard>
                 </SimpleGrid>
 
-                {jobsLoading ? <Text>Loading tasks and quotes…</Text> : null}
-                {jobsError ? (
+                {tasksLoading ? <Text>Loading tasks and offers…</Text> : null}
+                {tasksError ? (
                   <Text color="red.400" fontSize="sm">
-                    {jobsError.message}
+                    {tasksError.message}
                   </Text>
                 ) : null}
 
-                {!jobsLoading && !jobsError ? (
+                {!tasksLoading && !tasksError ? (
                   <Stack gap={8}>
                     <GlassCard p={6}>
                       <Stack gap={5}>
                         <Heading size="md">Your posted tasks</Heading>
-                        {myPostedJobs.length === 0 ? (
+                        {myPostedTasks.length === 0 ? (
                           <Text color="muted">
                             You have not posted any tasks yet.
                           </Text>
                         ) : (
                           <Stack gap={4}>
-                            {myPostedJobs.map((job) => {
-                              const quoteRange = getQuoteRange(job.quotes)
-                              const latestQuotes = [...job.quotes]
+                            {myPostedTasks.map((task) => {
+                              const offerRange = getOfferRange(task.offers)
+                              const latestOffers = [...task.offers]
                                 .sort(
                                   (a, b) =>
                                     Date.parse(b.createdAt) -
@@ -243,7 +243,7 @@ export default function DashboardPage() {
                                 .slice(0, 3)
 
                               return (
-                                <GlassCard key={job.id} p={5}>
+                                <GlassCard key={task.id} p={5}>
                                   <Stack gap={4}>
                                     <HStack
                                       justify="space-between"
@@ -252,43 +252,47 @@ export default function DashboardPage() {
                                       gap={3}
                                     >
                                       <Stack gap={1}>
-                                        <Heading size="sm">{job.title}</Heading>
+                                        <Heading size="sm">
+                                          {task.title}
+                                        </Heading>
                                         <Text color="muted" fontSize="sm">
-                                          Posted {formatDate(job.createdAt)}
+                                          Posted {formatDate(task.createdAt)}
                                         </Text>
                                       </Stack>
                                       <HStack gap={2} flexWrap="wrap">
-                                        {job.location ? (
+                                        {task.location ? (
                                           <Badge variant="outline">
-                                            {job.location}
+                                            {task.location}
                                           </Badge>
                                         ) : null}
                                         <Badge variant="outline">
-                                          {job.quotes.length} quote
-                                          {job.quotes.length === 1 ? '' : 's'}
+                                          {task.offers.length} offer
+                                          {task.offers.length === 1 ? '' : 's'}
                                         </Badge>
-                                        {quoteRange ? (
+                                        {offerRange ? (
                                           <Badge
                                             bg="mustard.200"
                                             color="black"
                                             px={2}
                                           >
-                                            {quoteRange}
+                                            {offerRange}
                                           </Badge>
                                         ) : null}
                                       </HStack>
                                     </HStack>
 
-                                    <Text color="muted">{job.description}</Text>
+                                    <Text color="muted">
+                                      {task.description}
+                                    </Text>
 
-                                    {latestQuotes.length > 0 ? (
+                                    {latestOffers.length > 0 ? (
                                       <Stack gap={2}>
                                         <Text fontSize="sm" fontWeight={600}>
-                                          Recent quotes
+                                          Recent offers
                                         </Text>
-                                        {latestQuotes.map((quote) => (
+                                        {latestOffers.map((offer) => (
                                           <HStack
-                                            key={quote.id}
+                                            key={offer.id}
                                             justify="space-between"
                                             borderWidth="1px"
                                             borderColor="border"
@@ -301,28 +305,28 @@ export default function DashboardPage() {
                                                 fontSize="sm"
                                                 fontWeight={600}
                                               >
-                                                {formatPounds(quote.pricePence)}
+                                                {formatPounds(offer.pricePence)}
                                               </Text>
                                               <Text fontSize="xs" color="muted">
-                                                {quote.message || 'No message'}
+                                                {offer.message || 'No message'}
                                               </Text>
                                             </Stack>
                                             <Text fontSize="xs" color="muted">
-                                              {formatDate(quote.createdAt)}
+                                              {formatDate(offer.createdAt)}
                                             </Text>
                                           </HStack>
                                         ))}
                                       </Stack>
                                     ) : (
                                       <Text fontSize="sm" color="muted">
-                                        No quotes yet.
+                                        No offers yet.
                                       </Text>
                                     )}
 
                                     <HStack>
                                       <Button
                                         as={NextLink}
-                                        href={`/task/${job.id}`}
+                                        href={`/task/${task.id}`}
                                         size="sm"
                                         variant="outline"
                                       >
@@ -340,15 +344,15 @@ export default function DashboardPage() {
 
                     <GlassCard p={6}>
                       <Stack gap={5}>
-                        <Heading size="md">Quotes you submitted</Heading>
-                        {myQuotes.length === 0 ? (
+                        <Heading size="md">Offers you submitted</Heading>
+                        {myOffers.length === 0 ? (
                           <Text color="muted">
-                            You have not submitted any quotes yet.
+                            You have not submitted any offers yet.
                           </Text>
                         ) : (
                           <Stack gap={4}>
-                            {myQuotes.map(({ job, quote }) => (
-                              <GlassCard key={quote.id} p={5}>
+                            {myOffers.map(({ task, offer }) => (
+                              <GlassCard key={offer.id} p={5}>
                                 <Stack gap={3}>
                                   <HStack
                                     justify="space-between"
@@ -357,9 +361,9 @@ export default function DashboardPage() {
                                     gap={3}
                                   >
                                     <Stack gap={1}>
-                                      <Heading size="sm">{job.title}</Heading>
+                                      <Heading size="sm">{task.title}</Heading>
                                       <Text fontSize="sm" color="muted">
-                                        Submitted {formatDate(quote.createdAt)}
+                                        Submitted {formatDate(offer.createdAt)}
                                       </Text>
                                     </Stack>
                                     <Badge
@@ -367,16 +371,16 @@ export default function DashboardPage() {
                                       color="black"
                                       px={2}
                                     >
-                                      {formatPounds(quote.pricePence)}
+                                      {formatPounds(offer.pricePence)}
                                     </Badge>
                                   </HStack>
                                   <Text color="muted">
-                                    {quote.message || 'No message added.'}
+                                    {offer.message || 'No message added.'}
                                   </Text>
                                   <HStack>
                                     <Button
                                       as={NextLink}
-                                      href={`/task/${job.id}`}
+                                      href={`/task/${task.id}`}
                                       size="sm"
                                       variant="outline"
                                     >

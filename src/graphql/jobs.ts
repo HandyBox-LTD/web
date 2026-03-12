@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 
-export const CREATE_JOB = gql`
-  mutation CreateJob($input: CreateJobInput!) {
-    createJob(input: $input) {
+export const CREATE_TASK = gql`
+  mutation CreateTask($input: CreateTaskInput!) {
+    createTask(input: $input) {
       id
       title
       description
@@ -11,9 +11,9 @@ export const CREATE_JOB = gql`
   }
 `
 
-export const CREATE_QUOTE = gql`
-  mutation CreateQuote($input: CreateQuoteInput!) {
-    createQuote(input: $input) {
+export const ADD_OFFER = gql`
+  mutation AddOffer($input: AddOfferInput!) {
+    addOffer(input: $input) {
       id
       pricePence
       message
@@ -21,42 +21,44 @@ export const CREATE_QUOTE = gql`
   }
 `
 
-export const JOBS_QUERY = gql`
-  query Jobs {
-    jobs {
+export const TASKS_QUERY = gql`
+  query Tasks {
+    tasks {
       id
       title
       description
       location
       photos
+      status
       createdByUserId
       createdAt
-      quotes {
+      offers {
         id
-        jobId
-        handymanUserId
+        taskId
+        workerUserId
         pricePence
         message
+        status
         createdAt
       }
     }
   }
 `
 
-export const JOB_QUERY = gql`
-  query Job($id: ID!) {
-    job(id: $id) {
+export const TASK_QUERY = gql`
+  query Task($id: ID!) {
+    task(id: $id) {
       id
       title
       description
       location
       photos
       createdAt
-      quotes {
+      offers {
         id
         pricePence
         message
-        handymanUserId
+        workerUserId
       }
     }
   }

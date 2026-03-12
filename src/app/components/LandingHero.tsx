@@ -5,20 +5,20 @@ import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
-import { CREATE_JOB } from '@/graphql/jobs'
+import { CREATE_TASK } from '@/graphql/jobs'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
 import { TextInput } from '@/ui/Input/TextInput'
-import type { CreateJobMutation } from '@codegen/schema'
+import type { CreateTaskMutation } from '@codegen/schema'
 
 export function LandingHero() {
   const [title, setTitle] = useState('Fix a leaky tap')
   const [description, setDescription] = useState('Tap leaking under the sink')
   const [location, setLocation] = useState('Hackney, London')
 
-  const [createJob, { loading: creating }] =
-    useMutation<CreateJobMutation>(CREATE_JOB)
+  const [createTask, { loading: creating }] =
+    useMutation<CreateTaskMutation>(CREATE_TASK)
 
   return (
     <Grid
@@ -59,9 +59,9 @@ export function LandingHero() {
 
       <GlassCard p={6}>
         <Stack gap={4}>
-          <Heading size="md">Post a quick job</Heading>
+          <Heading size="md">Post a quick task</Heading>
           <TextInput
-            placeholder="Job title"
+            placeholder="Task title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -80,7 +80,7 @@ export function LandingHero() {
             color="black"
             loading={creating}
             onClick={() =>
-              createJob({
+              createTask({
                 variables: {
                   input: {
                     title,
@@ -92,7 +92,7 @@ export function LandingHero() {
               })
             }
           >
-            Submit job
+            Submit task
           </Button>
         </Stack>
       </GlassCard>

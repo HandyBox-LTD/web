@@ -5,9 +5,9 @@ import NextLink from 'next/link'
 import { useParams } from 'next/navigation'
 
 import { LandingFooter, LandingHeader } from '@/app/components'
-import { CREATE_QUOTE, JOB_QUERY } from '@/graphql/jobs'
+import { ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
 import { useMutation, useQuery } from '@apollo/client/react'
-import type { CreateQuoteMutation, JobQuery } from '@codegen/schema'
+import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
 import { Badge, Button, Container, GlassCard, TextInput } from '@ui'
 import { useState } from 'react'
 
@@ -31,21 +31,21 @@ function Section({
 export default function TaskDetailPage() {
   const params = useParams<{ slug?: string | string[] }>()
   const slugParam = params?.slug
-  const jobId = Array.isArray(slugParam) ? slugParam[0] : (slugParam ?? '')
+  const taskId = Array.isArray(slugParam) ? slugParam[0] : (slugParam ?? '')
 
   const [pricePence, setPricePence] = useState('')
   const [message, setMessage] = useState('')
 
-  const { data, loading, error } = useQuery<JobQuery>(JOB_QUERY, {
-    variables: { id: jobId },
-    skip: !jobId,
+  const { data, loading, error } = useQuery<TaskQuery>(TASK_QUERY, {
+    variables: { id: taskId },
+    skip: !taskId,
   })
-  const [createQuote, { loading: quoting }] =
-    useMutation<CreateQuoteMutation>(CREATE_QUOTE)
+  const [addOffer, { loading: quoting }] =
+    useMutation<AddOfferMutation>(ADD_OFFER)
 
-  const job = data?.job
+  const task = data?.task
 
-  if (!jobId) {
+  if (!taskId) {
     return (
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
@@ -62,7 +62,7 @@ export default function TaskDetailPage() {
             >
               ← Back to tasks
             </Link>
-            <Text color="muted">No job ID provided.</Text>
+            <Text color="muted">No task ID provided.</Text>
           </Section>
           <Section
             id="footer"
@@ -96,52 +96,52 @@ export default function TaskDetailPage() {
               </Link>
 
               {loading ? (
-                <Text color="muted">Loading job…</Text>
+                <Text color="muted">Loading task…</Text>
               ) : error ? (
                 <Text color="red.400" fontSize="sm">
                   {error.message}
                 </Text>
-              ) : !job ? (
-                <Text color="muted">Job not found.</Text>
+              ) : !task ? (
+                <Text color="muted">Task not found.</Text>
               ) : (
                 <>
                   <Stack gap={3}>
                     <HStack justify="space-between" flexWrap="wrap" gap={3}>
-                      <Heading size="lg">{job.title}</Heading>
-                      {job.quotes.length > 0 && (
+                      <Heading size="lg">{task.title}</Heading>
+                      {task.offers.length > 0 && (
                         <Badge bg="mustard.200" color="black" px={2}>
                           £
                           {(
-                            Math.min(...job.quotes.map((q) => q.pricePence)) /
+                            Math.min(...task.offers.map((o) => o.pricePence)) /
                             100
                           ).toFixed(0)}
                           –£
                           {(
-                            Math.max(...job.quotes.map((q) => q.pricePence)) /
+                            Math.max(...task.offers.map((o) => o.pricePence)) /
                             100
                           ).toFixed(0)}
                         </Badge>
                       )}
                     </HStack>
-                    <Text color="muted">{job.description}</Text>
-                    {job.location && (
-                      <Badge variant="outline">{job.location}</Badge>
+                    <Text color="muted">{task.description}</Text>
+                    {task.location && (
+                      <Badge variant="outline">{task.location}</Badge>
                     )}
                   </Stack>
 
                   <GlassCard p={6}>
                     <Stack gap={4}>
-                      <Heading size="md">Job details</Heading>
-                      <Text color="muted">{job.description}</Text>
+                      <Heading size="md">Task details</Heading>
+                      <Text color="muted">{task.description}</Text>
                       <Stack gap={2} fontSize="sm">
-                        {job.location && (
+                        {task.location && (
                           <Text>
-                            <strong>Location:</strong> {job.location}
+                            <strong>Location:</strong> {task.location}
                           </Text>
                         )}
-                        {job.quotes.length > 0 && (
+                        {task.offers.length > 0 && (
                           <Text>
-                            <strong>Quotes:</strong> {job.quotes.length}{' '}
+                            <strong>Offers:</strong> {task.offers.length}{' '}
                             received
                           </Text>
                         )}
@@ -153,7 +153,7 @@ export default function TaskDetailPage() {
                     <Stack gap={4}>
                       <Heading size="md">Make an offer</Heading>
                       <Text color="muted">
-                        Share your quote and any message for the client.
+                        Share your price and any message for the client.
                       </Text>
                       <Stack gap={3}>
                         <TextInput
@@ -171,10 +171,10 @@ export default function TaskDetailPage() {
                           color="white"
                           loading={quoting}
                           onClick={() =>
-                            createQuote({
+                            addOffer({
                               variables: {
                                 input: {
-                                  jobId: job.id,
+                                  taskId: task.id,
                                   pricePence: Number(pricePence) || 0,
                                   message: message || undefined,
                                 },

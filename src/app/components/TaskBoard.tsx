@@ -4,28 +4,28 @@ import { useQuery } from '@apollo/client/react'
 import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { JOBS_QUERY } from '@/graphql/jobs'
+import { TASKS_QUERY } from '@/graphql/jobs'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
-import type { JobsQuery } from '@codegen/schema'
+import type { TasksQuery } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 
 export type TaskBoardProps = {
   title?: string
 }
 
-function formatBudget(quotes: { pricePence: number }[]) {
-  if (quotes.length === 0) return 'No quotes yet'
-  const prices = quotes.map((q) => q.pricePence)
+function formatBudget(offers: { pricePence: number }[]) {
+  if (offers.length === 0) return 'No offers yet'
+  const prices = offers.map((o) => o.pricePence)
   const min = Math.min(...prices)
   const max = Math.max(...prices)
   if (min === max) return `£${(min / 100).toFixed(0)}`
   return `£${(min / 100).toFixed(0)}–£${(max / 100).toFixed(0)}`
 }
 
-export function TaskBoard({ title = 'Latest jobs' }: TaskBoardProps) {
-  const { data, loading, error } = useQuery<JobsQuery>(JOBS_QUERY)
-  const jobs = data?.jobs ?? []
+export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
+  const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY)
+  const tasks = data?.tasks ?? []
 
   return (
     <GlassCard p={6}>
@@ -40,42 +40,42 @@ export function TaskBoard({ title = 'Latest jobs' }: TaskBoardProps) {
         </HStack>
 
         {loading ? (
-          <Text color="muted">Loading jobs…</Text>
+          <Text color="muted">Loading tasks…</Text>
         ) : error ? (
           <Text color="red.400" fontSize="sm">
             {error.message}
           </Text>
-        ) : jobs.length === 0 ? (
+        ) : tasks.length === 0 ? (
           <Text color="muted">
-            No jobs posted yet. Be the first to post one.
+            No tasks posted yet. Be the first to post one.
           </Text>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-            {jobs.map((job) => (
-              <GlassCard key={job.id} p={5}>
+            {tasks.map((task) => (
+              <GlassCard key={task.id} p={5}>
                 <Stack gap={3}>
                   <HStack justify="space-between">
-                    <Heading size="sm">{job.title}</Heading>
+                    <Heading size="sm">{task.title}</Heading>
                     <Badge bg="mustard.200" color="black" px={2}>
-                      {formatBudget(job.quotes)}
+                      {formatBudget(task.offers)}
                     </Badge>
                   </HStack>
-                  <Text color="muted">{job.description}</Text>
+                  <Text color="muted">{task.description}</Text>
                   <HStack gap={2} flexWrap="wrap">
-                    {job.location && (
-                      <Badge variant="outline">{job.location}</Badge>
+                    {task.location && (
+                      <Badge variant="outline">{task.location}</Badge>
                     )}
-                    {job.quotes.length > 0 && (
+                    {task.offers.length > 0 && (
                       <Badge variant="outline">
-                        {job.quotes.length} quote
-                        {job.quotes.length !== 1 ? 's' : ''}
+                        {task.offers.length} offer
+                        {task.offers.length !== 1 ? 's' : ''}
                       </Badge>
                     )}
                   </HStack>
                   <HStack gap={3}>
                     <Button
                       as={NextLink}
-                      href={`/task/${job.id}#offer`}
+                      href={`/task/${task.id}#offer`}
                       size="sm"
                       background="linkBlue.600"
                       color="white"
@@ -84,7 +84,7 @@ export function TaskBoard({ title = 'Latest jobs' }: TaskBoardProps) {
                     </Button>
                     <Button
                       as={NextLink}
-                      href={`/task/${job.id}`}
+                      href={`/task/${task.id}`}
                       size="sm"
                       variant="outline"
                       borderColor="border"

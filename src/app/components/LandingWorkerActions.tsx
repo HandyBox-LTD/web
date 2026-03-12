@@ -4,34 +4,34 @@ import { useMutation } from '@apollo/client/react'
 import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { CREATE_QUOTE } from '@/graphql/jobs'
+import { ADD_OFFER } from '@/graphql/jobs'
 import { Button } from '@/ui/Button/Button'
-import type { CreateQuoteMutation } from '@codegen/schema'
+import type { AddOfferMutation } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 import { TextInput } from '../../ui/Input/TextInput'
 
 export function LandingWorkerActions() {
-  const [jobId, setJobId] = useState('')
+  const [taskId, setTaskId] = useState('')
   const [pricePence, setPricePence] = useState('4500')
   const [message, setMessage] = useState('Can do this tomorrow afternoon')
 
-  const [createQuote, { loading: quoting }] =
-    useMutation<CreateQuoteMutation>(CREATE_QUOTE)
+  const [addOffer, { loading: quoting }] =
+    useMutation<AddOfferMutation>(ADD_OFFER)
 
   return (
     <GlassCard p={6}>
       <Stack gap={4}>
-        <Heading size="md">Handyman: submit a quote</Heading>
+        <Heading size="md">Handyman: submit an offer</Heading>
         <Text color="muted">
-          Enter a job ID from the list above and submit your quote. Requires an
+          Enter a task ID from the list above and submit your offer. Requires an
           authenticated session.
         </Text>
         <Grid templateColumns={{ base: '1fr', md: '1fr' }} gap={4}>
           <Stack gap={3}>
             <TextInput
-              placeholder="Job ID"
-              value={jobId}
-              onChange={(e) => setJobId(e.target.value)}
+              placeholder="Task ID"
+              value={taskId}
+              onChange={(e) => setTaskId(e.target.value)}
             />
             <TextInput
               placeholder="Price (pence)"
@@ -49,10 +49,10 @@ export function LandingWorkerActions() {
               color="white"
               loading={quoting}
               onClick={() =>
-                createQuote({
+                addOffer({
                   variables: {
                     input: {
-                      jobId,
+                      taskId,
                       pricePence: Number(pricePence) || 0,
                       message: message || undefined,
                     },
@@ -60,7 +60,7 @@ export function LandingWorkerActions() {
                 })
               }
             >
-              Submit quote
+              Submit offer
             </Button>
           </Stack>
         </Grid>
