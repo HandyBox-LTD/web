@@ -1,52 +1,54 @@
 'use client'
 
-import { LandingHeader } from '@/app/components'
 import { useMutation } from '@apollo/client/react'
 import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import type { LoginMutation } from '@codegen/schema'
+import type { ResetPasswordMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
-import { LOGIN_MUTATION } from '@/graphql/auth'
+import { LandingHeader } from '@/app/components'
+import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [token, setToken] = useState(searchParams.get('token') ?? '')
+  const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const [login, { loading }] = useMutation<LoginMutation>(LOGIN_MUTATION)
-
-  const requestedNextPath = searchParams.get('next')
-  const hasSafeNextPath =
-    requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-  const nextPath =
-    hasSafeNextPath && requestedNextPath ? requestedNextPath : '/dashboard'
+  const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
+    RESET_PASSWORD_MUTATION,
+  )
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
+    if (!token.trim()) {
+      setError('Reset token is required.')
+      return
+    }
+
     try {
-      const res = await login({
-        variables: { email, password },
+      const res = await resetPassword({
+        variables: { token: token.trim(), newPassword },
       })
 
-      const token = res.data?.login?.token
-      if (!token) {
-        throw new Error('Login succeeded but no session token was returned.')
+      const authToken = res.data?.resetPassword?.token
+      if (!authToken) {
+        throw new Error(
+          'Password reset succeeded but no session token was returned.',
+        )
       }
 
-      setAuthToken(token)
-      router.push(nextPath)
+      setAuthToken(authToken)
+      router.push('/dashboard')
     } catch (err: unknown) {
-      const message = getFriendlyErrorMessage(err, 'Login failed')
-      setError(message)
+      setError(getFriendlyErrorMessage(err, 'Could not reset password.'))
     }
   }
 
@@ -58,25 +60,24 @@ export default function LoginPage() {
           <Box maxW="md">
             <Stack gap={6}>
               <Box>
-                <Heading size="lg">Log in</Heading>
+                <Heading size="lg">Reset password</Heading>
                 <Text opacity={0.8} mt={2}>
-                  Use your account to post jobs and manage requests.
+                  Enter the reset token and your new password.
                 </Text>
               </Box>
 
               <Box as="form" onSubmit={onSubmit}>
                 <Stack gap={3}>
                   <Input
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
+                    placeholder="Reset token"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
                     required
                   />
                   <Input
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     type="password"
                     required
                   />
@@ -88,35 +89,29 @@ export default function LoginPage() {
                   ) : null}
 
                   <Button type="submit" loading={loading} colorPalette="blue">
-                    Log in
+                    Reset password
                   </Button>
                 </Stack>
               </Box>
 
               <Text fontSize="sm" opacity={0.85}>
-                Don’t have an account?{' '}
-                <Link as={NextLink} href="/register" textDecoration="underline">
-                  Register
-                </Link>
-              </Text>
-              <Text fontSize="sm" opacity={0.85}>
-                Forgot your password?{' '}
+                Need a reset token?{' '}
                 <Link
                   as={NextLink}
                   href="/forgot-password"
                   textDecoration="underline"
                 >
-                  Reset it
+                  Request reset email
                 </Link>
               </Text>
               <Link
                 as={NextLink}
-                href="/"
+                href="/login"
                 fontSize="sm"
                 color="muted"
                 _hover={{ color: 'fg' }}
               >
-                ← Back to home
+                ← Back to log in
               </Link>
             </Stack>
           </Box>

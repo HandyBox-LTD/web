@@ -2,13 +2,11 @@
 
 import { ApolloClient, InMemoryCache, from } from '@apollo/client/core'
 import { setContext } from '@apollo/client/link/context'
+import { onError } from '@apollo/client/link/error'
 import { createHttpLink } from '@apollo/client/link/http'
 
-function getTokenFromCookie() {
-  if (typeof document === 'undefined') return null
-  const match = /auth=([^;]+)/.exec(document.cookie)
-  return match?.[1] ?? null
-}
+import { clearAuthToken, getAuthToken } from './auth'
+import { isUnauthenticatedError } from './graphqlErrors'
 
 const httpLink = createHttpLink({
   // Prefer a full URL (recommended): https://handyman-apollo.onrender.com/graphql
@@ -16,16 +14,26 @@ const httpLink = createHttpLink({
 })
 
 const authLink = setContext((_, { headers }) => {
-  const token = getTokenFromCookie()
+  const token = getAuthToken()
+  if (!token) {
+    return { headers }
+  }
+
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : '',
+      authorization: `Bearer ${token}`,
     },
   }
 })
 
+const errorLink = onError(({ error }) => {
+  if (isUnauthenticatedError(error)) {
+    clearAuthToken()
+  }
+})
+
 export const apolloClient = new ApolloClient({
-  link: from([authLink, httpLink]),
+  link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
 })

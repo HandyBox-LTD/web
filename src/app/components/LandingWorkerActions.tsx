@@ -2,21 +2,63 @@
 
 import { useMutation } from '@apollo/client/react'
 import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { ADD_OFFER } from '@/graphql/jobs'
 import { Button } from '@/ui/Button/Button'
+import { getAuthToken } from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import type { AddOfferMutation } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 import { TextInput } from '../../ui/Input/TextInput'
 
 export function LandingWorkerActions() {
+  const router = useRouter()
   const [taskId, setTaskId] = useState('')
   const [pricePence, setPricePence] = useState('4500')
   const [message, setMessage] = useState('Can do this tomorrow afternoon')
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const [addOffer, { loading: quoting }] =
     useMutation<AddOfferMutation>(ADD_OFFER)
+
+  async function onAddOffer() {
+    setError(null)
+    setSuccess(null)
+
+    if (!getAuthToken()) {
+      setError('Please log in before submitting an offer.')
+      router.push(`/login?next=${encodeURIComponent('/#worker-actions')}`)
+      return
+    }
+
+    if (!taskId.trim()) {
+      setError('Task ID is required.')
+      return
+    }
+
+    try {
+      const res = await addOffer({
+        variables: {
+          input: {
+            taskId: taskId.trim(),
+            pricePence: Number(pricePence) || 0,
+            message: message || undefined,
+          },
+        },
+      })
+
+      if (!res.data?.addOffer?.id) {
+        throw new Error('Offer submission failed. Please try again.')
+      }
+
+      setSuccess('Offer submitted successfully.')
+    } catch (err: unknown) {
+      setError(getFriendlyErrorMessage(err, 'Offer submission failed.'))
+    }
+  }
 
   return (
     <GlassCard p={6}>
@@ -48,20 +90,20 @@ export function LandingWorkerActions() {
               background="linkBlue.600"
               color="white"
               loading={quoting}
-              onClick={() =>
-                addOffer({
-                  variables: {
-                    input: {
-                      taskId,
-                      pricePence: Number(pricePence) || 0,
-                      message: message || undefined,
-                    },
-                  },
-                })
-              }
+              onClick={() => void onAddOffer()}
             >
               Submit offer
             </Button>
+            {error ? (
+              <Text color="red.400" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
+            {success ? (
+              <Text color="green.400" fontSize="sm">
+                {success}
+              </Text>
+            ) : null}
           </Stack>
         </Grid>
         <Box borderBottomWidth="1px" borderColor="border" />

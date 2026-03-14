@@ -1,11 +1,9 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
-const schemaUrl =
-  process.env.NEXT_PUBLIC_GRAPHQL_URL ||
-  'https://handyman-apollo.onrender.com/graphql'
+const schemaSource = process.env.CODEGEN_SCHEMA_URL || 'schema.graphql'
 
 const config: CodegenConfig = {
-  schema: schemaUrl,
+  schema: schemaSource,
   documents: ['src/graphql/**/*.ts', 'src/app/**/page.tsx'],
   ignoreNoDocuments: true,
   generates: {

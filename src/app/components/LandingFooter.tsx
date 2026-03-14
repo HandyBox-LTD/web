@@ -8,6 +8,7 @@ const footerLinks = [
   { label: 'Tasks', href: '/tasks' },
   { label: 'Register', href: '/register' },
   { label: 'Log in', href: '/login' },
+  { label: 'Forgot password', href: '/forgot-password' },
   { label: 'Dashboard', href: '/dashboard' },
 ]
 

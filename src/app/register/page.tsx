@@ -5,21 +5,29 @@ import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { LandingHeader } from '../components'
 
 import { REGISTER_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const [register, { loading }] =
     useMutation<RegisterMutation>(REGISTER_MUTATION)
+
+  const requestedNextPath = searchParams.get('next')
+  const hasSafeNextPath =
+    requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
+  const nextPath =
+    hasSafeNextPath && requestedNextPath ? requestedNextPath : '/dashboard'
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -31,12 +39,16 @@ export default function RegisterPage() {
       })
 
       const token = res.data?.register?.token
-      if (!token) throw new Error('Missing token')
+      if (!token) {
+        throw new Error(
+          'Registration succeeded but no session token was returned.',
+        )
+      }
 
       setAuthToken(token)
-      router.push('/dashboard')
+      router.push(nextPath)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Registration failed'
+      const message = getFriendlyErrorMessage(err, 'Registration failed')
       setError(message)
     }
   }
@@ -88,6 +100,16 @@ export default function RegisterPage() {
                 Already have an account?{' '}
                 <Link as={NextLink} href="/login" textDecoration="underline">
                   Log in
+                </Link>
+              </Text>
+              <Text fontSize="sm" opacity={0.85}>
+                Forgot your password?{' '}
+                <Link
+                  as={NextLink}
+                  href="/forgot-password"
+                  textDecoration="underline"
+                >
+                  Reset it
                 </Link>
               </Text>
               <Link
