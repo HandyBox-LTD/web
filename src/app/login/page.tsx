@@ -7,18 +7,32 @@ import type { LoginMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { LOGIN_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [nextPath, setNextPath] = useState('/dashboard')
 
   const [login, { loading }] = useMutation<LoginMutation>(LOGIN_MUTATION)
+
+  useEffect(() => {
+    const requestedNextPath = new URLSearchParams(window.location.search).get(
+      'next',
+    )
+    const hasSafeNextPath =
+      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
+
+    if (hasSafeNextPath && requestedNextPath) {
+      setNextPath(requestedNextPath)
+    }
+  }, [])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,12 +44,14 @@ export default function LoginPage() {
       })
 
       const token = res.data?.login?.token
-      if (!token) throw new Error('Missing token')
+      if (!token) {
+        throw new Error('Login succeeded but no session token was returned.')
+      }
 
       setAuthToken(token)
-      router.push('/dashboard')
+      router.push(nextPath)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed'
+      const message = getFriendlyErrorMessage(err, 'Login failed')
       setError(message)
     }
   }
@@ -87,6 +103,16 @@ export default function LoginPage() {
                 Don’t have an account?{' '}
                 <Link as={NextLink} href="/register" textDecoration="underline">
                   Register
+                </Link>
+              </Text>
+              <Text fontSize="sm" opacity={0.85}>
+                Forgot your password?{' '}
+                <Link
+                  as={NextLink}
+                  href="/forgot-password"
+                  textDecoration="underline"
+                >
+                  Reset it
                 </Link>
               </Text>
               <Link

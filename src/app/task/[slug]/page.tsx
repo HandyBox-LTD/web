@@ -2,10 +2,12 @@
 
 import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 import { LandingFooter, LandingHeader } from '@/app/components'
 import { ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
+import { getAuthToken } from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { useMutation, useQuery } from '@apollo/client/react'
 import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
 import { Badge, Button, Container, GlassCard, TextInput } from '@ui'
@@ -29,12 +31,15 @@ function Section({
 }
 
 export default function TaskDetailPage() {
+  const router = useRouter()
   const params = useParams<{ slug?: string | string[] }>()
   const slugParam = params?.slug
   const taskId = Array.isArray(slugParam) ? slugParam[0] : (slugParam ?? '')
 
   const [pricePence, setPricePence] = useState('')
   const [message, setMessage] = useState('')
+  const [offerError, setOfferError] = useState<string | null>(null)
+  const [offerSuccess, setOfferSuccess] = useState<string | null>(null)
 
   const { data, loading, error } = useQuery<TaskQuery>(TASK_QUERY, {
     variables: { id: taskId },
@@ -44,6 +49,40 @@ export default function TaskDetailPage() {
     useMutation<AddOfferMutation>(ADD_OFFER)
 
   const task = data?.task
+
+  async function onSubmitOffer() {
+    setOfferError(null)
+    setOfferSuccess(null)
+
+    if (!task) {
+      setOfferError('Task details are not loaded yet.')
+      return
+    }
+
+    if (!getAuthToken()) {
+      setOfferError('Please log in before submitting an offer.')
+      router.push(`/login?next=${encodeURIComponent(`/task/${task.id}#offer`)}`)
+      return
+    }
+
+    try {
+      const res = await addOffer({
+        variables: {
+          input: {
+            taskId: task.id,
+            pricePence: Number(pricePence) || 0,
+            message: message || undefined,
+          },
+        },
+      })
+      if (!res.data?.addOffer?.id) {
+        throw new Error('Offer submission failed. Please try again.')
+      }
+      setOfferSuccess('Offer submitted successfully.')
+    } catch (err: unknown) {
+      setOfferError(getFriendlyErrorMessage(err, 'Offer submission failed.'))
+    }
+  }
 
   if (!taskId) {
     return (
@@ -170,20 +209,20 @@ export default function TaskDetailPage() {
                           background="linkBlue.600"
                           color="white"
                           loading={quoting}
-                          onClick={() =>
-                            addOffer({
-                              variables: {
-                                input: {
-                                  taskId: task.id,
-                                  pricePence: Number(pricePence) || 0,
-                                  message: message || undefined,
-                                },
-                              },
-                            })
-                          }
+                          onClick={() => void onSubmitOffer()}
                         >
                           Submit offer
                         </Button>
+                        {offerError ? (
+                          <Text color="red.400" fontSize="sm">
+                            {offerError}
+                          </Text>
+                        ) : null}
+                        {offerSuccess ? (
+                          <Text color="green.400" fontSize="sm">
+                            {offerSuccess}
+                          </Text>
+                        ) : null}
                       </Stack>
                     </Stack>
                   </GlassCard>

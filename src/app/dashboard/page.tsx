@@ -20,6 +20,7 @@ import { LandingHeader } from '../components'
 import { ME_QUERY } from '@/graphql/auth'
 import { TASKS_QUERY } from '@/graphql/jobs'
 import { clearAuthToken } from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
@@ -63,6 +64,12 @@ export default function DashboardPage() {
     skip: !me,
   })
   const tasks = tasksData?.tasks ?? []
+  const meErrorMessage = meError
+    ? getFriendlyErrorMessage(meError, 'Could not load account details.')
+    : null
+  const tasksErrorMessage = tasksError
+    ? getFriendlyErrorMessage(tasksError, 'Could not load tasks.')
+    : null
 
   const { myPostedTasks, myOffers, offerCountOnMyTasks } = useMemo(() => {
     if (!me) {
@@ -115,9 +122,9 @@ export default function DashboardPage() {
             </Box>
 
             {meLoading ? <Text>Loading account…</Text> : null}
-            {meError ? (
+            {meErrorMessage ? (
               <Text color="red.400" fontSize="sm">
-                {meError.message}
+                {meErrorMessage}
               </Text>
             ) : null}
 
@@ -215,9 +222,9 @@ export default function DashboardPage() {
                 </SimpleGrid>
 
                 {tasksLoading ? <Text>Loading tasks and offers…</Text> : null}
-                {tasksError ? (
+                {tasksErrorMessage ? (
                   <Text color="red.400" fontSize="sm">
-                    {tasksError.message}
+                    {tasksErrorMessage}
                   </Text>
                 ) : null}
 

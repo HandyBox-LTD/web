@@ -2,36 +2,31 @@
 
 import { useMutation } from '@apollo/client/react'
 import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import type { RegisterMutation } from '@codegen/schema'
+import type { ResetPasswordMutation } from '@codegen/schema'
 import { Container, Input } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LandingHeader } from '../components'
 
-import { REGISTER_MUTATION } from '@/graphql/auth'
+import { LandingHeader } from '@/app/components'
+import { RESET_PASSWORD_MUTATION } from '@/graphql/auth'
 import { setAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [token, setToken] = useState('')
+  const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [nextPath, setNextPath] = useState('/dashboard')
 
-  const [register, { loading }] =
-    useMutation<RegisterMutation>(REGISTER_MUTATION)
+  const [resetPassword, { loading }] = useMutation<ResetPasswordMutation>(
+    RESET_PASSWORD_MUTATION,
+  )
 
   useEffect(() => {
-    const requestedNextPath = new URLSearchParams(window.location.search).get(
-      'next',
-    )
-    const hasSafeNextPath =
-      requestedNextPath?.startsWith('/') && !requestedNextPath.startsWith('//')
-
-    if (hasSafeNextPath && requestedNextPath) {
-      setNextPath(requestedNextPath)
+    const resetToken = new URLSearchParams(window.location.search).get('token')
+    if (resetToken) {
+      setToken(resetToken)
     }
   }, [])
 
@@ -39,23 +34,27 @@ export default function RegisterPage() {
     e.preventDefault()
     setError(null)
 
+    if (!token.trim()) {
+      setError('Reset token is required.')
+      return
+    }
+
     try {
-      const res = await register({
-        variables: { email, password },
+      const res = await resetPassword({
+        variables: { token: token.trim(), newPassword },
       })
 
-      const token = res.data?.register?.token
-      if (!token) {
+      const authToken = res.data?.resetPassword?.token
+      if (!authToken) {
         throw new Error(
-          'Registration succeeded but no session token was returned.',
+          'Password reset succeeded but no session token was returned.',
         )
       }
 
-      setAuthToken(token)
-      router.push(nextPath)
+      setAuthToken(authToken)
+      router.push('/dashboard')
     } catch (err: unknown) {
-      const message = getFriendlyErrorMessage(err, 'Registration failed')
-      setError(message)
+      setError(getFriendlyErrorMessage(err, 'Could not reset password.'))
     }
   }
 
@@ -67,25 +66,24 @@ export default function RegisterPage() {
           <Box maxW="md">
             <Stack gap={6}>
               <Box>
-                <Heading size="lg">Create account</Heading>
+                <Heading size="lg">Reset password</Heading>
                 <Text opacity={0.8} mt={2}>
-                  Register to start posting jobs.
+                  Enter the reset token and your new password.
                 </Text>
               </Box>
 
               <Box as="form" onSubmit={onSubmit}>
                 <Stack gap={3}>
                   <Input
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
+                    placeholder="Reset token"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
                     required
                   />
                   <Input
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     type="password"
                     required
                   />
@@ -96,36 +94,30 @@ export default function RegisterPage() {
                     </Text>
                   ) : null}
 
-                  <Button type="submit" loading={loading} colorPalette="green">
-                    Register
+                  <Button type="submit" loading={loading} colorPalette="blue">
+                    Reset password
                   </Button>
                 </Stack>
               </Box>
 
               <Text fontSize="sm" opacity={0.85}>
-                Already have an account?{' '}
-                <Link as={NextLink} href="/login" textDecoration="underline">
-                  Log in
-                </Link>
-              </Text>
-              <Text fontSize="sm" opacity={0.85}>
-                Forgot your password?{' '}
+                Need a reset token?{' '}
                 <Link
                   as={NextLink}
                   href="/forgot-password"
                   textDecoration="underline"
                 >
-                  Reset it
+                  Request reset email
                 </Link>
               </Text>
               <Link
                 as={NextLink}
-                href="/"
+                href="/login"
                 fontSize="sm"
                 color="muted"
                 _hover={{ color: 'fg' }}
               >
-                ← Back to home
+                ← Back to log in
               </Link>
             </Stack>
           </Box>
