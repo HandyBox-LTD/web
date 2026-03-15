@@ -10,7 +10,7 @@ import { isUnauthenticatedError } from './graphqlErrors'
 
 const httpLink = createHttpLink({
   // Prefer a full URL (recommended): https://handyman-apollo.onrender.com/graphql
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql',
+  uri: `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/graphql`,
 })
 
 const authLink = setContext((_, { headers }) => {

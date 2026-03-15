@@ -1,9 +1,18 @@
+import 'dotenv/config'
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
-const schemaSource = process.env.CODEGEN_SCHEMA_URL || 'schema.graphql'
-
+const schemaUrl = `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/schema`
 const config: CodegenConfig = {
-  schema: schemaSource,
+  schema: [
+    {
+      [schemaUrl]: {
+        headers: {
+          'X-Schema-Token': process.env.SCHEMA_ACCESS_TOKEN || '',
+        },
+        handleAsSDL: true,
+      },
+    },
+  ],
   documents: ['src/graphql/**/*.ts', 'src/app/**/page.tsx'],
   ignoreNoDocuments: true,
   generates: {
