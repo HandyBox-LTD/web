@@ -9,9 +9,7 @@ import { Button } from '@/ui/Button/Button'
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
 import type { MeQuery } from '@codegen/schema'
 
-const navLinks = [
-  { label: 'Tasks', href: '/tasks' },
-]
+const navLinks = [{ label: 'Tasks', href: '/tasks' }]
 
 export function LandingHeader() {
   const apolloClient = useApolloClient()
