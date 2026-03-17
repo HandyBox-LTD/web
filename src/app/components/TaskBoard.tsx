@@ -27,18 +27,21 @@ function formatBudget(offers: { pricePence: number }[]) {
 }
 
 export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
-  const [page, setPage] = useState(1)
-  const offset = (page - 1) * PAGE_SIZE
+  const [page, setPage] = useState(0)
+  const offset = page * PAGE_SIZE
   const { data, loading, error } = useQuery<TasksQuery, TasksQueryVariables>(
     TASKS_QUERY,
     {
-      variables: { limit: PAGE_SIZE, offset },
+      variables: {
+        limit: PAGE_SIZE,
+        offset,
+      },
       notifyOnNetworkStatusChange: true,
     },
   )
   const tasks = data?.tasks ?? []
-  const canGoBack = page > 1
-  const canGoForward = tasks.length === PAGE_SIZE && !loading
+  const hasPreviousPage = page > 0
+  const hasNextPage = tasks.length === PAGE_SIZE
 
   return (
     <GlassCard p={6}>
@@ -52,7 +55,7 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
           </HStack>
         </HStack>
 
-        {loading ? (
+        {loading && !data ? (
           <Text color="muted">Loading tasks…</Text>
         ) : error ? (
           <Text color="red.400" fontSize="sm">
@@ -60,7 +63,9 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
           </Text>
         ) : tasks.length === 0 ? (
           <Text color="muted">
-            No tasks posted yet. Be the first to post one.
+            {page === 0
+              ? 'No tasks posted yet. Be the first to post one.'
+              : 'No more tasks available on this page.'}
           </Text>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
@@ -111,18 +116,18 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
           </SimpleGrid>
         )}
 
-        {!error && !loading && (canGoBack || canGoForward) ? (
+        {!error && (
           <HStack justify="space-between" flexWrap="wrap" gap={3}>
             <Text color="muted" fontSize="sm">
-              Page {page}
+              Page {page + 1}
             </Text>
             <HStack gap={2}>
               <Button
                 size="sm"
                 variant="outline"
                 borderColor="border"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
-                disabled={!canGoBack}
+                disabled={!hasPreviousPage || loading}
+                onClick={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
               >
                 Previous
               </Button>
@@ -130,14 +135,14 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                 size="sm"
                 variant="outline"
                 borderColor="border"
-                onClick={() => setPage((current) => current + 1)}
-                disabled={!canGoForward}
+                disabled={!hasNextPage || loading}
+                onClick={() => setPage((currentPage) => currentPage + 1)}
               >
                 Next
               </Button>
             </HStack>
           </HStack>
-        ) : null}
+        )}
       </Stack>
     </GlassCard>
   )
