@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { TASKS_QUERY } from '@/graphql/jobs'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
-import type { TasksQuery, TasksQueryVariables } from '@codegen/schema'
+import type { TasksQuery } from '@codegen/schema'
 import { GlassCard } from '../../ui/Card/GlassCard'
 
 export type TaskBoardProps = {
@@ -29,19 +29,13 @@ function formatBudget(offers: { pricePence: number }[]) {
 export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
   const [page, setPage] = useState(0)
   const offset = page * PAGE_SIZE
-  const { data, loading, error } = useQuery<TasksQuery, TasksQueryVariables>(
-    TASKS_QUERY,
-    {
-      variables: {
-        limit: PAGE_SIZE,
-        offset,
-      },
-      notifyOnNetworkStatusChange: true,
-    },
-  )
-  const tasks = data?.tasks ?? []
+  const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  })
+  const allTasks = data?.tasks ?? []
+  const tasks = allTasks.slice(offset, offset + PAGE_SIZE)
   const hasPreviousPage = page > 0
-  const hasNextPage = tasks.length === PAGE_SIZE
+  const hasNextPage = offset + PAGE_SIZE < allTasks.length
 
   return (
     <GlassCard p={6}>
@@ -127,7 +121,9 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                 variant="outline"
                 borderColor="border"
                 disabled={!hasPreviousPage || loading}
-                onClick={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
+                onClick={() =>
+                  setPage((currentPage) => Math.max(currentPage - 1, 0))
+                }
               >
                 Previous
               </Button>

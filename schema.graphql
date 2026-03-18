@@ -73,7 +73,7 @@ type Job {
 type Query {
   health: String!
   me: User
-  tasks(limit: Int, offset: Int): [Task!]!
+  tasks: [Task!]!
   task(id: ID!): Task
   job(id: ID!): Job
   myJobs: [Job!]!
