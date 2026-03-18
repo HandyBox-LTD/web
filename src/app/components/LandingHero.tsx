@@ -1,10 +1,10 @@
 'use client'
 
-import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { Badge } from '@/ui/Badge/Badge'
 import { Button } from '@/ui/Button/Button'
 import { GlassCard } from '@/ui/Card/GlassCard'
+import { Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
 export function LandingHero() {
   return (

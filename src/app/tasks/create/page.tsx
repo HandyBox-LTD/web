@@ -3,7 +3,11 @@
 import { Box, Link, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-import { LandingFooter, LandingHeader, TaskCreationForm } from '@/app/components'
+import {
+  LandingFooter,
+  LandingHeader,
+  TaskCreationForm,
+} from '@/app/components'
 import { Container } from '@ui'
 
 function Section({
