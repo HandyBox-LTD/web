@@ -167,13 +167,15 @@ export function TaskCreationForm() {
         </FormField>
 
         <FormField label="Payment method">
-          <NativeSelect.Root
-            value={paymentMethod}
-            onValueChange={(details) =>
-              setPaymentMethod(details.value[0] as TaskPaymentMethod)
-            }
-          >
-            <NativeSelect.Field>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              value={paymentMethod}
+              onChange={(event) =>
+                setPaymentMethod(event.target.value as TaskPaymentMethod)
+              }
+              bg="glassBg"
+              borderColor="glassBorder"
+            >
               <option value={TaskPaymentMethod.Cash}>Cash</option>
               <option value={TaskPaymentMethod.BankTransfer}>
                 Bank transfer
