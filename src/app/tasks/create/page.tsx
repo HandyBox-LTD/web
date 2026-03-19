@@ -48,7 +48,8 @@ export default function CreateTaskPage() {
                 ← Back to tasks
               </Link>
               <Text color="muted">
-                Post your job and collect offers from local handymen.
+                Post your job with schedule and budget details to collect offers
+                from local handymen.
               </Text>
             </Stack>
             <TaskCreationForm />

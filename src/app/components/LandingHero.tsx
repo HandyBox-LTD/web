@@ -48,8 +48,8 @@ export function LandingHero() {
         <Stack gap={4}>
           <Heading size="md">Need a hand with something?</Heading>
           <Text color="muted">
-            Use the dedicated task page to add full job details, location, and
-            optional photos.
+            Use the dedicated task page to add full job details, timing, and
+            budget preferences.
           </Text>
           <Button
             as={NextLink}

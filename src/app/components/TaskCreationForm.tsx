@@ -1,21 +1,21 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text, Textarea } from '@chakra-ui/react'
+import { Select, Stack, Text, Textarea } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { CREATE_TASK } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import type { CreateTaskMutation } from '@codegen/schema'
+import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'
 import { Button, FormField, GlassCard, TextInput } from '@ui'
 
-function parsePhotoUrls(rawValue: string) {
-  return rawValue
-    .split(/[\n,]/)
-    .map((item) => item.trim())
-    .filter(Boolean)
+function toIsoDateTime(dateTimeLocal: string) {
+  if (!dateTimeLocal) return null
+  const parsedDate = new Date(dateTimeLocal)
+  if (Number.isNaN(parsedDate.getTime())) return null
+  return parsedDate.toISOString()
 }
 
 export function TaskCreationForm() {
@@ -23,13 +23,17 @@ export function TaskCreationForm() {
   const [title, setTitle] = useState('Fix a leaky tap')
   const [description, setDescription] = useState('Tap leaking under the sink')
   const [location, setLocation] = useState('Hackney, London')
-  const [photoUrls, setPhotoUrls] = useState('')
+  const [dateTimeLocal, setDateTimeLocal] = useState('')
+  const [category, setCategory] = useState('Plumbing')
+  const [priceOfferPence, setPriceOfferPence] = useState('4500')
+  const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
+    TaskPaymentMethod.Cash,
+  )
+  const [contactMethod, setContactMethod] = useState('Phone')
   const [error, setError] = useState<string | null>(null)
 
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CREATE_TASK)
-
-  const parsedPhotos = useMemo(() => parsePhotoUrls(photoUrls), [photoUrls])
 
   async function onCreateTask() {
     setError(null)
@@ -37,9 +41,29 @@ export function TaskCreationForm() {
     const trimmedTitle = title.trim()
     const trimmedDescription = description.trim()
     const trimmedLocation = location.trim()
+    const trimmedCategory = category.trim()
+    const trimmedContactMethod = contactMethod.trim()
+    const parsedPriceOfferPence = Number.parseInt(priceOfferPence, 10)
+    const isoDateTime = toIsoDateTime(dateTimeLocal)
 
     if (!trimmedTitle || !trimmedDescription) {
       setError('Please add both a title and description.')
+      return
+    }
+    if (!trimmedCategory) {
+      setError('Please add a task category.')
+      return
+    }
+    if (!trimmedContactMethod) {
+      setError('Please add a contact method.')
+      return
+    }
+    if (!isoDateTime) {
+      setError('Please provide a valid date and time.')
+      return
+    }
+    if (!Number.isFinite(parsedPriceOfferPence) || parsedPriceOfferPence <= 0) {
+      setError('Please provide a valid expected price in pence.')
       return
     }
 
@@ -56,7 +80,11 @@ export function TaskCreationForm() {
             title: trimmedTitle,
             description: trimmedDescription,
             location: trimmedLocation || undefined,
-            photos: parsedPhotos.length > 0 ? parsedPhotos : undefined,
+            dateTime: isoDateTime,
+            category: trimmedCategory,
+            priceOfferPence: parsedPriceOfferPence,
+            paymentMethod,
+            contactMethod: trimmedContactMethod,
           },
         },
       })
@@ -110,18 +138,55 @@ export function TaskCreationForm() {
         </FormField>
 
         <FormField
-          label="Photo URLs (optional)"
-          helperText="Add one URL per line (or separate URLs with commas)."
+          label="When should the job happen?"
+          helperText="Pick the preferred date and time for this job."
         >
-          <Textarea
-            minH="100px"
-            placeholder={
-              'https://example.com/photo-1.jpg\nhttps://example.com/photo-2.jpg'
-            }
+          <TextInput
+            type="datetime-local"
+            value={dateTimeLocal}
+            onChange={(event) => setDateTimeLocal(event.target.value)}
+          />
+        </FormField>
+
+        <FormField label="Category">
+          <TextInput
+            placeholder="e.g. Plumbing"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          />
+        </FormField>
+
+        <FormField label="Expected price (pence)">
+          <TextInput
+            type="number"
+            min={1}
+            placeholder="e.g. 4500"
+            value={priceOfferPence}
+            onChange={(event) => setPriceOfferPence(event.target.value)}
+          />
+        </FormField>
+
+        <FormField label="Payment method">
+          <Select
             bg="glassBg"
             borderColor="glassBorder"
-            value={photoUrls}
-            onChange={(event) => setPhotoUrls(event.target.value)}
+            value={paymentMethod}
+            onChange={(event) =>
+              setPaymentMethod(event.target.value as TaskPaymentMethod)
+            }
+          >
+            <option value={TaskPaymentMethod.Cash}>Cash</option>
+            <option value={TaskPaymentMethod.BankTransfer}>
+              Bank transfer
+            </option>
+          </Select>
+        </FormField>
+
+        <FormField label="Preferred contact method">
+          <TextInput
+            placeholder="e.g. Phone, WhatsApp, Email"
+            value={contactMethod}
+            onChange={(event) => setContactMethod(event.target.value)}
           />
         </FormField>
 
