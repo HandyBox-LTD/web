@@ -92,6 +92,8 @@ export const TASK_QUERY = gql`
   }
 `
 
+// Server-side filters (category, geo radius, budget) — use on the tasks page when the
+// resolver is available; the UI currently filters `tasks` client-side.
 export const BROWSE_TASKS_QUERY = gql`
   query BrowseTasks($category: String, $lat: Float, $lng: Float, $maxBudget: Float, $minBudget: Float, $radius: Int) {
     browseTasks(category: $category, lat: $lat, lng: $lng, maxBudget: $maxBudget, minBudget: $minBudget, radius: $radius) {

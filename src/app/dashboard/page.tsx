@@ -1,8 +1,9 @@
 'use client'
 
+import type { TasksQueryData } from '@/graphql/tasks-query.types'
 import { useQuery } from '@apollo/client/react'
 import { Box, HStack, Link, SimpleGrid, Stack } from '@chakra-ui/react'
-import type { MeQuery, TasksQuery } from '@codegen/schema'
+import type { MeQuery } from '@codegen/schema'
 import {
   Badge,
   Button,
@@ -26,11 +27,28 @@ function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
 }
 
-function formatDate(iso: string) {
+function timeFromUnknown(value: unknown): number {
+  const d =
+    typeof value === 'string' || typeof value === 'number'
+      ? new Date(value)
+      : value instanceof Date
+        ? value
+        : null
+  return d && !Number.isNaN(d.getTime()) ? d.getTime() : 0
+}
+
+function formatDate(iso: unknown) {
+  const d =
+    typeof iso === 'string' || typeof iso === 'number'
+      ? new Date(iso)
+      : iso instanceof Date
+        ? iso
+        : null
+  if (!d || Number.isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(new Date(iso))
+  }).format(d)
 }
 
 function getOfferRange(offers: Array<{ pricePence: number }>) {
@@ -59,7 +77,7 @@ export default function DashboardPage() {
     loading: tasksLoading,
     error: tasksError,
     refetch: refetchTasks,
-  } = useQuery<TasksQuery>(TASKS_QUERY, {
+  } = useQuery<TasksQueryData>(TASKS_QUERY, {
     fetchPolicy: 'network-only',
     skip: !me,
   })
@@ -74,10 +92,10 @@ export default function DashboardPage() {
   const { myPostedTasks, myOffers, offerCountOnMyTasks } = useMemo(() => {
     if (!me) {
       return {
-        myPostedTasks: [] as TasksQuery['tasks']['items'],
+        myPostedTasks: [] as TasksQueryData['tasks']['items'],
         myOffers: [] as Array<{
-          task: TasksQuery['tasks']['items'][number]
-          offer: TasksQuery['tasks']['items'][number]['offers'][number]
+          task: TasksQueryData['tasks']['items'][number]
+          offer: TasksQueryData['tasks']['items'][number]['offers'][number]
         }>,
         offerCountOnMyTasks: 0,
       }
@@ -85,7 +103,9 @@ export default function DashboardPage() {
 
     const posted = tasks
       .filter((task) => task.createdByUserId === me.id)
-      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .sort(
+        (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
+      )
     const submitted = tasks
       .flatMap((task) =>
         task.offers
@@ -93,7 +113,9 @@ export default function DashboardPage() {
           .map((offer) => ({ task, offer })),
       )
       .sort(
-        (a, b) => Date.parse(b.offer.createdAt) - Date.parse(a.offer.createdAt),
+        (a, b) =>
+          timeFromUnknown(b.offer.createdAt) -
+          timeFromUnknown(a.offer.createdAt),
       )
 
     const offerCount = posted.reduce(
@@ -241,8 +263,8 @@ export default function DashboardPage() {
                               const latestOffers = [...task.offers]
                                 .sort(
                                   (a, b) =>
-                                    Date.parse(b.createdAt) -
-                                    Date.parse(a.createdAt),
+                                    timeFromUnknown(b.createdAt) -
+                                    timeFromUnknown(a.createdAt),
                                 )
                                 .slice(0, 3)
 
