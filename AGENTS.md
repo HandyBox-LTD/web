@@ -21,3 +21,11 @@
 - **Playwright browsers** must be installed before running Vitest (`npx playwright install chromium`). Tests use `@vitest/browser-playwright` to run Storybook component tests in headless Chromium.
 - **GraphQL codegen** introspects the remote API schema. The URL is baked into `codegen.ts`. If the remote API is unreachable, codegen will fail, but the dev server can still start (the generated types in `.codegen/schema.ts` are only needed at build time or for type-checking).
 - The `LandingPage.stories.tsx` test (`Default`) fails because the story renders components that call `useMutation` without an `ApolloProvider` wrapper. This is a pre-existing issue, not an environment problem.
+
+## Current FE-11 delivery notes (page-by-page redesign)
+
+- Implement the Stitch redesign incrementally, **page by page**, starting with the homepage.
+- Treat Stitch as the design source and align visuals to the exported HTML and image references.
+- Build reusable UI in `src/ui` and make app pages consume those primitives from `@ui`.
+- Keep Chakra UI as the base implementation layer for all custom UI primitives.
+- Add/maintain Storybook stories for UI primitives introduced during the redesign.
