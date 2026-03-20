@@ -16,7 +16,7 @@ export default function HomePage() {
       <Stack gap={0}>
         <Section id="header" py={{ base: 4, md: 5 }}>
           <Header>
-            <SiteHeader activeItem="post-job" />
+            <SiteHeader activeItem="home" />
           </Header>
         </Section>
         <Section id="hero" py={{ base: 8, md: 12 }} bg="surfaceContainerLow">

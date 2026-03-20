@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Image, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
@@ -98,79 +98,15 @@ export function HomeHeroSection() {
             h="100%"
             borderRadius="xl"
             bg="linear-gradient(180deg, rgba(254,166,25,0.15), rgba(0,63,177,0.08))"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            position="relative"
+            overflow="hidden"
           >
-            <Box textAlign="center">
-              <Box position="relative" w="160px" h="190px" mx="auto" mb={3}>
-                <Box
-                  position="absolute"
-                  top="10px"
-                  left="62px"
-                  w="34px"
-                  h="34px"
-                  borderRadius="full"
-                  bg="primary.700"
-                />
-                <Box
-                  position="absolute"
-                  top="42px"
-                  left="45px"
-                  w="70px"
-                  h="82px"
-                  borderRadius="lg"
-                  bg="primary.600"
-                />
-                <Box
-                  position="absolute"
-                  top="78px"
-                  left="26px"
-                  w="20px"
-                  h="58px"
-                  borderRadius="md"
-                  bg="primary.700"
-                />
-                <Box
-                  position="absolute"
-                  top="78px"
-                  right="26px"
-                  w="20px"
-                  h="58px"
-                  borderRadius="md"
-                  bg="primary.700"
-                />
-                <Box
-                  position="absolute"
-                  bottom="0"
-                  left="52px"
-                  w="20px"
-                  h="60px"
-                  borderRadius="md"
-                  bg="primary.800"
-                />
-                <Box
-                  position="absolute"
-                  bottom="0"
-                  right="52px"
-                  w="20px"
-                  h="60px"
-                  borderRadius="md"
-                  bg="primary.800"
-                />
-                <Box
-                  position="absolute"
-                  left="15px"
-                  right="15px"
-                  bottom="8px"
-                  h="8px"
-                  borderRadius="full"
-                  bg="rgba(18,28,40,0.12)"
-                />
-              </Box>
-              <Text fontWeight={700}>Master Craftsman</Text>
-            </Box>
+            <Image
+              src="/images/home-hero-craftsman.svg"
+              alt="HandyBox professional ready to help"
+              w="100%"
+              h="100%"
+              objectFit="cover"
+            />
           </Box>
         </GlassCard>
 

@@ -16,7 +16,7 @@ export default function DraftPage() {
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <Header>
-            <SiteHeader activeItem="none" />
+            <SiteHeader activeItem="home" />
           </Header>
         </Section>
         <Section id="post-task" py={{ base: 8, md: 12 }}>

@@ -95,7 +95,7 @@ export default function TaskDetailPage() {
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
             <Header>
-              <SiteHeader activeItem="my-jobs" />
+              <SiteHeader activeItem="tasks" />
             </Header>
           </Section>
           <Section>
@@ -121,7 +121,7 @@ export default function TaskDetailPage() {
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
           <Header>
-            <SiteHeader activeItem="my-jobs" />
+            <SiteHeader activeItem="tasks" />
           </Header>
         </Section>
         <Section>

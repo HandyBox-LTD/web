@@ -1,7 +1,6 @@
 export * from './LandingHero'
 export * from './LandingHighlights'
 export * from './LandingWorkerActions'
-export * from './HomeDesignLibrarySection'
 export * from './HomeHeroSection'
 export * from './HomeHowItWorksSection'
 export * from './HomeTrustSection'

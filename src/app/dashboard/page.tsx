@@ -10,6 +10,7 @@ import {
   GlassCard,
   Header,
   Heading,
+  SiteFooter,
   SiteHeader,
   Text,
 } from '@ui'
@@ -425,6 +426,7 @@ export default function DashboardPage() {
           </Stack>
         </Stack>
       </Container>
+      <SiteFooter />
     </Box>
   )
 }

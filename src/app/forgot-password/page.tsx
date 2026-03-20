@@ -3,7 +3,16 @@
 import { useMutation } from '@apollo/client/react'
 import { Box, Link, Stack } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Button, Container, Header, Heading, Input, SiteHeader, Text } from '@ui'
+import {
+  Button,
+  Container,
+  Header,
+  Heading,
+  Input,
+  SiteFooter,
+  SiteHeader,
+  Text,
+} from '@ui'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
@@ -123,6 +132,7 @@ export default function ForgotPasswordPage() {
           </Box>
         </Stack>
       </Container>
+      <SiteFooter />
     </Box>
   )
 }

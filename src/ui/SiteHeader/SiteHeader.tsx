@@ -3,10 +3,17 @@
 import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { getAuthToken } from '@/utils/auth'
 import { Button } from '../Button'
 import { Heading } from '../Typography'
 
-export type SiteHeaderActiveItem = 'my-jobs' | 'post-job' | 'profile' | 'none'
+export type SiteHeaderActiveItem =
+  | 'home'
+  | 'tasks'
+  | 'my-jobs'
+  | 'post-job'
+  | 'profile'
+  | 'none'
 
 type SiteNavItem = {
   label: string
@@ -15,6 +22,8 @@ type SiteNavItem = {
 }
 
 const navItems: readonly SiteNavItem[] = [
+  { key: 'home', label: 'Home', href: '/' },
+  { key: 'tasks', label: 'Tasks', href: '/tasks' },
   { key: 'my-jobs', label: 'My Jobs', href: '/dashboard' },
   { key: 'post-job', label: 'Post a Job', href: '/tasks/create' },
   { key: 'profile', label: 'Profile', href: '/dashboard' },
@@ -25,6 +34,11 @@ export type SiteHeaderProps = {
 }
 
 export function SiteHeader({ activeItem = 'none' }: SiteHeaderProps) {
+  const isLoggedIn = Boolean(getAuthToken())
+  const visibleNavItems = isLoggedIn
+    ? navItems
+    : navItems.filter((item) => item.key !== 'profile')
+
   return (
     <Stack
       direction={{ base: 'column', md: 'row' }}
@@ -40,7 +54,7 @@ export function SiteHeader({ activeItem = 'none' }: SiteHeaderProps) {
       </Heading>
 
       <HStack gap={5} display={{ base: 'none', md: 'flex' }}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = item.key === activeItem
           return (
             <Link
