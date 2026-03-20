@@ -3,8 +3,10 @@
 import { Box, Stack } from '@chakra-ui/react'
 
 import {
+  HomeDesignLibrarySection,
   HomeHeroSection,
   HomeHowItWorksSection,
+  HomePageFooter,
   HomePageHeader,
   HomeTrustSection,
 } from './components'
@@ -27,11 +29,15 @@ export default function HomePage() {
         <Section
           id="trust"
           py={{ base: 10, md: 14 }}
-          pb={{ base: 14, md: 20 }}
+          pb={{ base: 10, md: 14 }}
           bg="surfaceContainerLow"
         >
           <HomeTrustSection />
         </Section>
+        <Section id="design-library" py={{ base: 10, md: 14 }}>
+          <HomeDesignLibrarySection />
+        </Section>
+        <HomePageFooter />
       </Stack>
     </Box>
   )

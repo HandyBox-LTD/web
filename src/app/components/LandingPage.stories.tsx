@@ -2,8 +2,10 @@ import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Section } from '../../ui/Layout'
+import { HomeDesignLibrarySection } from './HomeDesignLibrarySection'
 import { HomeHeroSection } from './HomeHeroSection'
 import { HomeHowItWorksSection } from './HomeHowItWorksSection'
+import { HomePageFooter } from './HomePageFooter'
 import { HomePageHeader } from './HomePageHeader'
 import { HomeTrustSection } from './HomeTrustSection'
 
@@ -23,6 +25,10 @@ function LandingStory() {
         <Section id="trust" py={{ base: 10, md: 14 }} bg="surfaceContainerLow">
           <HomeTrustSection />
         </Section>
+        <Section id="design-library" py={{ base: 10, md: 14 }}>
+          <HomeDesignLibrarySection />
+        </Section>
+        <HomePageFooter />
       </Stack>
     </Box>
   )
