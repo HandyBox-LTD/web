@@ -1,16 +1,26 @@
 'use client'
 
-import { Box, HStack, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
-import { LandingFooter, LandingHeader } from '@/app/components'
 import { ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { useMutation, useQuery } from '@apollo/client/react'
 import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
-import { Badge, Button, Container, GlassCard, TextInput } from '@ui'
+import {
+  Badge,
+  Button,
+  GlassCard,
+  Header,
+  Heading,
+  Section,
+  SiteFooter,
+  SiteHeader,
+  Text,
+  TextInput,
+} from '@ui'
 import { useState } from 'react'
 
 function formatDateTime(isoDateTime: string) {
@@ -23,23 +33,6 @@ function formatDateTime(isoDateTime: string) {
 function formatPaymentMethod(paymentMethod: string) {
   const normalised = paymentMethod.replaceAll('_', ' ').toLowerCase()
   return normalised.charAt(0).toUpperCase() + normalised.slice(1)
-}
-
-function Section({
-  id,
-  children,
-  py = { base: 8, md: 12 },
-  ...props
-}: {
-  id?: string
-  children: React.ReactNode
-  py?: { base: number; md: number }
-} & React.ComponentProps<typeof Box>) {
-  return (
-    <Box as="section" id={id} py={py} {...props}>
-      <Container>{children}</Container>
-    </Box>
-  )
 }
 
 export default function TaskDetailPage() {
@@ -101,27 +94,23 @@ export default function TaskDetailPage() {
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
-            <LandingHeader />
+            <Header>
+              <SiteHeader activeItem="tasks" />
+            </Header>
           </Section>
           <Section>
             <Link
               as={NextLink}
               href="/tasks"
               fontWeight={600}
-              color="linkBlue.700"
+              color="primary.700"
               _hover={{ textDecoration: 'none' }}
             >
               ← Back to tasks
             </Link>
             <Text color="muted">No task ID provided.</Text>
           </Section>
-          <Section
-            id="footer"
-            py={{ base: 8, md: 12 }}
-            pb={{ base: 12, md: 16 }}
-          >
-            <LandingFooter />
-          </Section>
+          <SiteFooter />
         </Stack>
       </Box>
     )
@@ -131,7 +120,9 @@ export default function TaskDetailPage() {
     <Box bg="bg" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <LandingHeader />
+          <Header>
+            <SiteHeader activeItem="tasks" />
+          </Header>
         </Section>
         <Section>
           <Stack gap={10}>
@@ -140,7 +131,7 @@ export default function TaskDetailPage() {
                 as={NextLink}
                 href="/tasks"
                 fontWeight={600}
-                color="linkBlue.700"
+                color="primary.700"
                 _hover={{ textDecoration: 'none' }}
               >
                 ← Back to tasks
@@ -160,7 +151,7 @@ export default function TaskDetailPage() {
                     <HStack justify="space-between" flexWrap="wrap" gap={3}>
                       <Heading size="lg">{task.title}</Heading>
                       {task.offers.length > 0 && (
-                        <Badge bg="mustard.200" color="black" px={2}>
+                        <Badge px={2}>
                           £
                           {(
                             Math.min(...task.offers.map((o) => o.pricePence)) /
@@ -177,13 +168,17 @@ export default function TaskDetailPage() {
                     <Text color="muted">{task.description}</Text>
                     <HStack gap={2} flexWrap="wrap">
                       {task.location ? (
-                        <Badge variant="outline">{task.location}</Badge>
+                        <Badge bg="surfaceContainerLow" color="fg">
+                          {task.location}
+                        </Badge>
                       ) : null}
                       {task.category ? (
-                        <Badge variant="outline">{task.category}</Badge>
+                        <Badge bg="surfaceContainerLow" color="fg">
+                          {task.category}
+                        </Badge>
                       ) : null}
                       {task.priceOfferPence ? (
-                        <Badge bg="mustard.200" color="black" px={2}>
+                        <Badge px={2}>
                           £{(task.priceOfferPence / 100).toFixed(0)}
                         </Badge>
                       ) : null}
@@ -282,9 +277,7 @@ export default function TaskDetailPage() {
             </Stack>
           </Stack>
         </Section>
-        <Section id="footer" py={{ base: 8, md: 12 }} pb={{ base: 12, md: 16 }}>
-          <LandingFooter />
-        </Section>
+        <SiteFooter />
       </Stack>
     </Box>
   )

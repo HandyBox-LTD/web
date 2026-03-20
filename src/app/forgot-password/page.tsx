@@ -1,13 +1,21 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Button, Heading, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Link, Stack } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Container, Input } from '@ui'
+import {
+  Button,
+  Container,
+  Header,
+  Heading,
+  Input,
+  SiteFooter,
+  SiteHeader,
+  Text,
+} from '@ui'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
-import { LandingHeader } from '@/app/components'
 import { FORGOT_PASSWORD_MUTATION } from '@/graphql/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
@@ -51,7 +59,9 @@ export default function ForgotPasswordPage() {
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
       <Container>
         <Stack gap={10}>
-          <LandingHeader />
+          <Header>
+            <SiteHeader activeItem="none" />
+          </Header>
           <Box maxW="md">
             <Stack gap={6}>
               <Box>
@@ -87,7 +97,7 @@ export default function ForgotPasswordPage() {
                     </Text>
                   ) : null}
 
-                  <Button type="submit" loading={loading} colorPalette="blue">
+                  <Button type="submit" loading={loading}>
                     Send reset link
                   </Button>
                 </Stack>
@@ -122,6 +132,7 @@ export default function ForgotPasswordPage() {
           </Box>
         </Stack>
       </Container>
+      <SiteFooter />
     </Box>
   )
 }

@@ -1,17 +1,15 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { ADD_OFFER } from '@/graphql/jobs'
-import { Button } from '@/ui/Button/Button'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import type { AddOfferMutation } from '@codegen/schema'
-import { GlassCard } from '../../ui/Card/GlassCard'
-import { TextInput } from '../../ui/Input/TextInput'
+import { Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export function LandingWorkerActions() {
   const router = useRouter()
@@ -61,7 +59,7 @@ export function LandingWorkerActions() {
   }
 
   return (
-    <GlassCard p={6}>
+    <GlassCard p={6} bg="surfaceContainerLowest">
       <Stack gap={4}>
         <Heading size="md">Handyman: submit an offer</Heading>
         <Text color="muted">
@@ -87,8 +85,6 @@ export function LandingWorkerActions() {
             />
             <Button
               size="sm"
-              background="linkBlue.600"
-              color="white"
               loading={quoting}
               onClick={() => void onAddOffer()}
             >
@@ -106,7 +102,7 @@ export function LandingWorkerActions() {
             ) : null}
           </Stack>
         </Grid>
-        <Box borderBottomWidth="1px" borderColor="border" />
+        <Box h="8px" />
         <Text color="muted" fontSize="sm">
           Note: these actions require an authenticated user session (JWT in
           cookie).

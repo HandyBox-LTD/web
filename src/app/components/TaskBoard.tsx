@@ -1,15 +1,13 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { HStack, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { HStack, SimpleGrid, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
-import { Badge } from '@/ui/Badge/Badge'
-import { Button } from '@/ui/Button/Button'
 import type { TasksQuery } from '@codegen/schema'
-import { GlassCard } from '../../ui/Card/GlassCard'
+import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 export type TaskBoardProps = {
   title?: string
@@ -38,14 +36,12 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
   const hasNextPage = offset + PAGE_SIZE < allTasks.length
 
   return (
-    <GlassCard p={6}>
+    <GlassCard p={6} bg="surfaceContainerLow">
       <Stack gap={6}>
         <HStack justify="space-between" flexWrap="wrap" gap={3}>
           <Heading size="md">{title}</Heading>
           <HStack gap={2} flexWrap="wrap">
-            <Badge bg="mustard.200" color="black" px={2}>
-              Live
-            </Badge>
+            <Badge px={2}>Live</Badge>
           </HStack>
         </HStack>
 
@@ -64,21 +60,21 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
             {tasks.map((task) => (
-              <GlassCard key={task.id} p={5}>
+              <GlassCard key={task.id} p={5} bg="surfaceContainerLowest">
                 <Stack gap={3}>
                   <HStack justify="space-between">
                     <Heading size="sm">{task.title}</Heading>
-                    <Badge bg="mustard.200" color="black" px={2}>
-                      {formatBudget(task.offers)}
-                    </Badge>
+                    <Badge px={2}>{formatBudget(task.offers)}</Badge>
                   </HStack>
                   <Text color="muted">{task.description}</Text>
                   <HStack gap={2} flexWrap="wrap">
                     {task.location && (
-                      <Badge variant="outline">{task.location}</Badge>
+                      <Badge bg="surfaceContainerHigh" color="fg">
+                        {task.location}
+                      </Badge>
                     )}
                     {task.offers.length > 0 && (
-                      <Badge variant="outline">
+                      <Badge bg="surfaceContainerHigh" color="fg">
                         {task.offers.length} offer
                         {task.offers.length !== 1 ? 's' : ''}
                       </Badge>
@@ -89,8 +85,6 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                       as={NextLink}
                       href={`/task/${task.id}#offer`}
                       size="sm"
-                      background="linkBlue.600"
-                      color="white"
                     >
                       Make offer
                     </Button>
@@ -98,8 +92,8 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
                       as={NextLink}
                       href={`/task/${task.id}`}
                       size="sm"
-                      variant="outline"
-                      borderColor="border"
+                      variant="subtle"
+                      bg="surfaceContainerLow"
                     >
                       View
                     </Button>
@@ -118,8 +112,8 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
             <HStack gap={2}>
               <Button
                 size="sm"
-                variant="outline"
-                borderColor="border"
+                variant="subtle"
+                bg="surfaceContainerLow"
                 disabled={!hasPreviousPage || loading}
                 onClick={() =>
                   setPage((currentPage) => Math.max(currentPage - 1, 0))
@@ -129,8 +123,8 @@ export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
               </Button>
               <Button
                 size="sm"
-                variant="outline"
-                borderColor="border"
+                variant="subtle"
+                bg="surfaceContainerLow"
                 disabled={!hasNextPage || loading}
                 onClick={() => setPage((currentPage) => currentPage + 1)}
               >
