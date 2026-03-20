@@ -41,8 +41,9 @@ yarn-error.log*
 next-env.d.ts
 .env*.local
 
-# codegen
-/.codegen/
+# codegen — track schema.ts so CI type-checks without running introspection
+.codegen/*
+!.codegen/schema.ts
 
 # storybook
 /storybook-static/

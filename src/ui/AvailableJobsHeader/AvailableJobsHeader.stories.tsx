@@ -19,6 +19,8 @@ const meta = {
     title: 'Available jobs',
     subtitle: 'Browse 124 local service requests needing your expertise today.',
     sortOptions: SORT_OPTIONS,
+    sortValue: 'newest',
+    onSortChange: () => {},
   },
 } satisfies Meta<typeof AvailableJobsHeader>
 

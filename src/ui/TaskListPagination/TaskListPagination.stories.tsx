@@ -10,6 +10,13 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
+  args: {
+    page: 0,
+    totalPages: 5,
+    onPrevious: () => {},
+    onNext: () => {},
+    onSelectPage: () => {},
+  },
 } satisfies Meta<typeof TaskListPagination>
 
 export default meta

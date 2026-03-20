@@ -5,12 +5,28 @@ import { TaskBrowseFilters, type UrgencyFilter } from './TaskBrowseFilters'
 
 const CATEGORIES = ['Plumbing', 'Electrical', 'Carpentry', 'HVAC'] as const
 
+const noopSet = new Set<string>()
+
 const meta = {
   title: 'ui/TaskBrowseFilters',
   component: TaskBrowseFilters,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+  },
+  args: {
+    categories: CATEGORIES,
+    selectedCategories: noopSet,
+    onToggleCategory: () => {},
+    radiusMiles: 15,
+    onRadiusChange: () => {},
+    minBudgetPounds: '',
+    maxBudgetPounds: '',
+    onMinBudgetChange: () => {},
+    onMaxBudgetChange: () => {},
+    urgency: 'any' as UrgencyFilter,
+    onUrgencyChange: () => {},
+    mapHref: '/tasks',
   },
 } satisfies Meta<typeof TaskBrowseFilters>
 
