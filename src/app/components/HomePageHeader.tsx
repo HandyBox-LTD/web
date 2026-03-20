@@ -1,15 +1,21 @@
 'use client'
 
-import { Box, HStack, Link as ChakraLink, Stack } from '@chakra-ui/react'
+import { Box, Link as ChakraLink, HStack, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Button, Header, Heading } from '@ui'
 
-const navItems = [
+type HomeNavItem = {
+  label: string
+  href: string
+  active?: boolean
+}
+
+const navItems: readonly HomeNavItem[] = [
   { label: 'My Jobs', href: '/dashboard' },
   { label: 'Post a Job', href: '/tasks/create', active: true },
   { label: 'Profile', href: '/dashboard' },
-] as const
+]
 
 export function HomePageHeader() {
   return (
@@ -26,7 +32,7 @@ export function HomePageHeader() {
         <HStack gap={5} display={{ base: 'none', md: 'flex' }}>
           {navItems.map((item) => (
             <ChakraLink
-              key={item.href}
+              key={`${item.href}-${item.label}`}
               as={NextLink}
               href={item.href}
               fontSize="sm"

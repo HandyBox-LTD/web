@@ -116,8 +116,18 @@ export function HomeTrustSection() {
               </Box>
             </HStack>
             <Box h="6px" borderRadius="full" bg="rgba(255,255,255,0.2)" />
-            <Box h="6px" w="86%" borderRadius="full" bg="rgba(255,255,255,0.2)" />
-            <Box h="6px" w="72%" borderRadius="full" bg="rgba(255,255,255,0.2)" />
+            <Box
+              h="6px"
+              w="86%"
+              borderRadius="full"
+              bg="rgba(255,255,255,0.2)"
+            />
+            <Box
+              h="6px"
+              w="72%"
+              borderRadius="full"
+              bg="rgba(255,255,255,0.2)"
+            />
             <HStack justify="space-between" pt={2}>
               <Text color="secondaryFixed" fontSize="sm">
                 ★★★★★

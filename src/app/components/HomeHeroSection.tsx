@@ -38,7 +38,10 @@ export function HomeHeroSection() {
           <br />
           Maintain Your Home
           <br />
-          with <Box as="span" color="primary.600">HandyBox.</Box>
+          with{' '}
+          <Box as="span" color="primary.600">
+            HandyBox.
+          </Box>
         </Heading>
 
         <Text color="muted" fontSize="lg" maxW="2xl">
@@ -80,7 +83,10 @@ export function HomeHeroSection() {
             </Box>
           </HStack>
           <Text fontSize="sm" color="muted">
-            Trusted by <Box as="span" color="fg" fontWeight={700}>2,000+</Box>{' '}
+            Trusted by{' '}
+            <Box as="span" color="fg" fontWeight={700}>
+              2,000+
+            </Box>{' '}
             homeowners this month
           </Text>
         </HStack>
@@ -98,7 +104,71 @@ export function HomeHeroSection() {
             position="relative"
           >
             <Box textAlign="center">
-              <Text fontSize="7xl">🧰</Text>
+              <Box position="relative" w="160px" h="190px" mx="auto" mb={3}>
+                <Box
+                  position="absolute"
+                  top="10px"
+                  left="62px"
+                  w="34px"
+                  h="34px"
+                  borderRadius="full"
+                  bg="primary.700"
+                />
+                <Box
+                  position="absolute"
+                  top="42px"
+                  left="45px"
+                  w="70px"
+                  h="82px"
+                  borderRadius="lg"
+                  bg="primary.600"
+                />
+                <Box
+                  position="absolute"
+                  top="78px"
+                  left="26px"
+                  w="20px"
+                  h="58px"
+                  borderRadius="md"
+                  bg="primary.700"
+                />
+                <Box
+                  position="absolute"
+                  top="78px"
+                  right="26px"
+                  w="20px"
+                  h="58px"
+                  borderRadius="md"
+                  bg="primary.700"
+                />
+                <Box
+                  position="absolute"
+                  bottom="0"
+                  left="52px"
+                  w="20px"
+                  h="60px"
+                  borderRadius="md"
+                  bg="primary.800"
+                />
+                <Box
+                  position="absolute"
+                  bottom="0"
+                  right="52px"
+                  w="20px"
+                  h="60px"
+                  borderRadius="md"
+                  bg="primary.800"
+                />
+                <Box
+                  position="absolute"
+                  left="15px"
+                  right="15px"
+                  bottom="8px"
+                  h="8px"
+                  borderRadius="full"
+                  bg="rgba(18,28,40,0.12)"
+                />
+              </Box>
               <Text fontWeight={700}>Master Craftsman</Text>
             </Box>
           </Box>
