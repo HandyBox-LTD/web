@@ -13,6 +13,19 @@ export function Button(props: UiButtonProps) {
   const resolvedVariant = isToolButton ? 'solid' : variant
   const usePrimaryGradient =
     (!resolvedVariant || resolvedVariant === 'solid') && !isToolButton
+  const visualProps = isToolButton
+    ? {
+        bg: 'secondaryContainer',
+        color: 'onSecondaryFixed',
+        boxShadow: 'ambient',
+      }
+    : usePrimaryGradient
+      ? {
+          bg: 'linear-gradient(95deg, #003fb1 0%, #1a56db 100%)',
+          color: 'white',
+          boxShadow: 'ambient',
+        }
+      : {}
 
   return (
     <ChakraButton
@@ -21,24 +34,12 @@ export function Button(props: UiButtonProps) {
       fontWeight={600}
       transition="all 160ms ease"
       px={5}
-      boxShadow={usePrimaryGradient || isToolButton ? 'ambient' : undefined}
-      bg={
-        usePrimaryGradient
-          ? 'linear-gradient(95deg, #003fb1 0%, #1a56db 100%)'
-          : undefined
-      }
-      color={usePrimaryGradient ? 'white' : undefined}
+      {...visualProps}
       _hover={{ transform: 'translateY(-1px)', opacity: 0.95 }}
       _active={{ transform: 'translateY(0px)', opacity: 0.92 }}
       _focusVisible={{
         boxShadow: '0 0 0 3px rgba(0, 63, 177, 0.2)',
       }}
-      {...(isToolButton
-        ? {
-            bg: 'secondaryContainer',
-            color: 'onSecondaryFixed',
-          }
-        : {})}
       {...restProps}
     />
   )

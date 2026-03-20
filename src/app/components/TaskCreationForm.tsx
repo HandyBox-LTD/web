@@ -7,9 +7,8 @@ import { useState } from 'react'
 import { CREATE_TASK } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'
 import { PostJobForm } from '@ui'
-
-type TaskPaymentMethod = 'CASH' | 'BANK_TRANSFER'
 
 function toIsoDateTime(dateTimeLocal: string) {
   if (!dateTimeLocal) return null
@@ -26,11 +25,14 @@ export function TaskCreationForm() {
   const [dateTimeLocal, setDateTimeLocal] = useState('')
   const [category, setCategory] = useState('Plumbing')
   const [priceOfferPence, setPriceOfferPence] = useState('4500')
-  const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>('CASH')
+  const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
+    TaskPaymentMethod.Cash,
+  )
   const [contactMethod, setContactMethod] = useState('Phone')
   const [error, setError] = useState<string | null>(null)
 
-  const [runCreateTask, { loading: creating }] = useMutation(CREATE_TASK)
+  const [runCreateTask, { loading: creating }] =
+    useMutation<CreateTaskMutation>(CREATE_TASK)
 
   async function onCreateTask() {
     setError(null)
@@ -106,8 +108,8 @@ export function TaskCreationForm() {
       paymentMethod={paymentMethod}
       contactMethod={contactMethod}
       paymentMethodOptions={[
-        { value: 'CASH', label: 'Cash' },
-        { value: 'BANK_TRANSFER', label: 'Bank transfer' },
+        { value: TaskPaymentMethod.Cash, label: 'Cash' },
+        { value: TaskPaymentMethod.BankTransfer, label: 'Bank transfer' },
       ]}
       contactMethodOptions={[
         { value: 'Phone', label: 'Phone' },

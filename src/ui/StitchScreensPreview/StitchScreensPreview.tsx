@@ -2,11 +2,11 @@
 
 import {
   Box,
-  type BoxProps,
   Grid,
   HStack,
   Heading,
   Stack,
+  type StackProps,
   Text,
 } from '@chakra-ui/react'
 
@@ -41,7 +41,7 @@ export const STITCH_POST_JOB_SCREENS: readonly StitchScreen[] = [
 
 type StitchScreensPreviewProps = {
   screens?: readonly StitchScreen[]
-} & BoxProps
+} & StackProps
 
 export function StitchScreensPreview({
   screens = STITCH_POST_JOB_SCREENS,
