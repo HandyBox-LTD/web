@@ -19,7 +19,7 @@
 
 - **`bun install` must use `--ignore-scripts`** in the cloud environment because the `prepare` script runs `lefthook install`, which conflicts with Cursor's `core.hooksPath` setting. Dependencies install fine without lifecycle scripts.
 - **Playwright browsers** must be installed before running Vitest (`npx playwright install chromium`). Tests use `@vitest/browser-playwright` to run Storybook component tests in headless Chromium.
-- **GraphQL codegen** introspects the remote API schema. The URL is baked into `codegen.ts`. If the remote API is unreachable, codegen will fail, but the dev server can still start (the generated types in `.codegen/schema.ts` are only needed at build time or for type-checking).
+- **GraphQL codegen** reads the checked-in SDL in `schema.graphql` (see `codegen.ts`). It does not call the live API; production Apollo disables introspection anyway. When the backend schema changes, update `schema.graphql`, run `bun run codegen`, commit both files, and fix any TypeScript errors. The generated `.codegen/schema.ts` is only needed at build time or for type-checking; the dev server can start without running codegen first.
 - The `LandingPage.stories.tsx` test (`Default`) fails because the story renders components that call `useMutation` without an `ApolloProvider` wrapper. This is a pre-existing issue, not an environment problem.
 
 ## Current FE-11 delivery notes (page-by-page redesign)
