@@ -3,16 +3,14 @@
 import { Box, Stack } from '@chakra-ui/react'
 
 import { TaskBoard } from '@/app/components'
-import { Header, Heading, Section, SiteFooter, SiteHeader, Text } from '@ui'
+import { Footer, Header, Heading, Section, Text } from '@ui'
 
 export default function TasksPage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header>
-            <SiteHeader activeItem="tasks" />
-          </Header>
+          <Header activeItem="tasks" />
         </Section>
         <Section bg="surfaceContainerLow">
           <Stack gap={10}>
@@ -28,7 +26,7 @@ export default function TasksPage() {
             <TaskBoard title="Latest tasks" />
           </Stack>
         </Section>
-        <SiteFooter />
+        <Footer />
       </Stack>
     </Box>
   )

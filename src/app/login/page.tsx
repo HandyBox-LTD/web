@@ -3,16 +3,7 @@ import { ME_QUERY } from '@/graphql/auth'
 import { useMutation } from '@apollo/client/react'
 import { Box, Link, Stack } from '@chakra-ui/react'
 import type { LoginMutation, MeQuery } from '@codegen/schema'
-import {
-  Button,
-  Container,
-  Header,
-  Heading,
-  Input,
-  SiteFooter,
-  SiteHeader,
-  Text,
-} from '@ui'
+import { Button, Container, Footer, Header, Heading, Input, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -79,9 +70,7 @@ export default function LoginPage() {
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
       <Container>
         <Stack gap={10}>
-          <Header>
-            <SiteHeader activeItem="none" />
-          </Header>
+          <Header activeItem="none" />
           <Box maxW="md">
             <Stack gap={6}>
               <Box>
@@ -149,7 +138,7 @@ export default function LoginPage() {
           </Box>
         </Stack>
       </Container>
-      <SiteFooter />
+      <Footer />
     </Box>
   )
 }

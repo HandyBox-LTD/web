@@ -5,7 +5,7 @@ import { Button } from '../Button'
 import { Heading } from '../Typography'
 import { Header } from './Header'
 
-function HeaderStory() {
+function HeaderCustomChildrenStory() {
   return (
     <Header>
       <HStack justify="space-between" py={2}>
@@ -21,9 +21,9 @@ function HeaderStory() {
   )
 }
 
-const meta: Meta<typeof HeaderStory> = {
+const meta: Meta<typeof HeaderCustomChildrenStory> = {
   title: 'UI/Layout/Header',
-  component: HeaderStory,
+  component: HeaderCustomChildrenStory,
   parameters: {
     layout: 'fullscreen',
   },
@@ -31,6 +31,10 @@ const meta: Meta<typeof HeaderStory> = {
 
 export default meta
 
-type Story = StoryObj<typeof HeaderStory>
+type Story = StoryObj<typeof HeaderCustomChildrenStory>
 
-export const Default: Story = {}
+export const CustomChildren: Story = {}
+
+export const SiteNavigation: Story = {
+  render: () => <Header activeItem="home" />,
+}

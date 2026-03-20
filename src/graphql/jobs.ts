@@ -91,3 +91,126 @@ export const TASK_QUERY = gql`
     }
   }
 `
+
+export const BROWSE_TASKS_QUERY = gql`
+  query BrowseTasks($category: String, $lat: Float, $lng: Float, $maxBudget: Float, $minBudget: Float, $radius: Int) {
+    browseTasks(category: $category, lat: $lat, lng: $lng, maxBudget: $maxBudget, minBudget: $minBudget, radius: $radius) {
+      id
+      title
+      description
+      location
+      status
+      priceOfferPence
+      createdAt
+      category
+    }
+  }
+`
+
+export const MY_TASKS_QUERY = gql`
+  query MyTasks($status: [TaskStatus!]) {
+    myTasks(status: $status) {
+      id
+      title
+      description
+      status
+      createdAt
+    }
+  }
+`
+
+export const TASK_WORKFLOW_QUERY = gql`
+  query TaskWorkflow($id: ID!) {
+    taskWorkflow(id: $id) {
+      id
+      status
+      offers {
+        id
+        status
+        pricePence
+      }
+    }
+  }
+`
+
+export const ACCEPT_OFFER_MUTATION = gql`
+  mutation AcceptOffer($input: AcceptOfferInput, $offerId: ID) {
+    acceptOffer(input: $input, offerId: $offerId) {
+      id
+      status
+      selectedOfferId
+    }
+  }
+`
+
+export const MAKE_OFFER_MUTATION = gql`
+  mutation MakeOffer($amount: Float!, $taskId: ID!, $message: String) {
+    makeOffer(amount: $amount, taskId: $taskId, message: $message) {
+      id
+      amount
+      message
+      status
+    }
+  }
+`
+
+export const ADD_TASK_COMMENT_MUTATION = gql`
+  mutation AddTaskComment($input: AddTaskCommentInput!) {
+    addTaskComment(input: $input) {
+      id
+      body
+      createdAt
+      userId
+    }
+  }
+`
+
+export const CANCEL_TASK_MUTATION = gql`
+  mutation CancelTask($taskId: ID!) {
+    cancelTask(taskId: $taskId) {
+      id
+      status
+    }
+  }
+`
+
+export const COMPLETE_TASK_MUTATION = gql`
+  mutation CompleteTask($taskId: ID!) {
+    completeTask(taskId: $taskId) {
+      id
+      status
+      completedAt
+    }
+  }
+`
+
+export const CONFIRM_TASK_MUTATION = gql`
+  mutation ConfirmTask($taskId: ID!) {
+    confirmTask(taskId: $taskId) {
+      id
+      status
+      confirmedAt
+    }
+  }
+`
+
+export const MARK_TASK_COMPLETE_MUTATION = gql`
+  mutation MarkTaskComplete($taskId: ID!) {
+    markTaskComplete(taskId: $taskId) {
+      id
+      status
+      completedAt
+    }
+  }
+`
+
+export const POST_TASK_MUTATION = gql`
+  mutation PostTask($input: PostTaskInput!) {
+    postTask(input: $input) {
+      id
+      title
+      description
+      status
+    }
+  }
+`

@@ -7,11 +7,10 @@ import {
   Badge,
   Button,
   Container,
+  Footer,
   GlassCard,
   Header,
   Heading,
-  SiteFooter,
-  SiteHeader,
   Text,
 } from '@ui'
 import NextLink from 'next/link'
@@ -113,9 +112,7 @@ export default function DashboardPage() {
     <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }}>
       <Container>
         <Stack gap={10}>
-          <Header>
-            <SiteHeader activeItem="my-jobs" />
-          </Header>
+          <Header activeItem="my-jobs" />
           <Stack gap={8}>
             <Box>
               <Heading size="lg">Dashboard</Heading>
@@ -426,7 +423,7 @@ export default function DashboardPage() {
           </Stack>
         </Stack>
       </Container>
-      <SiteFooter />
+      <Footer />
     </Box>
   )
 }

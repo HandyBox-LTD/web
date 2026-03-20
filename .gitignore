@@ -43,3 +43,6 @@ next-env.d.ts
 
 # codegen
 /.codegen/
+
+# storybook
+/storybook-static/

@@ -14,7 +14,7 @@ const links = [
   { label: 'Safety', href: '/dashboard' },
 ] as const
 
-export function SiteFooter() {
+export function Footer() {
   return (
     <Box
       as="footer"

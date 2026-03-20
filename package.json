@@ -5,7 +5,8 @@
   "scripts": {
     "prepare": "lefthook install",
     "codegen": "graphql-codegen --config codegen.ts",
-    "prebuild": "bun run codegen",
+    "exports-gen": "bun scripts/generate-exports.ts",
+    "prebuild": "bun run codegen && bun run exports-gen",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

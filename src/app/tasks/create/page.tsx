@@ -4,16 +4,14 @@ import { Box, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { TaskCreationForm } from '@/app/components'
-import { Header, Heading, Section, SiteFooter, SiteHeader, Text } from '@ui'
+import { Footer, Header, Heading, Section, Text } from '@ui'
 
 export default function CreateTaskPage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 4, md: 5 }}>
-          <Header>
-            <SiteHeader activeItem="post-job" />
-          </Header>
+          <Header activeItem="post-job" />
         </Section>
 
         <Section bg="surfaceContainerLow" py={{ base: 8, md: 10 }}>
@@ -39,7 +37,7 @@ export default function CreateTaskPage() {
             <TaskCreationForm />
           </Stack>
         </Section>
-        <SiteFooter />
+        <Footer />
       </Stack>
     </Box>
   )

@@ -24,6 +24,29 @@ export const LOGIN_MUTATION = gql`
   }
 `
 
+export const LOGIN_WITH_METHOD_MUTATION = gql`
+  mutation LoginWithMethod($input: LoginInput!) {
+    loginWithMethod(input: $input) {
+      token
+      user {
+        id
+        email
+        activeMode
+      }
+    }
+  }
+`
+
+export const SWITCH_MODE_MUTATION = gql`
+  mutation SwitchMode($mode: UserMode!) {
+    switchMode(mode: $mode) {
+      id
+      email
+      activeMode
+    }
+  }
+`
+
 export const ME_QUERY = gql`
   query Me {
     me {
@@ -31,6 +54,12 @@ export const ME_QUERY = gql`
       email
       createdAt
     }
+  }
+`
+
+export const HEALTH_QUERY = gql`
+  query Health {
+    health
   }
 `
 

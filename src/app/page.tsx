@@ -8,16 +8,14 @@ import {
   HomeTrustSection,
 } from './components'
 
-import { Header, Section, SiteFooter, SiteHeader } from '@ui'
+import { Footer, Header, Section } from '@ui'
 
 export default function HomePage() {
   return (
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 4, md: 5 }}>
-          <Header>
-            <SiteHeader activeItem="home" />
-          </Header>
+          <Header activeItem="home" />
         </Section>
         <Section id="hero" py={{ base: 8, md: 12 }} bg="surfaceContainerLow">
           <HomeHeroSection />
@@ -33,7 +31,7 @@ export default function HomePage() {
         >
           <HomeTrustSection />
         </Section>
-        <SiteFooter />
+        <Footer />
       </Stack>
     </Box>
   )

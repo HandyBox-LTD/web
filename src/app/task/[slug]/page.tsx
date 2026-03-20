@@ -12,12 +12,11 @@ import type { AddOfferMutation, TaskQuery } from '@codegen/schema'
 import {
   Badge,
   Button,
+  Footer,
   GlassCard,
   Header,
   Heading,
   Section,
-  SiteFooter,
-  SiteHeader,
   Text,
   TextInput,
 } from '@ui'
@@ -94,9 +93,7 @@ export default function TaskDetailPage() {
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
-            <Header>
-              <SiteHeader activeItem="tasks" />
-            </Header>
+            <Header activeItem="tasks" />
           </Section>
           <Section>
             <Link
@@ -110,7 +107,7 @@ export default function TaskDetailPage() {
             </Link>
             <Text color="muted">No task ID provided.</Text>
           </Section>
-          <SiteFooter />
+          <Footer />
         </Stack>
       </Box>
     )
@@ -120,9 +117,7 @@ export default function TaskDetailPage() {
     <Box bg="bg" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header>
-            <SiteHeader activeItem="tasks" />
-          </Header>
+          <Header activeItem="tasks" />
         </Section>
         <Section>
           <Stack gap={10}>
@@ -277,7 +272,7 @@ export default function TaskDetailPage() {
             </Stack>
           </Stack>
         </Section>
-        <SiteFooter />
+        <Footer />
       </Stack>
     </Box>
   )

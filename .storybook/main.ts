@@ -1,7 +1,8 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
+import { type UserConfig, mergeConfig } from 'vite'
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-vitest',
@@ -10,5 +11,19 @@ const config: StorybookConfig = {
   ],
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
+  async viteFinal(userConfig, { configType }) {
+    const extra: UserConfig =
+      configType === 'PRODUCTION'
+        ? {
+            build: {
+              sourcemap: false,
+            },
+            esbuild: {
+              legalComments: 'none',
+            },
+          }
+        : {}
+    return mergeConfig(userConfig, extra)
+  },
 }
 export default config
