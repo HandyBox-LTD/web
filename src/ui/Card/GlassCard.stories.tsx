@@ -2,17 +2,21 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { GlassCard } from './GlassCard'
 
-const meta: Meta<typeof GlassCard> = {
-  title: 'UI/Atoms/GlassCard',
+const meta = {
+  title: 'ui/GlassCard',
   component: GlassCard,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
   args: {
     p: 6,
   },
-}
+} satisfies Meta<typeof GlassCard>
 
 export default meta
 
-type Story = StoryObj<typeof GlassCard>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => (

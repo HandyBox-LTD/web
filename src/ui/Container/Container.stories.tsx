@@ -3,14 +3,18 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Container } from './Container'
 
-const meta: Meta<typeof Container> = {
-  title: 'UI/Layout/Container',
+const meta = {
+  title: 'layout/Container',
   component: Container,
-}
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
+} satisfies Meta<typeof Container>
 
 export default meta
 
-type Story = StoryObj<typeof Container>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: (args) => (

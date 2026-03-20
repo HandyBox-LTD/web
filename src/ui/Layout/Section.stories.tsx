@@ -17,16 +17,17 @@ function SectionStory() {
   )
 }
 
-const meta: Meta<typeof SectionStory> = {
-  title: 'UI/Layout/Section',
+const meta = {
+  title: 'layout/Section',
   component: SectionStory,
+  tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
-}
+} satisfies Meta<typeof SectionStory>
 
 export default meta
 
-type Story = StoryObj<typeof SectionStory>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}

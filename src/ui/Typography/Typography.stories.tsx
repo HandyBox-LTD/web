@@ -17,13 +17,17 @@ function TypographyStory() {
   )
 }
 
-const meta: Meta<typeof TypographyStory> = {
-  title: 'UI/Typography',
+const meta = {
+  title: 'ui/Typography',
   component: TypographyStory,
-}
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
+} satisfies Meta<typeof TypographyStory>
 
 export default meta
 
-type Story = StoryObj<typeof TypographyStory>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}

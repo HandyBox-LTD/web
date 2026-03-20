@@ -3,14 +3,22 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { TextInput } from '../Input/TextInput'
 import { FormField } from './FormField'
 
-const meta: Meta<typeof FormField> = {
-  title: 'UI/Molecules/FormField',
+const meta = {
+  title: 'form/FormField',
   component: FormField,
-}
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
+  args: {
+    label: 'Email',
+    children: null,
+  },
+} satisfies Meta<typeof FormField>
 
 export default meta
 
-type Story = StoryObj<typeof FormField>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   render: () => (

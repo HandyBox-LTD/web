@@ -21,17 +21,18 @@ function HeaderCustomChildrenStory() {
   )
 }
 
-const meta: Meta<typeof HeaderCustomChildrenStory> = {
-  title: 'UI/Layout/Header',
+const meta = {
+  title: 'layout/Header',
   component: HeaderCustomChildrenStory,
+  tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
-}
+} satisfies Meta<typeof HeaderCustomChildrenStory>
 
 export default meta
 
-type Story = StoryObj<typeof HeaderCustomChildrenStory>
+type Story = StoryObj<typeof meta>
 
 export const CustomChildren: Story = {}
 

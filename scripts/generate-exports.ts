@@ -58,6 +58,11 @@ const shouldExcludeName = (name: string) =>
 const hasAllowedExtension = (name: string) =>
   DEFAULT_CONFIG.includeExtensions.some((ext) => name.endsWith(ext))
 
+const hasExtraDotsInBasename = (name: string) => {
+  const withoutExt = name.replace(/\.[^.]+$/, '')
+  return withoutExt.includes('.')
+}
+
 const uniqueSorted = (values: string[]) =>
   [...new Set(values)].sort((a, b) => a.localeCompare(b))
 
@@ -71,6 +76,11 @@ const parseExportsFromSource = (source: string) => {
     /export\s+(?:type|interface)\s+([A-Za-z_$][\w$]*)/g
   const namedValueList = /export\s*\{([^}]*)\}(?!\s*from)/g
   const namedTypeList = /export\s+type\s*\{([^}]*)\}(?!\s*from)/g
+  const reExportValueList = /export\s*\{([^}]*)\}\s*from\s*['"][^'"]+['"]/g
+  const reExportTypeList =
+    /export\s+type\s*\{([^}]*)\}\s*from\s*['"][^'"]+['"]/g
+  const namespaceReExport =
+    /export\s+\*\s+as\s+([A-Za-z_$][\w$]*)\s+from\s*['"][^'"]+['"]/g
 
   let match: RegExpExecArray | null
 
@@ -129,6 +139,45 @@ const parseExportsFromSource = (source: string) => {
       })
     for (const name of names) typeExports.add(name)
   }
+  for (
+    match = reExportValueList.exec(source);
+    match;
+    match = reExportValueList.exec(source)
+  ) {
+    const names = match[1]
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        if (part.startsWith('type ')) return null
+        const aliasParts = part.split(/\s+as\s+/i).map((p) => p.trim())
+        return aliasParts[1] ?? aliasParts[0]
+      })
+      .filter((name): name is string => Boolean(name))
+    for (const name of names) valueExports.add(name)
+  }
+  for (
+    match = reExportTypeList.exec(source);
+    match;
+    match = reExportTypeList.exec(source)
+  ) {
+    const names = match[1]
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const aliasParts = part.split(/\s+as\s+/i).map((p) => p.trim())
+        return aliasParts[1] ?? aliasParts[0]
+      })
+    for (const name of names) typeExports.add(name)
+  }
+  for (
+    match = namespaceReExport.exec(source);
+    match;
+    match = namespaceReExport.exec(source)
+  ) {
+    valueExports.add(match[1])
+  }
 
   return {
     values: uniqueSorted([...valueExports]),
@@ -166,6 +215,7 @@ const collectModuleFiles = async (
     }
 
     if (!entry.isFile() || !hasAllowedExtension(entry.name)) continue
+    if (hasExtraDotsInBasename(entry.name)) continue
     if (entry.name === 'index.ts' && current === root) continue
     if (entry.name === 'index.tsx' && current === root) continue
     if (
@@ -228,17 +278,40 @@ const generateBarrelForFolder = async (folder: string) => {
   }
 
   const files = await collectModuleFiles(folderPath)
+  console.log(
+    `[exports-gen] Discovered ${files.length} module files in ${folder}: ${
+      files.length > 0
+        ? files.map((file) => relative(process.cwd(), file)).join(', ')
+        : '(none)'
+    }`,
+  )
   const lines = await buildExportLineSet(folderPath, files)
   const outputPath = join(folderPath, 'index.ts')
   const body = lines.length > 0 ? `${lines.join('\n')}\n` : ''
   await writeFile(outputPath, `${AUTOGEN_HEADER}\n${body}`, 'utf8')
   console.log(`[exports-gen] Updated ${relative(process.cwd(), outputPath)}`)
+  return {
+    folder,
+    outputPath: relative(process.cwd(), outputPath),
+    moduleCount: files.length,
+  }
 }
 
 const main = async () => {
+  const results: Array<{
+    folder: string
+    outputPath: string
+    moduleCount: number
+  }> = []
   for (const config of EXPORT_CONFIGS) {
-    await generateBarrelForFolder(config.folder)
+    const result = await generateBarrelForFolder(config.folder)
+    if (result) results.push(result)
   }
+  console.log(
+    `[exports-gen] Success for ${results.length}/${EXPORT_CONFIGS.length} configs: ${results
+      .map((result) => `${result.outputPath} (${result.moduleCount} modules)`)
+      .join('; ')}`,
+  )
 }
 
 main().catch((error) => {

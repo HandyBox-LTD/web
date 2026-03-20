@@ -53,16 +53,17 @@ function PostJobFormStory() {
   )
 }
 
-const meta: Meta<typeof PostJobFormStory> = {
-  title: 'UI/Forms/Post Job Form',
+const meta = {
+  title: 'form/PostJobForm',
   component: PostJobFormStory,
+  tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
-}
+} satisfies Meta<typeof PostJobFormStory>
 
 export default meta
 
-type Story = StoryObj<typeof PostJobFormStory>
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}

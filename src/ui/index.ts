@@ -3,14 +3,14 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { Badge } from './Badge'
+export { Button } from './Button'
+export { Container } from './Container'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
-export * from './Badge'
-export * from './Button'
-export * from './Container'
+export { Input, TextInput } from './Input'
 export * from './Footer'
 export * from './Header'
-export * from './Input'
 export * from './Layout'
 export * from './PostJobForm'
 export * from './Typography'
