@@ -1,6 +1,13 @@
 'use client'
 
-import { Box, HStack, SimpleGrid, Stack, Text, Textarea } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  SimpleGrid,
+  Stack,
+  Text,
+  Textarea,
+} from '@chakra-ui/react'
 
 import { Button } from '../Button'
 import { GlassCard } from '../Card/GlassCard'
@@ -222,7 +229,9 @@ export function PostJobForm({
                 min={1}
                 placeholder="e.g. 4500"
                 value={priceOfferPence}
-                onChange={(event) => onPriceOfferPenceChange(event.target.value)}
+                onChange={(event) =>
+                  onPriceOfferPenceChange(event.target.value)
+                }
               />
             </FormField>
 
@@ -254,7 +263,9 @@ export function PostJobForm({
                 <TextInput
                   placeholder="or type your preference"
                   value={contactMethod}
-                  onChange={(event) => onContactMethodChange(event.target.value)}
+                  onChange={(event) =>
+                    onContactMethodChange(event.target.value)
+                  }
                 />
               </Stack>
             </FormField>
