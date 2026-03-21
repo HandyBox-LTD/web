@@ -27,7 +27,7 @@
 
 - **`bun install` must use `--ignore-scripts`** in the cloud environment because the `prepare` script runs `lefthook install`, which conflicts with Cursor's `core.hooksPath` setting. Dependencies install fine without lifecycle scripts.
 - **Playwright browsers** must be installed before running Vitest (`npx playwright install chromium`). Without this, `npx vitest run` fails when launching Chromium for the Storybook test project. Tests use `@vitest/browser-playwright` to run stories in headless Chromium.
-- **GraphQL codegen** introspects the remote API schema. The URL is baked into `codegen.ts`. If the remote API is unreachable, codegen will fail, but the dev server can still start (the generated types in `.codegen/schema.ts` are only needed at build time or for type-checking).
+- **GraphQL codegen** introspects the remote API schema (`bun run codegen`). **`bun run build` does not run codegen** (only `exports-gen` in `prebuild`), so CI and offline builds succeed when introspection is blocked. When codegen fails, keep `.codegen/schema.ts` in sync manually or rely on the fallback block at the end of that file; re-run codegen when the API is reachable to refresh types.
 
 ## Current FE-11 delivery notes (page-by-page redesign)
 

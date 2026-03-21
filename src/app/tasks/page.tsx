@@ -2,8 +2,8 @@
 
 import { Box, Stack } from '@chakra-ui/react'
 
-import { TaskBoard } from '@/app/components'
-import { Footer, Header, Heading, Section, Text } from '@ui'
+import { AvailableJobsBrowse } from '@/app/components'
+import { Footer, Header, Section } from '@ui'
 
 export default function TasksPage() {
   return (
@@ -13,18 +13,7 @@ export default function TasksPage() {
           <Header activeItem="tasks" />
         </Section>
         <Section bg="surfaceContainerLow">
-          <Stack gap={10}>
-            <Stack gap={3}>
-              <Heading size="xl" letterSpacing="-0.02em">
-                Browse local jobs
-              </Heading>
-              <Text color="muted">
-                Browse the latest jobs posted by local homeowners and
-                businesses.
-              </Text>
-            </Stack>
-            <TaskBoard title="Latest tasks" />
-          </Stack>
+          <AvailableJobsBrowse />
         </Section>
         <Footer />
       </Stack>

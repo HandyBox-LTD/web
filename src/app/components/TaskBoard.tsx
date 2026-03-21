@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import { useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
-import type { TasksQuery } from '@codegen/schema'
+import type { TasksQueryData } from '@/graphql/tasks-query.types'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 export type TaskBoardProps = {
@@ -27,7 +27,7 @@ function formatBudget(offers: { pricePence: number }[]) {
 export function TaskBoard({ title = 'Latest tasks' }: TaskBoardProps) {
   const [page, setPage] = useState(0)
   const offset = page * PAGE_SIZE
-  const { data, loading, error } = useQuery<TasksQuery>(TASKS_QUERY, {
+  const { data, loading, error } = useQuery<TasksQueryData>(TASKS_QUERY, {
     notifyOnNetworkStatusChange: true,
   })
   const allTasks = data?.tasks.items ?? []

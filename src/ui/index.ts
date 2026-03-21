@@ -3,16 +3,39 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { AvailableJobCard } from './AvailableJobCard/AvailableJobCard'
+export { AvailableJobsHeader } from './AvailableJobsHeader/AvailableJobsHeader'
 export { Badge } from './Badge'
 export { Button } from './Button'
 export { Container } from './Container'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
+export {
+  IconClock,
+  IconMapPin,
+  IconSliders,
+  IconWrench,
+} from './TaskBrowse/TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
+export { TaskBrowseFilters } from './TaskBrowseFilters/TaskBrowseFilters'
+export { TaskListPagination } from './TaskListPagination/TaskListPagination'
 export * from './Footer'
 export * from './Header'
 export * from './Layout'
 export * from './PostJobForm'
 export * from './Typography'
+export type {
+  AvailableJobCardProps,
+  JobCardBadgeVariant,
+} from './AvailableJobCard/AvailableJobCard'
+export type {
+  AvailableJobsHeaderProps,
+  SortOption,
+} from './AvailableJobsHeader/AvailableJobsHeader'
 export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
+export type {
+  TaskBrowseFiltersProps,
+  UrgencyFilter,
+} from './TaskBrowseFilters/TaskBrowseFilters'
+export type { TaskListPaginationProps } from './TaskListPagination/TaskListPagination'

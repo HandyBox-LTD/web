@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { AvailableJobsBrowse } from './AvailableJobsBrowse'
 export { HomeHeroSection } from './HomeHeroSection'
 export { HomeHowItWorksSection } from './HomeHowItWorksSection'
 export { HomeTrustSection } from './HomeTrustSection'
