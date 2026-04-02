@@ -2,6 +2,14 @@
 
 export const AUTH_COOKIE_NAME = 'auth'
 
+/** Dispatched on `document` when the auth cookie is set or cleared (same-tab login/logout). */
+export const AUTH_COOKIE_CHANGE_EVENT = 'handybox-auth-change'
+
+function dispatchAuthCookieChange() {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(AUTH_COOKIE_CHANGE_EVENT))
+}
+
 function decodeCookieValue(value: string) {
   try {
     return decodeURIComponent(value)
@@ -33,10 +41,12 @@ export function setAuthToken(
   const maxAge = maxAgeSeconds
   const encodedToken = encodeURIComponent(safeToken)
   document.cookie = `${AUTH_COOKIE_NAME}=${encodedToken}; Path=/; Max-Age=${maxAge}; SameSite=Lax`
+  dispatchAuthCookieChange()
 }
 
 export function clearAuthToken() {
   document.cookie = `${AUTH_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`
+  dispatchAuthCookieChange()
 }
 
 export function getAuthToken() {
