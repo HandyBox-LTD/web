@@ -2,6 +2,17 @@
 
 import type { TasksQueryData } from '@/graphql/tasks-query.types'
 
+export function getDisplayNameFromEmail(email: string | null | undefined) {
+  const localPart = (email ?? '').split('@')[0]?.trim()
+  if (!localPart) return 'HandyBox Member'
+
+  return localPart
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((piece) => piece.charAt(0).toUpperCase() + piece.slice(1))
+    .join(' ')
+}
+
 export type TaskItem = TasksQueryData['tasks']['items'][number]
 export type TaskOfferItem = TaskItem['offers'][number]
 export type MyOfferItem = {

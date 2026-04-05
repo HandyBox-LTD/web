@@ -2,14 +2,14 @@
 
 import { Grid, HStack, Stack } from '@chakra-ui/react'
 
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
-import { formatDate, formatPounds } from '@/features/dashboard/dashboardHelpers'
+import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
+import { useDashboardData } from '@context/dashboard'
 import { Badge, GlassCard, Heading, Text } from '@ui'
 
 export default function DashboardHistoryPage() {
-  const { search, serviceHistory } = useDashboardData()
+  const { search, workerServiceHistory } = useDashboardData()
 
-  const filteredHistory = serviceHistory.filter((entry) => {
+  const filteredHistory = workerServiceHistory.filter((entry) => {
     const q = search.trim().toLowerCase()
     if (!q) return true
 
@@ -31,8 +31,9 @@ export default function DashboardHistoryPage() {
       <Stack gap={2}>
         <Heading size="xl">Service History</Heading>
         <Text color="muted" maxW="3xl">
-          Review completed jobs, archived work, and quick financial records for
-          both customer and worker activity.
+          Completed work from your tasker side (quotes that progressed to
+          finished jobs). Customer history for jobs you posted lives under
+          Requests.
         </Text>
       </Stack>
 
@@ -65,7 +66,7 @@ export default function DashboardHistoryPage() {
             </Text>
             <Heading size="lg">{formatPounds(totalHistoryValue)}</Heading>
             <Text fontSize="sm" color="muted">
-              Combined customer and worker record value shown on this page.
+              Combined value from worker-role history on this page.
             </Text>
           </Stack>
         </GlassCard>
@@ -90,8 +91,8 @@ export default function DashboardHistoryPage() {
       {filteredHistory.length === 0 ? (
         <GlassCard p={6}>
           <Text color="muted">
-            No history items match your current search. Try a task title,
-            location, or role such as customer or worker.
+            No worker history matches your current search. Try a task title or
+            location.
           </Text>
         </GlassCard>
       ) : (
@@ -107,17 +108,8 @@ export default function DashboardHistoryPage() {
                 <Stack gap={2} maxW="3xl">
                   <HStack gap={2} flexWrap="wrap">
                     <Heading size="sm">{entry.title}</Heading>
-                    <Badge
-                      bg={
-                        entry.role === 'worker'
-                          ? 'primary.50'
-                          : 'surfaceContainerHigh'
-                      }
-                      color={entry.role === 'worker' ? 'primary.700' : 'fg'}
-                    >
-                      {entry.role === 'worker'
-                        ? 'Worker record'
-                        : 'Customer record'}
+                    <Badge bg="primary.50" color="primary.700">
+                      Worker record
                     </Badge>
                   </HStack>
                   <Text fontSize="sm" color="muted">

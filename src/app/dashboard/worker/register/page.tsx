@@ -10,12 +10,12 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
+import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
 import {
   DASHBOARD_TRADE_OPTIONS,
   type DashboardTrade,
-} from '@/features/dashboard/dashboardDemo'
-import { formatDate, formatPounds } from '@/features/dashboard/dashboardHelpers'
+} from '@/utils/dashboardTypes'
+import { useDashboardData } from '@context/dashboard'
 import { Badge, Button, GlassCard, Heading, Text, TextInput } from '@ui'
 
 export default function WorkerRegistrationPage() {
@@ -102,9 +102,9 @@ export default function WorkerRegistrationPage() {
           ) : null}
         </HStack>
         <Text color="muted" maxW="3xl">
-          Complete your worker onboarding to unlock quote submission, earnings
-          tracking, and the worker-side job dashboard. This page uses local demo
-          persistence until the backend worker profile APIs are expanded.
+          Complete worker onboarding to unlock quote submission and earnings
+          tools in your dashboard. This flow is stored in your browser session
+          until dedicated worker profile APIs ship.
         </Text>
       </Stack>
 
@@ -230,8 +230,8 @@ export default function WorkerRegistrationPage() {
                   </Text>
                   <Heading size="sm">Upload Government ID</Heading>
                   <Text fontSize="sm" color="muted" maxW="md">
-                    We only store the filename in this demo, but the flow
-                    mirrors the production worker verification step.
+                    Filename only for now; production will handle secure ID
+                    checks.
                   </Text>
                   <ChakraInput
                     type="file"
@@ -282,8 +282,7 @@ export default function WorkerRegistrationPage() {
             <Stack gap={4}>
               <Heading size="sm">Final step</Heading>
               <Text fontSize="sm" color="muted">
-                By continuing, you save the worker profile locally and unlock
-                the dashboard quote + earnings sections immediately.
+                Continuing unlocks quoting and earnings in this browser session.
               </Text>
               <Stack gap={2}>
                 <HStack justify="space-between">

@@ -3,8 +3,8 @@
 import { Grid, HStack, Stack } from '@chakra-ui/react'
 
 import { WorkerAccessGate } from '@/app/dashboard/_components/WorkerAccessGate'
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
-import { formatDate, formatPounds } from '@/features/dashboard/dashboardHelpers'
+import { formatDate, formatPounds } from '@/utils/dashboardHelpers'
+import { useDashboardData } from '@context/dashboard'
 import { Badge, GlassCard, Heading, Text } from '@ui'
 
 function EarningsCard({

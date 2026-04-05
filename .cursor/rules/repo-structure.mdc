@@ -63,26 +63,25 @@ This skill assumes:
 
 If any of these differ in a target repo, adapt the paths but keep the invariant behaviour above.
 
-## Current Alias Map
+## Current Alias Map (HandyBox web)
 
-From `tsconfig.json`:
-- `@/*` -> `./*`
-- `@ui` -> `./components/ui`
-- `@form` -> `./components/form`
-- `@section` -> `./components/section`
-- `@helper` -> `./libs/helper`
-- `@api` -> `./libs/client/api`
-- `@layout` -> `./components/layout`
-- `@constant` -> `./libs/constant`
+From `tsconfig.json` (`compilerOptions.paths`):
+- `@/*` -> `./src/*` (general app code: `components`, `app`, `graphql`, etc.)
+- `@ui` -> `./src/ui/index.ts` and `@ui/*` -> `./src/ui/*` (design-system primitives)
+- `@context/*` -> `./src/context/*` — React providers and hooks co-located by domain, e.g. `import { useCustomerAccount } from '@context/customer'`, `import { useDashboardData } from '@context/dashboard'`
+- `@store/*` -> `./src/store/*` — client global state (Zustand), e.g. `import { useDashboardSearchStore } from '@store/dashboardSearchStore'`
+- `@utils/*` -> `./src/utils/*` — pure helpers, session helpers, shared types used across app and context (no React), e.g. `@utils/dashboardHelpers`, `@utils/dashboardTypes`, `@utils/workerSession`
+- `@codegen/schema` -> `./.codegen/schema.ts` (GraphQL-generated types)
+
+Prefer **`@context/…`** for account/dashboard React context, **`@utils/…`** for non-UI helpers, and **`@store/…`** for Zustand (or other) client stores instead of a catch-all `src/features` tree.
 
 ## Current Export Generator Scope
 
-From `scripts/generate-exports.ts`, `EXPORT_CONFIGS` currently includes:
-- `components/ui`
-- `libs/helper`
-- `components/form`
-- `components/section`
-- `components/layout`
+From `scripts/generate-exports.ts`, `EXPORT_CONFIGS` in this repo includes:
+- `src/ui`
+- `src/app/components`
+
+**Context, store, `src/utils`, and `src/components` (outside `app/components`) are not in `EXPORT_CONFIGS`** unless you add them and want generated barrels.
 
 ## Change Workflow (Same Repo)
 

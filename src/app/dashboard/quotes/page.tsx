@@ -4,13 +4,13 @@ import { Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { WorkerAccessGate } from '@/app/dashboard/_components/WorkerAccessGate'
-import { useDashboardData } from '@/features/dashboard/DashboardDataContext'
 import {
   formatPounds,
   formatRelativePosted,
   getCategoryVisual,
   isOfferAwarded,
-} from '@/features/dashboard/dashboardHelpers'
+} from '@/utils/dashboardHelpers'
+import { useDashboardData } from '@context/dashboard'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 function QuoteMetric({
@@ -75,8 +75,8 @@ export default function DashboardQuotesPage() {
               relevant task details whenever you need context.
             </Text>
           </Stack>
-          <Button as={NextLink} href="/tasks">
-            Browse jobs
+          <Button as={NextLink} href="/">
+            Browse tasks
           </Button>
         </HStack>
       </Stack>
@@ -111,8 +111,8 @@ export default function DashboardQuotesPage() {
               Your worker profile is ready. Browse available jobs and send your
               first quote to populate this workspace.
             </Text>
-            <Button as={NextLink} href="/tasks" alignSelf="flex-start">
-              Browse open jobs
+            <Button as={NextLink} href="/" alignSelf="flex-start">
+              Browse open tasks
             </Button>
           </Stack>
         </GlassCard>

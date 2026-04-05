@@ -7,7 +7,7 @@ import { Container } from '../Container'
 import { Text } from '../Typography'
 
 const links = [
-  { label: 'Support', href: '/tasks' },
+  { label: 'Support', href: '/' },
   { label: 'Privacy Policy', href: '/register' },
   { label: 'Terms of Service', href: '/login' },
   { label: 'Help Center', href: '/forgot-password' },

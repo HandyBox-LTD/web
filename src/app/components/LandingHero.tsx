@@ -30,7 +30,7 @@ export function LandingHero() {
           </Button>
           <Button
             as={NextLink}
-            href="/tasks"
+            href="/"
             variant="subtle"
             bg="surfaceContainerLow"
           >

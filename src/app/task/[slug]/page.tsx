@@ -7,12 +7,12 @@ import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
-import { readDashboardDemoState } from '@/features/dashboard/dashboardDemo'
 import { ME_QUERY } from '@/graphql/auth'
 import { ACCEPT_OFFER_MUTATION, ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
 import { getAuthToken } from '@/utils/auth'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import { getWorkerRegistered } from '@/utils/workerSession'
 import {
   Badge,
   Button,
@@ -159,9 +159,8 @@ export default function TaskDetailPage() {
       return
     }
 
-    const state = readDashboardDemoState(me.id, me.email)
-    setWorkerProfileEnabled(Boolean(state.worker.isActive))
-  }, [me])
+    setWorkerProfileEnabled(getWorkerRegistered(me.id) || Boolean(myOffer))
+  }, [me, myOffer])
 
   const sortedOffers = useMemo(() => {
     if (!task) return []
@@ -246,12 +245,12 @@ export default function TaskDetailPage() {
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
           <Section id="header" py={{ base: 6, md: 8 }}>
-            <Header activeItem="tasks" />
+            <Header activeItem="home" />
           </Section>
           <Section>
             <Link
               as={NextLink}
-              href="/tasks"
+              href="/"
               fontWeight={600}
               color="primary.700"
               _hover={{ textDecoration: 'none' }}
@@ -270,7 +269,7 @@ export default function TaskDetailPage() {
     <Box bg="bg" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 6, md: 8 }}>
-          <Header activeItem="tasks" />
+          <Header activeItem="home" />
         </Section>
         <Box as="section" py={{ base: 8, md: 10 }}>
           <Box maxW="7xl" mx="auto" px={{ base: 4, md: 6 }}>
@@ -278,7 +277,7 @@ export default function TaskDetailPage() {
               <Stack gap={4}>
                 <Link
                   as={NextLink}
-                  href="/tasks"
+                  href="/"
                   fontWeight={600}
                   fontSize="sm"
                   color="primary.600"

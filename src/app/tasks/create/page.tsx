@@ -19,7 +19,7 @@ export default function CreateTaskPage() {
             <Stack gap={2}>
               <Link
                 as={NextLink}
-                href="/tasks"
+                href="/"
                 fontWeight={600}
                 color="primary.700"
                 _hover={{ textDecoration: 'none' }}

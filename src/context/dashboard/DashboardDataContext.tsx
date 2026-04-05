@@ -14,28 +14,25 @@ import {
 import { ME_QUERY } from '@/graphql/auth'
 import { TASKS_QUERY } from '@/graphql/jobs'
 import type { TasksQueryData } from '@/graphql/tasks-query.types'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-
-import {
-  type DashboardDemoState,
-  type DashboardHistoryEntry,
-  type DashboardMessage,
-  type DashboardProfile,
-  type DashboardTrade,
-  type DashboardWorkerProfile,
-  getDisplayNameFromEmail,
-  readDashboardDemoState,
-  writeDashboardDemoState,
-} from './dashboardDemo'
 import {
   type MyOfferItem,
   type TaskItem,
   formatPounds,
+  getDisplayNameFromEmail,
   isOfferAwarded,
   isTaskCompleted,
   matchesSearch,
   timeFromUnknown,
-} from './dashboardHelpers'
+} from '@/utils/dashboardHelpers'
+import type {
+  DashboardProfile,
+  DashboardTrade,
+  DashboardWorkerProfile,
+  ServiceHistoryEntry,
+} from '@/utils/dashboardTypes'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+import { getWorkerRegistered, setWorkerRegistered } from '@/utils/workerSession'
+import { useDashboardSearchStore } from '@store/dashboardSearchStore'
 
 type LiveHistoryItem =
   | {
@@ -57,51 +54,19 @@ type LiveHistoryItem =
       role: 'worker'
     }
 
-type DashboardDataContextValue = {
-  me: MeQuery['me'] | null
-  meLoading: boolean
-  meErrorMessage: string | null
-  tasksLoading: boolean
-  tasksBootstrapping: boolean
-  tasksErrorMessage: string | null
-  refetchDashboardData: () => void
-  search: string
-  setSearch: (value: string) => void
-  displayName: string
-  userInitial: string
-  profile: DashboardProfile
-  workerProfile: DashboardWorkerProfile
-  workerEnabled: boolean
-  messages: DashboardMessage[]
-  serviceHistory: DashboardHistoryEntry[]
-  tasks: TaskItem[]
-  myPostedTasks: TaskItem[]
-  activePostedTasks: TaskItem[]
-  myOffers: MyOfferItem[]
-  filteredPostedTasks: TaskItem[]
-  filteredOffers: MyOfferItem[]
-  quotesInProgress: MyOfferItem[]
-  awardedQuotes: MyOfferItem[]
-  completedHistoryItems: LiveHistoryItem[]
-  customerBookings: TaskItem[]
-  totalSpendPence: number
-  totalEarningsPence: number
-  offerCountOnMyTasks: number
-  saveProfile: (profile: DashboardProfile) => void
-  updateProfile: (patch: Partial<DashboardProfile>) => void
-  registerWorker: (input: DashboardWorkerProfile) => void
-  markAllMessagesRead: () => void
-}
+const defaultWorkerProfile = (): DashboardWorkerProfile => ({
+  isActive: false,
+  businessName: '',
+  tagline: '',
+  serviceArea: '',
+  yearsExperience: '3',
+  hourlyRatePence: 4500,
+  skills: [],
+  verificationDocumentName: '',
+  joinedAt: null,
+})
 
-const DashboardDataContext = createContext<DashboardDataContextValue | null>(
-  null,
-)
-
-type DashboardDataProviderProps = {
-  children: React.ReactNode
-}
-
-function toHistoryEntry(item: LiveHistoryItem): DashboardHistoryEntry {
+function toHistoryEntry(item: LiveHistoryItem): ServiceHistoryEntry {
   const completedAtMs = timeFromUnknown(item.completedAt)
 
   return {
@@ -118,11 +83,58 @@ function toHistoryEntry(item: LiveHistoryItem): DashboardHistoryEntry {
   }
 }
 
+type DashboardDataContextValue = {
+  me: MeQuery['me'] | null
+  meLoading: boolean
+  meErrorMessage: string | null
+  tasksLoading: boolean
+  tasksBootstrapping: boolean
+  tasksErrorMessage: string | null
+  refetchDashboardData: () => void
+  search: string
+  setSearch: (value: string) => void
+  displayName: string
+  userInitial: string
+  profile: DashboardProfile
+  workerProfile: DashboardWorkerProfile
+  workerEnabled: boolean
+  serviceHistory: ServiceHistoryEntry[]
+  workerServiceHistory: ServiceHistoryEntry[]
+  tasks: TaskItem[]
+  myPostedTasks: TaskItem[]
+  activePostedTasks: TaskItem[]
+  myOffers: MyOfferItem[]
+  filteredPostedTasks: TaskItem[]
+  filteredOffers: MyOfferItem[]
+  quotesInProgress: MyOfferItem[]
+  awardedQuotes: MyOfferItem[]
+  completedHistoryItems: LiveHistoryItem[]
+  customerBookings: TaskItem[]
+  totalSpendPence: number
+  totalEarningsPence: number
+  offerCountOnMyTasks: number
+  saveProfile: (profile: DashboardProfile) => void
+  updateProfile: (patch: Partial<DashboardProfile>) => void
+  registerWorker: (input: DashboardWorkerProfile) => void
+}
+
+const DashboardDataContext = createContext<DashboardDataContextValue | null>(
+  null,
+)
+
+type DashboardDataProviderProps = {
+  children: React.ReactNode
+}
+
 export function DashboardDataProvider({
   children,
 }: DashboardDataProviderProps) {
-  const [search, setSearch] = useState('')
-  const [demoState, setDemoState] = useState<DashboardDemoState | null>(null)
+  const search = useDashboardSearchStore((s) => s.search)
+  const setSearch = useDashboardSearchStore((s) => s.setSearch)
+  const [profile, setProfile] = useState<DashboardProfile | null>(null)
+  const [workerProfile, setWorkerProfile] = useState<DashboardWorkerProfile>(
+    defaultWorkerProfile(),
+  )
 
   const {
     data: meData,
@@ -147,22 +159,24 @@ export function DashboardDataProvider({
 
   useEffect(() => {
     if (!me) {
-      setDemoState(null)
+      setProfile(null)
+      setWorkerProfile(defaultWorkerProfile())
       return
     }
 
-    setDemoState(readDashboardDemoState(me.id, me.email))
-  }, [me?.email, me?.id, me])
+    setProfile({
+      fullName: getDisplayNameFromEmail(me.email),
+      bio: '',
+      phoneNumber: '',
+      location: '',
+      preferredTrades: [],
+    })
 
-  const persistDemoState = useCallback(
-    (nextState: DashboardDemoState) => {
-      setDemoState(nextState)
-      if (me) {
-        writeDashboardDemoState(me.id, nextState)
-      }
-    },
-    [me],
-  )
+    setWorkerProfile({
+      ...defaultWorkerProfile(),
+      isActive: getWorkerRegistered(me.id),
+    })
+  }, [me])
 
   const tasks = tasksData?.tasks.items ?? []
   const tasksBootstrapping = Boolean(me && !tasksData && !tasksError)
@@ -305,102 +319,69 @@ export function DashboardDataProvider({
   )
 
   const displayName = useMemo(() => {
-    const profileName = demoState?.profile.fullName?.trim()
+    const profileName = profile?.fullName?.trim()
     return profileName || getDisplayNameFromEmail(me?.email)
-  }, [demoState?.profile.fullName, me?.email])
+  }, [profile?.fullName, me?.email])
 
   const userInitial = displayName.charAt(0)?.toUpperCase() || '?'
 
   const workerEnabled = Boolean(
-    demoState?.worker.isActive || myOffers.length > 0,
+    workerProfile.isActive ||
+      myOffers.length > 0 ||
+      (me ? getWorkerRegistered(me.id) : false),
   )
 
-  const serviceHistory = useMemo(() => {
-    const liveEntries = completedHistoryItems.map(toHistoryEntry)
-    const demoEntries = demoState?.history ?? []
-
-    const combined = [...liveEntries, ...demoEntries]
-      .sort(
-        (a, b) =>
-          timeFromUnknown(b.completedAt) - timeFromUnknown(a.completedAt),
-      )
-      .slice(0, 8)
-
-    return combined
-  }, [completedHistoryItems, demoState?.history])
-
-  const saveProfile = useCallback(
-    (profile: DashboardProfile) => {
-      if (!demoState) return
-      persistDemoState({
-        ...demoState,
-        profile: {
-          ...profile,
-          preferredTrades:
-            profile.preferredTrades.length > 0
-              ? profile.preferredTrades
-              : demoState.profile.preferredTrades,
-        },
-      })
-    },
-    [demoState, persistDemoState],
+  const serviceHistory = useMemo(
+    () => completedHistoryItems.map(toHistoryEntry),
+    [completedHistoryItems],
   )
 
-  const updateProfile = useCallback(
-    (patch: Partial<DashboardProfile>) => {
-      if (!demoState) return
-      persistDemoState({
-        ...demoState,
-        profile: {
-          ...demoState.profile,
-          ...patch,
-          preferredTrades: (patch.preferredTrades ??
-            demoState.profile.preferredTrades) as DashboardTrade[],
-        },
-      })
-    },
-    [demoState, persistDemoState],
+  const workerServiceHistory = useMemo(
+    () => serviceHistory.filter((entry) => entry.role === 'worker'),
+    [serviceHistory],
   )
+
+  const saveProfile = useCallback((next: DashboardProfile) => {
+    setProfile({
+      ...next,
+      preferredTrades:
+        next.preferredTrades.length > 0
+          ? next.preferredTrades
+          : ([] as DashboardTrade[]),
+    })
+  }, [])
+
+  const updateProfile = useCallback((patch: Partial<DashboardProfile>) => {
+    setProfile((prev) => {
+      const base = prev ?? {
+        fullName: '',
+        bio: '',
+        phoneNumber: '',
+        location: '',
+        preferredTrades: [] as DashboardTrade[],
+      }
+      return {
+        ...base,
+        ...patch,
+        preferredTrades: (patch.preferredTrades ??
+          base.preferredTrades) as DashboardTrade[],
+      }
+    })
+  }, [])
 
   const registerWorker = useCallback(
     (workerInput: DashboardWorkerProfile) => {
-      if (!demoState) return
+      if (!me) return
 
-      persistDemoState({
-        ...demoState,
-        worker: {
-          ...workerInput,
-          isActive: true,
-          joinedAt: workerInput.joinedAt ?? new Date().toISOString(),
-        },
-        messages: [
-          {
-            id: `worker-welcome-${Date.now()}`,
-            counterpart: 'Worker Success Team',
-            taskTitle: 'Worker profile',
-            preview:
-              'Your worker profile is live. Start sending quotes and track payouts from your dashboard.',
-            updatedAt: new Date().toISOString(),
-            unread: true,
-          },
-          ...demoState.messages,
-        ].slice(0, 6),
+      setWorkerRegistered(me.id, true)
+      setWorkerProfile({
+        ...workerInput,
+        isActive: true,
+        joinedAt: workerInput.joinedAt ?? new Date().toISOString(),
       })
     },
-    [demoState, persistDemoState],
+    [me],
   )
-
-  const markAllMessagesRead = useCallback(() => {
-    if (!demoState) return
-
-    persistDemoState({
-      ...demoState,
-      messages: demoState.messages.map((message) => ({
-        ...message,
-        unread: false,
-      })),
-    })
-  }, [demoState, persistDemoState])
 
   const refetchDashboardData = useCallback(() => {
     void refetchMe()
@@ -422,27 +403,17 @@ export function DashboardDataProvider({
       setSearch,
       displayName,
       userInitial,
-      profile: demoState?.profile ?? {
+      profile: profile ?? {
         fullName: displayName,
         bio: '',
         phoneNumber: '',
         location: '',
         preferredTrades: [],
       },
-      workerProfile: demoState?.worker ?? {
-        isActive: false,
-        businessName: '',
-        tagline: '',
-        serviceArea: '',
-        yearsExperience: '3',
-        hourlyRatePence: 4500,
-        skills: [],
-        verificationDocumentName: '',
-        joinedAt: null,
-      },
+      workerProfile,
       workerEnabled,
-      messages: demoState?.messages ?? [],
       serviceHistory,
+      workerServiceHistory,
       tasks,
       myPostedTasks,
       activePostedTasks,
@@ -459,32 +430,29 @@ export function DashboardDataProvider({
       saveProfile,
       updateProfile,
       registerWorker,
-      markAllMessagesRead,
     }),
     [
       activePostedTasks,
       awardedQuotes,
       completedHistoryItems,
       customerBookings,
-      demoState?.messages,
-      demoState?.profile,
-      demoState?.worker,
       displayName,
       filteredOffers,
       filteredPostedTasks,
-      markAllMessagesRead,
       me,
       meErrorMessage,
       meLoading,
       myOffers,
       myPostedTasks,
       offerCountOnMyTasks,
+      profile,
       quotesInProgress,
       refetchDashboardData,
       registerWorker,
       saveProfile,
       search,
       serviceHistory,
+      workerServiceHistory,
       tasks,
       tasksErrorMessage,
       tasksLoading,
@@ -494,6 +462,8 @@ export function DashboardDataProvider({
       updateProfile,
       userInitial,
       workerEnabled,
+      workerProfile,
+      setSearch,
     ],
   )
 

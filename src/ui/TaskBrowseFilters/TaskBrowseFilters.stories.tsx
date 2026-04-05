@@ -26,7 +26,7 @@ const meta = {
     onMaxBudgetChange: () => {},
     urgency: 'any' as UrgencyFilter,
     onUrgencyChange: () => {},
-    mapHref: '/tasks',
+    mapHref: '/',
   },
 } satisfies Meta<typeof TaskBrowseFilters>
 
@@ -62,7 +62,7 @@ export const Default: Story = {
         onMaxBudgetChange={setMaxB}
         urgency={urgency}
         onUrgencyChange={setUrgency}
-        mapHref="/tasks"
+        mapHref="/"
       />
     )
   },

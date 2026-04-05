@@ -37,8 +37,10 @@ export type TaskBrowseFiltersProps = {
   onMaxBudgetChange: (value: string) => void
   urgency: UrgencyFilter
   onUrgencyChange: (value: UrgencyFilter) => void
-  /** TODO: wire to a real map route when geolocation browse ships */
+  /** Link for “View map” (e.g. `/map`). */
   mapHref?: string
+  /** When false, hides the promotional map card (e.g. map shown elsewhere on the page). */
+  showMapPromo?: boolean
 }
 
 function FilterSectionTitle({
@@ -111,6 +113,7 @@ export function TaskBrowseFilters({
   urgency,
   onUrgencyChange,
   mapHref = '#',
+  showMapPromo = true,
 }: TaskBrowseFiltersProps) {
   return (
     <Stack gap={6}>
@@ -257,50 +260,52 @@ export function TaskBrowseFilters({
         </Stack>
       </Box>
 
-      <Box
-        borderRadius="xl"
-        bg="linear-gradient(160deg, #e6edf9 0%, #d9e6ff 45%, #eef4ff 100%)"
-        p={6}
-        textAlign="center"
-        boxShadow="ghostBorder"
-      >
-        <Stack gap={4} align="center">
-          <Box
-            w="full"
-            maxW="200px"
-            mx="auto"
-            aspectRatio={4 / 3}
-            borderRadius="lg"
-            bg="surfaceContainerLowest"
-            boxShadow="card"
-            display="grid"
-            placeItems="center"
-            fontSize="4xl"
-            lineHeight={1}
-            aria-hidden
-          >
-            🗺️
-          </Box>
-          <Stack gap={1}>
-            <Heading size="sm">See jobs on a map</Heading>
-            <Text fontSize="sm" color="muted">
-              {/* TODO: replace with map browse when API supports lat/lng filters */}
-              Preview nearby requests on an interactive map.
-            </Text>
+      {showMapPromo ? (
+        <Box
+          borderRadius="xl"
+          bg="linear-gradient(160deg, #e6edf9 0%, #d9e6ff 45%, #eef4ff 100%)"
+          p={6}
+          textAlign="center"
+          boxShadow="ghostBorder"
+        >
+          <Stack gap={4} align="center">
+            <Box
+              w="full"
+              maxW="200px"
+              mx="auto"
+              aspectRatio={4 / 3}
+              borderRadius="lg"
+              bg="surfaceContainerLowest"
+              boxShadow="card"
+              display="grid"
+              placeItems="center"
+              fontSize="4xl"
+              lineHeight={1}
+              aria-hidden
+            >
+              🗺️
+            </Box>
+            <Stack gap={1}>
+              <Heading size="sm">See jobs on a map</Heading>
+              <Text fontSize="sm" color="muted">
+                Browse the same listings in list + map view. Pins are
+                illustrative until task locations include coordinates.
+              </Text>
+            </Stack>
+            <Button
+              as={NextLink}
+              href={mapHref}
+              variant="subtle"
+              bg="surfaceContainerLowest"
+              color="fg"
+              w="full"
+              maxW="200px"
+            >
+              View map
+            </Button>
           </Stack>
-          <Button
-            as={NextLink}
-            href={mapHref}
-            variant="subtle"
-            bg="surfaceContainerLowest"
-            color="fg"
-            w="full"
-            maxW="200px"
-          >
-            View map
-          </Button>
-        </Stack>
-      </Box>
+        </Box>
+      ) : null}
     </Stack>
   )
 }

@@ -56,7 +56,7 @@ export function HomeHeroSection() {
           </Button>
           <Button
             as={NextLink}
-            href="/tasks"
+            href="/"
             variant="subtle"
             bg="surfaceContainerLowest"
             size="lg"

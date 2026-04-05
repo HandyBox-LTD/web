@@ -4,11 +4,8 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-import {
-  DashboardDataProvider,
-  useDashboardData,
-} from '@/features/dashboard/DashboardDataContext'
 import { clearAuthToken } from '@/utils/auth'
+import { DashboardDataProvider, useDashboardData } from '@context/dashboard'
 import {
   Button,
   type DashboardNavKey,
@@ -19,12 +16,10 @@ import {
 } from '@ui'
 
 function resolveActiveNav(pathname: string): DashboardNavKey {
-  if (pathname.startsWith('/dashboard/jobs')) return 'jobs'
   if (pathname.startsWith('/dashboard/quotes')) return 'quotes'
   if (pathname.startsWith('/dashboard/earnings')) return 'earnings'
   if (pathname.startsWith('/dashboard/history')) return 'history'
   if (pathname.startsWith('/dashboard/messages')) return 'messages'
-  if (pathname.startsWith('/dashboard/profile')) return 'profile'
   if (pathname.startsWith('/dashboard/worker/register'))
     return 'worker-register'
   return 'overview'
@@ -50,10 +45,9 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }} px={4}>
         <Stack gap={8} maxW="lg" mx="auto">
           <Box>
-            <Heading size="lg">Dashboard</Heading>
+            <Heading size="lg">Tasker dashboard</Heading>
             <Text color="muted" mt={2}>
-              Sign in to manage posted jobs, track quotes, and unlock worker
-              tools.
+              Sign in to manage quotes, earnings, and your worker workspace.
             </Text>
           </Box>
           {meErrorMessage ? (
@@ -63,10 +57,11 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
           ) : null}
           <GlassCard p={6}>
             <Stack gap={4}>
-              <Heading size="md">Sign in to view your dashboard</Heading>
+              <Heading size="md">Sign in to open your dashboard</Heading>
               <Text color="muted">
-                You need an account to access jobs, bookings, history, profile,
-                and worker registration.
+                You need an account for the tasker workspace. Posting jobs and
+                customer tools use the main site under Quotes, Requests, and
+                Profile.
               </Text>
               <HStack gap={3} flexWrap="wrap">
                 <Button as={NextLink} href="/login">
@@ -102,7 +97,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       userLabel={displayName}
       userInitial={userInitial}
       userStatus={
-        workerEnabled ? 'Verified worker workspace' : 'Customer dashboard'
+        workerEnabled ? 'Worker tools unlocked' : 'Complete worker setup'
       }
       userMeta={me?.email ?? ''}
       workerEnabled={workerEnabled}

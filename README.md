@@ -1,6 +1,6 @@
 # HandyBox (web MVP)
 
-Next.js front end for posting local tasks, receiving offers from workers, and managing jobs via a GraphQL API.
+Next.js front end for a local task marketplace: job hunters browse open work on the home page; customers post jobs and review quotes; taskers run quotes and earnings from the dashboard. Backed by a GraphQL API.
 
 ---
 
@@ -15,9 +15,9 @@ Next.js front end for posting local tasks, receiving offers from workers, and ma
 
 ## 1. Executive summary
 
-- **What is this project?** A web MVP that connects people who need odd jobs or repairs (“customers”) with workers who can quote and carry out the work. The app supports posting tasks, browsing open work, submitting offers, authentication, and a simple dashboard.
+- **What is this project?** A web MVP that connects people who need help (“customers”) with **taskers** who browse open jobs, send quotes, and track work. The **default homepage experience** is the job hunter view: a filterable task list plus a map-style browse page (`/map`). **Without authentication**, users can read tasks and open details; **quoting and account-only views require sign-in.**
 - **Why are we doing it?** To validate demand for a lightweight marketplace for local handyman-style work without committing to native apps or a full product suite upfront.
-- **Desired outcome:** A shippable web experience backed by a live GraphQL API, with enough flows to post tasks, quote, and sign in—so we can learn from real usage and iterate.
+- **Desired outcome:** A shippable web experience backed by a live GraphQL API, with clear separation between **customer** routes (quotes on your jobs, posted requests, profile) and the **tasker dashboard** (quotes you sent, earnings, worker setup)—so we can learn from real usage and iterate.
 
 ## 2. Problem statement / opportunity
 
@@ -38,8 +38,8 @@ Next.js front end for posting local tasks, receiving offers from workers, and ma
 
 ## 4. Target audience
 
-- **Primary — customers:** People posting tasks (title, description, location, optional budget/skills). They need clarity, trust, and a simple path to review offers.
-- **Primary — workers:** People browsing `/tasks`, opening a task, and submitting a price/message offer; may need authentication before quoting.
+- **Primary — job hunters / taskers:** People looking for paid work; they land on `/` (and `/map`), filter tasks, open details, and **log in to submit an offer** (after worker setup in the dashboard). The **`/dashboard`** area is the **tasker workspace** (quotes, earnings, history as a worker, worker registration).
+- **Primary — customers (job posters):** People who need a job done; they use **Post a job** (`/tasks/create`), then **Quotes** (`/quotes`), **Requests** (`/requests`), and **Profile** (`/profile`)—all **without** the `/dashboard` prefix. They review offers on their tasks and track posted work.
 - **Secondary:** Internal team using Storybook and deployments for QA and design review.
 
 ## 5. Proposed solution / high-level scope
@@ -48,15 +48,17 @@ Web app (Next.js, Chakra UI, Apollo Client) talking to **Handyman Apollo** Graph
 
 **In scope (MVP-level):**
 
-- Marketing / landing with task creation entry point  
-- Task listing (`TaskPage`-style pagination via `tasks { items { … } }`)  
-- Task detail and “make an offer”  
+- **Home (`/`):** Task browse for job hunters (filters, sort, pagination); read-only until sign-in for offers. **`/tasks` redirects to `/`.**  
+- **Map browse (`/map`):** Same data as the home list with a list + illustrative map column (real geocoding when the API supports it).  
+- **Global nav:** **Post a job**, **Become a tasker** (dashboard, or login with `next=/dashboard`). When signed in: **Quotes**, **Requests**, **Profile**, **Log out**.  
+- **Customer account (auth required):** `/quotes` (offers on jobs you posted), `/requests` (your posted jobs / status), `/profile` (customer profile; session-local until profile APIs exist).  
+- **Tasker dashboard (auth required):** `/dashboard` — quotes you sent, earnings, worker-side history, worker setup, placeholder messages. **Not** the place for “my posted jobs as a customer” (that is `/requests`).  
+- Task detail and **make an offer** (auth + worker setup).  
 - Auth: register, login, forgot/reset password, `me` query  
-- Dashboard: posted tasks, offers on those tasks, offers the user submitted  
 - Component library documentation in Storybook  
 - Analytics hook-up (PostHog)  
 
-**How it meets goals:** Delivers the minimum loop—discover → post or quote → account context—against a single deployed API.
+**How it meets goals:** Delivers discover → quote **or** post → receive quotes → manage each role in the right surface, against a single deployed API.
 
 ## 6. Out of scope (this phase)
 
@@ -127,7 +129,7 @@ bun install
 
 ## GraphQL codegen
 
-Types are generated from the remote schema (SDL) before production builds (`prebuild` runs codegen automatically).
+Types are generated from the remote schema (SDL) when you run codegen locally or in CI. **Production `bun run build` does not run codegen** (see `prebuild` in `package.json`); run `bun run codegen` when the API schema changes.
 
 ```bash
 bun run codegen

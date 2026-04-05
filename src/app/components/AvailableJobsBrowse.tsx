@@ -1,7 +1,8 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, Link, Stack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import { TASKS_QUERY } from '@/graphql/jobs'
@@ -114,7 +115,87 @@ function matchesUrgency(task: TaskListItem, urgency: UrgencyFilter): boolean {
   return true
 }
 
-export function AvailableJobsBrowse() {
+function TasksMapPanel({ tasks }: { tasks: TaskListItem[] }) {
+  return (
+    <Box
+      borderRadius="xl"
+      position={{ lg: 'sticky' }}
+      top={{ lg: 6 }}
+      h={{ base: '280px', lg: 'min(70vh, 560px)' }}
+      bg="linear-gradient(165deg, #dbe5f7 0%, #c5d9f5 40%, #e8eef8 100%)"
+      boxShadow="ghostBorder"
+      overflow="hidden"
+      borderWidth="1px"
+      borderColor="border"
+    >
+      <Box
+        position="relative"
+        w="full"
+        h="full"
+        role="img"
+        aria-label="Illustrative map of open tasks on this page"
+      >
+        <Text
+          position="absolute"
+          top={4}
+          left={4}
+          fontSize="xs"
+          fontWeight={700}
+          color="muted"
+        >
+          Map preview
+        </Text>
+        <Text
+          position="absolute"
+          bottom={4}
+          left={4}
+          right={4}
+          fontSize="xs"
+          color="muted"
+        >
+          Pins match the current page of results. Real geocoding will replace
+          this layout when locations include coordinates.
+        </Text>
+        {tasks.map((task, i) => {
+          const left = 12 + ((i * 17) % 76)
+          const top = 18 + ((i * 23) % 62)
+          return (
+            <Link
+              key={task.id}
+              as={NextLink}
+              href={`/task/${task.id}`}
+              position="absolute"
+              left={`${left}%`}
+              top={`${top}%`}
+              w={3}
+              h={3}
+              borderRadius="full"
+              bg="primary.500"
+              borderWidth="2px"
+              borderColor="white"
+              boxShadow="sm"
+              title={task.title}
+              aria-label={`Open task: ${task.title}`}
+              _hover={{ textDecoration: 'none', opacity: 0.9 }}
+            />
+          )
+        })}
+      </Box>
+    </Box>
+  )
+}
+
+export type AvailableJobsBrowseProps = {
+  layout?: 'default' | 'mapSplit'
+  headerTitle?: string
+  headerSubtitle?: string
+}
+
+export function AvailableJobsBrowse({
+  layout = 'default',
+  headerTitle = 'Find work near you',
+  headerSubtitle,
+}: AvailableJobsBrowseProps = {}) {
   const [sort, setSort] = useState<string>('newest')
   const [page, setPage] = useState(0)
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
@@ -180,11 +261,94 @@ export function AvailableJobsBrowse() {
     setPage(0)
   }
 
+  const subtitle =
+    headerSubtitle ??
+    `Browse ${filteredSorted.length} open tasks. Details are read-only until you sign in to quote.`
+
+  const filterBlock = (
+    <Box position={{ lg: 'sticky' }} top={{ lg: 6 }}>
+      <TaskBrowseFilters
+        categories={FILTER_CATEGORIES}
+        selectedCategories={selectedCategories}
+        onToggleCategory={toggleCategory}
+        radiusMiles={radiusMiles}
+        onRadiusChange={setRadiusMiles}
+        minBudgetPounds={minBudget}
+        maxBudgetPounds={maxBudget}
+        onMinBudgetChange={(v) => {
+          setMinBudget(v)
+          setPage(0)
+        }}
+        onMaxBudgetChange={(v) => {
+          setMaxBudget(v)
+          setPage(0)
+        }}
+        urgency={urgency}
+        onUrgencyChange={(u) => {
+          setUrgency(u)
+          setPage(0)
+        }}
+        mapHref="/map"
+        showMapPromo={layout !== 'mapSplit'}
+      />
+    </Box>
+  )
+
+  const listBlock = (
+    <Stack gap={5}>
+      {loading && !data ? (
+        <Text color="muted">Loading jobs…</Text>
+      ) : error ? (
+        <Text color="red.400" fontSize="sm">
+          {error.message}
+        </Text>
+      ) : pageItems.length === 0 ? (
+        <Text color="muted">
+          No jobs match your filters. Try widening category or budget.
+        </Text>
+      ) : (
+        pageItems.map((task) => {
+          const { main, sub } = formatBudget(task)
+          const badge = inferBadge(task)
+          const loc = task.location?.trim() || 'Location on request'
+          const cat = task.category?.trim() || 'General'
+          return (
+            <AvailableJobCard
+              key={task.id}
+              title={task.title}
+              description={task.description}
+              locationLabel={loc}
+              timeLabel={formatRelativeTime(task.createdAt)}
+              categoryLabel={cat}
+              budgetMain={main}
+              budgetSub={sub}
+              badgeVariant={badge.variant}
+              badgeText={badge.text}
+              imageFallback={cat.slice(0, 2)}
+              offerHref={`/task/${task.id}#offer`}
+              detailsHref={`/task/${task.id}`}
+            />
+          )
+        })
+      )}
+
+      {!error && filteredSorted.length > 0 ? (
+        <TaskListPagination
+          page={safePage}
+          totalPages={totalPages}
+          onPrevious={() => setPage((p) => Math.max(0, p - 1))}
+          onNext={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+          onSelectPage={setPage}
+        />
+      ) : null}
+    </Stack>
+  )
+
   return (
     <Stack gap={{ base: 8, md: 10 }}>
       <AvailableJobsHeader
-        title="Available jobs"
-        subtitle={`Browse ${filteredSorted.length} local service requests needing your expertise today.`}
+        title={headerTitle}
+        subtitle={subtitle}
         sortValue={sort}
         sortOptions={SORT_OPTIONS}
         onSortChange={(v) => {
@@ -193,84 +357,29 @@ export function AvailableJobsBrowse() {
         }}
       />
 
-      <Grid
-        templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
-        gap={{ base: 8, lg: 10 }}
-        alignItems="start"
-      >
-        <Box position={{ lg: 'sticky' }} top={{ lg: 6 }}>
-          <TaskBrowseFilters
-            categories={FILTER_CATEGORIES}
-            selectedCategories={selectedCategories}
-            onToggleCategory={toggleCategory}
-            radiusMiles={radiusMiles}
-            onRadiusChange={setRadiusMiles}
-            minBudgetPounds={minBudget}
-            maxBudgetPounds={maxBudget}
-            onMinBudgetChange={(v) => {
-              setMinBudget(v)
-              setPage(0)
-            }}
-            onMaxBudgetChange={(v) => {
-              setMaxBudget(v)
-              setPage(0)
-            }}
-            urgency={urgency}
-            onUrgencyChange={(u) => {
-              setUrgency(u)
-              setPage(0)
-            }}
-          />
-        </Box>
-
-        <Stack gap={5}>
-          {loading && !data ? (
-            <Text color="muted">Loading jobs…</Text>
-          ) : error ? (
-            <Text color="red.400" fontSize="sm">
-              {error.message}
-            </Text>
-          ) : pageItems.length === 0 ? (
-            <Text color="muted">
-              No jobs match your filters. Try widening category or budget.
-            </Text>
-          ) : (
-            pageItems.map((task) => {
-              const { main, sub } = formatBudget(task)
-              const badge = inferBadge(task)
-              const loc = task.location?.trim() || 'Location on request'
-              const cat = task.category?.trim() || 'General'
-              return (
-                <AvailableJobCard
-                  key={task.id}
-                  title={task.title}
-                  description={task.description}
-                  locationLabel={loc}
-                  timeLabel={formatRelativeTime(task.createdAt)}
-                  categoryLabel={cat}
-                  budgetMain={main}
-                  budgetSub={sub}
-                  badgeVariant={badge.variant}
-                  badgeText={badge.text}
-                  imageFallback={cat.slice(0, 2)}
-                  offerHref={`/task/${task.id}#offer`}
-                  detailsHref={`/task/${task.id}`}
-                />
-              )
-            })
-          )}
-
-          {!error && filteredSorted.length > 0 ? (
-            <TaskListPagination
-              page={safePage}
-              totalPages={totalPages}
-              onPrevious={() => setPage((p) => Math.max(0, p - 1))}
-              onNext={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              onSelectPage={setPage}
-            />
-          ) : null}
-        </Stack>
-      </Grid>
+      {layout === 'mapSplit' ? (
+        <Grid
+          templateColumns={{
+            base: '1fr',
+            lg: 'minmax(260px,320px) minmax(0,1fr) minmax(280px,1fr)',
+          }}
+          gap={{ base: 8, lg: 10 }}
+          alignItems="start"
+        >
+          {filterBlock}
+          {listBlock}
+          <TasksMapPanel tasks={pageItems} />
+        </Grid>
+      ) : (
+        <Grid
+          templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
+          gap={{ base: 8, lg: 10 }}
+          alignItems="start"
+        >
+          {filterBlock}
+          {listBlock}
+        </Grid>
+      )}
     </Stack>
   )
 }

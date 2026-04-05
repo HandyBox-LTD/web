@@ -10,12 +10,10 @@ import { Heading, Text } from '../Typography'
 
 export type DashboardNavKey =
   | 'overview'
-  | 'jobs'
   | 'quotes'
   | 'earnings'
   | 'history'
   | 'messages'
-  | 'profile'
   | 'worker-register'
 
 export type DashboardShellProps = {
@@ -72,22 +70,6 @@ const navPrimary: Array<{
         <title>Overview</title>
         <path
           d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    key: 'jobs',
-    label: 'My Jobs',
-    href: '/dashboard/jobs',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>My Jobs</title>
-        <path
-          d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.36 6.36a2.83 2.83 0 1 1-4-4l6.36-6.36a6 6 0 0 1 7.94-7.94l-3.77 3.77Z"
           stroke="currentColor"
           strokeWidth="1.75"
           strokeLinejoin="round"
@@ -174,29 +156,6 @@ const navPrimary: Array<{
           stroke="currentColor"
           strokeWidth="1.75"
           strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    key: 'profile',
-    label: 'Profile',
-    href: '/dashboard/profile',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%">
-        <title>Profile</title>
-        <circle
-          cx="12"
-          cy="8"
-          r="3.25"
-          stroke="currentColor"
-          strokeWidth="1.75"
-        />
-        <path
-          d="M5 20a7 7 0 0 1 14 0"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
         />
       </svg>
     ),
@@ -355,7 +314,7 @@ export function DashboardShell({
                   color="muted"
                   textTransform="uppercase"
                 >
-                  Dashboard workspace
+                  Tasker workspace
                 </Text>
               </Stack>
             </HStack>

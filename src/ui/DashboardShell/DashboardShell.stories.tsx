@@ -9,16 +9,16 @@ function DashboardShellStory() {
   const [search, setSearch] = useState('')
   return (
     <DashboardShell
-      activeNav="jobs"
+      activeNav="overview"
       searchValue={search}
       onSearchChange={setSearch}
       userLabel="craftsman@example.com"
       userInitial="C"
-      userStatus="Verified worker workspace"
+      userStatus="Worker tools unlocked"
       workerEnabled
     >
       <Stack gap={4}>
-        <Heading size="lg">My Jobs</Heading>
+        <Heading size="lg">Overview</Heading>
         <Text color="muted">
           Shell content area — listings and summaries render here.
         </Text>
