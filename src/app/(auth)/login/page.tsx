@@ -162,7 +162,7 @@ export default function LoginPage() {
             Welcome Back
           </Heading>
           <Text mt={2} color="muted" fontSize="sm">
-            Enter your credentials to manage your jobs.
+            Enter your credentials to manage your tasks.
           </Text>
         </Box>
 

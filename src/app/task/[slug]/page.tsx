@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { ACCEPT_OFFER_MUTATION, ADD_OFFER, TASK_QUERY } from '@/graphql/jobs'
+import { ACCEPT_OFFER_MUTATION, ADD_OFFER, TASK_QUERY } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -481,7 +481,7 @@ export default function TaskDetailPage() {
                             textAlign="center"
                             px={4}
                           >
-                            Photo preview unavailable for this job
+                            Photo preview unavailable for this task
                           </Box>
                           <Box
                             borderRadius="xl"
@@ -598,7 +598,7 @@ export default function TaskDetailPage() {
                               <Text fontSize="sm" color="muted">
                                 {task.offers.length > 0
                                   ? `${task.offers.length} professional${task.offers.length === 1 ? '' : 's'} interested`
-                                  : 'Share this job to attract quotes faster.'}
+                                  : 'Share this task to attract quotes faster.'}
                               </Text>
                             </Stack>
                           </HStack>
@@ -640,7 +640,7 @@ export default function TaskDetailPage() {
                                 <Text color="muted">
                                   Worker features are blocked by default. Create
                                   your worker profile to unlock quote
-                                  submission, earnings, and worker-side job
+                                  submission, earnings, and worker-side task
                                   tools.
                                 </Text>
                                 <Button
@@ -731,8 +731,8 @@ export default function TaskDetailPage() {
                           {task.offers.length === 0 ? (
                             <GlassCard p={6}>
                               <Text color="muted">
-                                No offers yet. Share your job link to get quotes
-                                from professionals.
+                                No offers yet. Share your task link to get
+                                quotes from professionals.
                               </Text>
                             </GlassCard>
                           ) : (

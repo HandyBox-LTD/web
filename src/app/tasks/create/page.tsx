@@ -11,7 +11,7 @@ export default function CreateTaskPage() {
     <Box bg="surface" color="fg" minH="100vh">
       <Stack gap={0}>
         <Section id="header" py={{ base: 4, md: 5 }}>
-          <Header activeItem="post-job" />
+          <Header activeItem="post-task" />
         </Section>
 
         <Section bg="surfaceContainerLow" py={{ base: 8, md: 10 }}>
@@ -27,11 +27,11 @@ export default function CreateTaskPage() {
                 ← Back to tasks
               </Link>
               <Heading size={{ base: '2xl', md: '3xl' }} fontWeight={800}>
-                Post a job request
+                Post a task request
               </Heading>
               <Text color="muted">
-                Follow the guided questions to share your job details, schedule,
-                and budget.
+                Follow the guided questions to share your task details,
+                schedule, and budget.
               </Text>
             </Stack>
             <TaskCreationForm />

@@ -12,8 +12,8 @@ import { Heading } from '../Typography'
 export type HeaderActiveItem =
   | 'home'
   | 'tasks'
-  | 'my-jobs'
-  | 'post-job'
+  | 'my-tasks'
+  | 'post-task'
   | 'profile'
   | 'none'
 
@@ -90,7 +90,7 @@ function SiteNavigation() {
           </>
         ) : null}
         <Button as={NextLink} href="/tasks/create" size="sm" variant="outline">
-          Post a job
+          Post a task
         </Button>
         <Button as={NextLink} href={taskerHref} size="sm">
           Become a tasker

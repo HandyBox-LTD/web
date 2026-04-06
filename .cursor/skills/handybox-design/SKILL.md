@@ -4,7 +4,7 @@ description: >-
   Applies HandyBox UI design tokens, component patterns, interactions, and
   accessibility rules (blueprint + amber identity). Use when building or
   changing UI, styling pages, adding components, landing sections, dashboards,
-  job cards, forms, badges, navigation, or when the user mentions HandyBox
+  task cards, forms, badges, navigation, or when the user mentions HandyBox
   design, DESIGN.md, or brand look-and-feel.
 ---
 
@@ -22,7 +22,7 @@ Trust, precision, utility. Visual tone: high-end architectural blueprint with ap
 |------|--------|--------|
 | Primary (blueprint blue) | `#1A56DB` | Primary actions, brand, verified states |
 | Accent (construction amber) | `#F2994A` | Value highlights, emergency/urgent, Pro tier |
-| Success | `#059669` | Completed jobs, positive ratings |
+| Success | `#059669` | Completed tasks, positive ratings |
 | Surfaces | `bg-slate-50` | Page/surface background |
 | Dividers | `bg-slate-100` | Borders, separators |
 | Body text | `text-slate-600` | Paragraphs, secondary copy |
@@ -57,8 +57,8 @@ Match these compositions when implementing features:
 ## Interaction
 
 - **Hover:** Links → primary blue; cards → slight lift + shadow transition.
-- **Loading:** Skeleton/shimmer aligned to real card layout (especially job cards).
-- **Feedback:** Toasts for actions like offer sent or job completed.
+- **Loading:** Skeleton/shimmer aligned to real card layout (especially task cards).
+- **Feedback:** Toasts for actions like offer sent or task completed.
 
 ## Accessibility
 

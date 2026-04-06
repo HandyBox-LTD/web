@@ -16,7 +16,7 @@ const meta = {
     layout: 'padded',
   },
   args: {
-    title: 'Available jobs',
+    title: 'Available tasks',
     subtitle: 'Browse 124 local service requests needing your expertise today.',
     sortOptions: SORT_OPTIONS,
     sortValue: 'newest',

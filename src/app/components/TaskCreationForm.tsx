@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { CREATE_TASK } from '@/graphql/jobs'
+import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'

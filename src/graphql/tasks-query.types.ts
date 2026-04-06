@@ -1,5 +1,5 @@
 /**
- * Types for `TASKS_QUERY` in `jobs.ts`. Replace with `@codegen/schema` once
+ * Types for `TASKS_QUERY` in `tasks.ts`. Replace with `@codegen/schema` once
  * `bun run codegen` succeeds against the production GraphQL endpoint.
  */
 export type TaskOfferListItem = {

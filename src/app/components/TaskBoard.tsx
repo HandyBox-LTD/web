@@ -5,7 +5,7 @@ import { HStack, SimpleGrid, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
-import { TASKS_QUERY } from '@/graphql/jobs'
+import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TasksQueryData } from '@/graphql/tasks-query.types'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 

@@ -14,7 +14,7 @@ function HeaderCustomChildrenStory() {
           <Button size="sm" variant="subtle" bg="surfaceContainerLow">
             Log in
           </Button>
-          <Button size="sm">Post a job</Button>
+          <Button size="sm">Post a task</Button>
         </HStack>
       </HStack>
     </Header>

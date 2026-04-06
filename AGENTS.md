@@ -1,38 +1,47 @@
-# AGENTS.md
+# Project Overview: HandyBox Web MVP
 
-## Cursor Cloud specific instructions
+## 1. Project Mission
 
-**HandyBox** is a Next.js 16 (App Router) frontend for a UK handyman marketplace. It talks to an external GraphQL API (not in this repo).
+HandyBox is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare offers, complete the work, and leave feedback.
 
-### Stitch (design source)
+## 2. Primary Personas
 
-- **Default Stitch design project** (this repo’s redesign): ID and MCP resource name live in [`.cursor/stitch-project.json`](.cursor/stitch-project.json).
-- **Web UI:** [Stitch project](https://stitch.withgoogle.com/projects/9864829734034313388?pli=1).
-- **MCP usage:** Use `designProjectId` from `stitch-project.json`. Typical mapping: `get_project` → `name` = `mcpResourceName` (e.g. `projects/9864829734034313388`); `list_screens` → `projectId` = the numeric id only.
-- **Cursor config:** [`.cursor/mcp.json`](.cursor/mcp.json) points at Google’s Stitch MCP endpoint; auth is separate from this project id. If MCP calls fail with OAuth/dynamic-registration errors, use Cursor’s MCP troubleshooting or the [community `stitch-mcp` npm server](https://www.npmjs.com/package/stitch-mcp) with `gcloud` + `GOOGLE_CLOUD_PROJECT` per its README.
+### Customer (Client)
 
-### Quick reference
+- Need: fast and reliable help with clear status tracking.
+- Core flow: post task -> receive offers/quotes -> choose pro -> complete task -> review.
+- App surfaces: `/quotes`, `/requests`, and `/profile` (client point of view).
 
-| Action | Command |
-|---|---|
-| Install deps | `bun install --ignore-scripts` |
-| Dev server | `bun run dev` (port 3000) |
-| Storybook | `bun run storybook` (port 6006) |
-| Storybook static build | `bun run build-storybook` → `storybook-static/` |
-| Lint / format | `bun run lint` |
-| Tests (Vitest + Playwright) | `npx vitest run` |
-| Codegen (GraphQL types) | `bun run codegen` |
+### Worker
 
-### Non-obvious caveats
+- Need: discover nearby tasks and manage work as a business.
+- Core flow: browse tasks -> open detail -> make offer -> deliver work -> build reputation.
+- App surfaces: `/dashboard/*` for worker-focused tools and analytics.
 
-- **`bun install` must use `--ignore-scripts`** in the cloud environment because the `prepare` script runs `lefthook install`, which conflicts with Cursor's `core.hooksPath` setting. Dependencies install fine without lifecycle scripts.
-- **Playwright browsers** must be installed before running Vitest (`npx playwright install chromium`). Without this, `npx vitest run` fails when launching Chromium for the Storybook test project. Tests use `@vitest/browser-playwright` to run stories in headless Chromium.
-- **GraphQL codegen** introspects the remote API schema (`bun run codegen`). **`bun run build` does not run codegen** (only `exports-gen` in `prebuild`), so CI and offline builds succeed when introspection is blocked. When codegen fails, keep `.codegen/schema.ts` in sync manually or rely on the fallback block at the end of that file; re-run codegen when the API is reachable to refresh types.
+## 3. Product Behavior in MVP
 
-## Current FE-11 delivery notes (page-by-page redesign)
+- Homepage defaults to the task-hunter experience.
+- Users can browse tasks on map/list and apply filters to find relevant tasks.
+- Task detail is publicly readable.
+- Unauthenticated users are read-only; login is required to make offers or perform account actions.
+- The app supports two intents:
+  - become a tasker (worker flow and dashboard), or
+  - post a task (client flow for requesting help and managing quotes/requests).
 
-- Implement the Stitch redesign incrementally, **page by page**, starting with the homepage.
-- Treat Stitch as the design source and align visuals to the exported HTML and image references.
-- Build reusable UI in `src/ui` and make app pages consume those primitives from `@ui`.
-- Keep Chakra UI as the base implementation layer for all custom UI primitives.
-- Add/maintain Storybook stories for UI primitives introduced during the redesign.
+## 4. Core Feature Areas
+
+- Marketplace discovery: map-based browsing and task filters.
+- Job lifecycle: post, offer/quote, status progression, completion.
+- Trust signals: worker profile details, ratings, endorsements, and review history.
+- Role-based navigation: lightweight client pages vs full worker dashboard.
+
+## 5. Technical Foundation
+
+- Frontend: Next.js 16 (App Router).
+- API: external GraphQL backend (schema synced into `.codegen/schema.ts`).
+- UI system: reusable primitives in `src/ui` with Chakra UI as base layer.
+
+## 6. Current Product Direction
+
+- Implement and iterate the redesign page-by-page, starting from homepage flows.
+- Keep UX aligned to Stitch design output while preserving role-based app behavior.

@@ -242,7 +242,7 @@ function SidebarNavLink({
 
 export function DashboardShell({
   activeNav = 'overview',
-  searchPlaceholder = 'Search jobs, quotes, or records…',
+  searchPlaceholder = 'Search tasks, quotes, or records…',
   searchValue,
   onSearchChange,
   userLabel,
@@ -314,7 +314,7 @@ export function DashboardShell({
                   color="muted"
                   textTransform="uppercase"
                 >
-                  Tasker workspace
+                  Worker workspace
                 </Text>
               </Stack>
             </HStack>
@@ -410,7 +410,7 @@ export function DashboardShell({
                 >
                   {workerEnabled
                     ? 'Track active quotes, monitor payout totals, and keep your professional profile ready for new work.'
-                    : 'Create your worker profile to unlock quoting, job intake, and payout tracking in the dashboard.'}
+                    : 'Create your worker profile to unlock quoting, task intake, and payout tracking in the dashboard.'}
                 </Text>
                 <Button
                   as={NextLink}
@@ -474,7 +474,7 @@ export function DashboardShell({
                 onChange={(e) => onSearchChange(e.target.value)}
                 bg="surfaceContainerLow"
                 borderRadius="full"
-                aria-label="Search jobs"
+                aria-label="Search tasks"
               />
             </Box>
             {headerAction ? <Box>{headerAction}</Box> : null}

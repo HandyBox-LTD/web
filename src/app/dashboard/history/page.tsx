@@ -32,7 +32,7 @@ export default function DashboardHistoryPage() {
         <Heading size="xl">Service History</Heading>
         <Text color="muted" maxW="3xl">
           Completed work from your tasker side (quotes that progressed to
-          finished jobs). Customer history for jobs you posted lives under
+          finished tasks). Customer history for tasks you posted lives under
           Requests.
         </Text>
       </Stack>

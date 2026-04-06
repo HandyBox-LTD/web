@@ -164,7 +164,7 @@ export function PostJobForm({
             >
               <Textarea
                 minH="130px"
-                placeholder="Describe the job clearly so professionals can quote accurately."
+                placeholder="Describe the task clearly so professionals can quote accurately."
                 bg="surfaceContainerLowest"
                 borderWidth={0}
                 boxShadow="ghostBorder"
@@ -211,7 +211,7 @@ export function PostJobForm({
             </FormField>
 
             <FormField
-              label="When should the job happen?"
+              label="When should the task happen?"
               helperText="Choose your preferred date and time."
             >
               <TextInput
@@ -283,7 +283,7 @@ export function PostJobForm({
           </Box>
 
           <Button loading={isSubmitting} onClick={onSubmit} size="lg">
-            Post job request
+            Post task request
           </Button>
 
           {error ? (

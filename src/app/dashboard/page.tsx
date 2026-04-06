@@ -58,7 +58,7 @@ export default function DashboardOverviewPage() {
           bg="linear-gradient(160deg, #f7f9ff 0%, #ffffff 100%)"
         >
           <Stack gap={5}>
-            <Badge alignSelf="flex-start">Tasker overview</Badge>
+            <Badge alignSelf="flex-start">Worker overview</Badge>
             <Stack gap={2}>
               <Heading size="xl">Welcome back, {displayName}.</Heading>
               <Text color="muted" maxW="3xl">
@@ -83,7 +83,7 @@ export default function DashboardOverviewPage() {
                 {workerEnabled ? 'My quotes' : 'Worker setup'}
               </Button>
               <Button as={NextLink} href="/requests" variant="subtle">
-                My posted jobs (customer)
+                My posted tasks (customer)
               </Button>
             </HStack>
             <HStack gap={3} flexWrap="wrap">
@@ -160,8 +160,8 @@ export default function DashboardOverviewPage() {
         <Stack gap={2}>
           <Heading size="sm">Customer tools</Heading>
           <Text fontSize="sm" color="muted">
-            Quotes on your own jobs, request tracking, and your customer profile
-            are on the main site:{' '}
+            Quotes on your own tasks, request tracking, and your customer
+            profile are on the main site:{' '}
             <Link
               as={NextLink}
               href="/quotes"

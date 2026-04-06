@@ -45,7 +45,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       <Box bg="bg" color="fg" minH="100vh" py={{ base: 8, md: 12 }} px={4}>
         <Stack gap={8} maxW="lg" mx="auto">
           <Box>
-            <Heading size="lg">Tasker dashboard</Heading>
+            <Heading size="lg">Worker dashboard</Heading>
             <Text color="muted" mt={2}>
               Sign in to manage quotes, earnings, and your worker workspace.
             </Text>
@@ -59,7 +59,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             <Stack gap={4}>
               <Heading size="md">Sign in to open your dashboard</Heading>
               <Text color="muted">
-                You need an account for the tasker workspace. Posting jobs and
+                You need an account for the tasker workspace. Posting tasks and
                 customer tools use the main site under Quotes, Requests, and
                 Profile.
               </Text>

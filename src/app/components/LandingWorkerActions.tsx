@@ -5,7 +5,7 @@ import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { ADD_OFFER } from '@/graphql/jobs'
+import { ADD_OFFER } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import type { AddOfferMutation } from '@codegen/schema'

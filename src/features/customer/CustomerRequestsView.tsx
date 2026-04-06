@@ -3,12 +3,12 @@
 import { Box, Grid, HStack, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
+import { useCustomerAccount } from '@/features/customer/CustomerAccountContext'
 import {
   formatRelativePosted,
   getCategoryVisual,
   getOfferRange,
-} from '@/utils/dashboardHelpers'
-import { useCustomerAccount } from '@context/customer'
+} from '@/features/dashboard/dashboardHelpers'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
 
 function OfferAvatarStack({ count }: { count: number }) {

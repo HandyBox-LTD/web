@@ -18,9 +18,9 @@ export default function CustomerQuotesPage() {
   return (
     <Stack gap={8}>
       <Stack gap={2} maxW="3xl">
-        <Heading size="xl">Quotes on your jobs</Heading>
+        <Heading size="xl">Quotes on your tasks</Heading>
         <Text color="muted">
-          Offers taskers have sent on work you posted. Open the job to compare,
+          Offers taskers have sent on work you posted. Open the task to compare,
           message, or accept a quote.
         </Text>
       </Stack>
@@ -38,10 +38,10 @@ export default function CustomerQuotesPage() {
             <Heading size="md">No quotes yet</Heading>
             <Text color="muted">
               When taskers submit prices on your requests, they will appear here
-              and on the job page.
+              and on the task page.
             </Text>
             <Button as={NextLink} href="/tasks/create" alignSelf="flex-start">
-              Post a job
+              Post a task
             </Button>
           </Stack>
         </GlassCard>
@@ -85,7 +85,7 @@ export default function CustomerQuotesPage() {
                     ) : null}
                   </Stack>
                   <Button as={NextLink} href={`/task/${task.id}`} size="sm">
-                    View job
+                    View task
                   </Button>
                 </HStack>
               </GlassCard>

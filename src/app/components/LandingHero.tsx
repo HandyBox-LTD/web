@@ -21,8 +21,8 @@ export function LandingHero() {
           Book trusted local handymen in minutes.
         </Heading>
         <Text color="muted" fontSize="lg">
-          Post a job, get offers, and book a vetted handyman. HandyBox keeps
-          your job details, messages, and updates in one place.
+          Post a task, get offers, and book a vetted handyman. HandyBox keeps
+          your task details, messages, and updates in one place.
         </Text>
         <HStack gap={3} flexWrap="wrap">
           <Button as={NextLink} href="/register" size="lg">
@@ -43,7 +43,7 @@ export function LandingHero() {
         <Stack gap={4}>
           <Heading size="md">Need a hand with something?</Heading>
           <Text color="muted">
-            Use the dedicated task page to add full job details, timing, and
+            Use the dedicated task page to add full task details, timing, and
             budget preferences.
           </Text>
           <Button as={NextLink} href="/tasks/create" variant="tool">

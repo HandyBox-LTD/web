@@ -5,7 +5,7 @@ import { Box, Grid, Link, Stack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
-import { TASKS_QUERY } from '@/graphql/jobs'
+import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import {
@@ -297,14 +297,14 @@ export function AvailableJobsBrowse({
   const listBlock = (
     <Stack gap={5}>
       {loading && !data ? (
-        <Text color="muted">Loading jobs…</Text>
+        <Text color="muted">Loading tasks…</Text>
       ) : error ? (
         <Text color="red.400" fontSize="sm">
           {error.message}
         </Text>
       ) : pageItems.length === 0 ? (
         <Text color="muted">
-          No jobs match your filters. Try widening category or budget.
+          No tasks match your filters. Try widening category or budget.
         </Text>
       ) : (
         pageItems.map((task) => {

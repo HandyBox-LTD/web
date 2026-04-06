@@ -92,7 +92,7 @@ export default function CustomerProfilePage() {
                 minH="140px"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="A short note for taskers who quote on your jobs."
+                placeholder="A short note for taskers who quote on your tasks."
                 bg="surfaceContainerLowest"
                 borderColor="border"
               />
@@ -101,7 +101,7 @@ export default function CustomerProfilePage() {
             <Stack gap={3}>
               <Text fontWeight={700}>Preferred trades</Text>
               <Text fontSize="sm" color="muted">
-                Helps us prioritise relevant jobs in your feed (optional).
+                Helps us prioritise relevant tasks in your feed (optional).
               </Text>
               <HStack gap={3} flexWrap="wrap">
                 {DASHBOARD_TRADE_OPTIONS.map((trade) => {
@@ -141,7 +141,7 @@ export default function CustomerProfilePage() {
               </Badge>
             </HStack>
             <Text fontSize="sm" color="muted">
-              Tasker tools and earnings live in your dashboard after you
+              Worker tools and earnings live in your dashboard after you
               complete worker setup.
             </Text>
           </Stack>

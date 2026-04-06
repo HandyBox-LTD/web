@@ -7,7 +7,7 @@ import { GlassCard, Heading, Text } from '@ui'
 const trustItems = [
   {
     title: 'Satisfaction Guarantee',
-    body: 'We stand by every job. We will make it right.',
+    body: 'We stand by every task. We will make it right.',
   },
   {
     title: 'Vetted & Insured Pros',
@@ -39,7 +39,7 @@ export function HomeTrustSection() {
             HandyBox Protection
           </Heading>
           <Text color="rgba(234,241,255,0.9)" maxW="xl">
-            We stand by every job. Our comprehensive protection program ensures
+            We stand by every task. Our comprehensive protection program ensures
             you are covered from start to finish.
           </Text>
           <Stack gap={4} pt={1}>

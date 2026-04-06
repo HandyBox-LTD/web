@@ -24,7 +24,7 @@ function CustomerShell({ children }: { children: React.ReactNode }) {
             <Stack gap={4}>
               <Heading size="lg">Sign in to continue</Heading>
               <Text color="muted">
-                Log in to manage quotes on your jobs, track requests, and edit
+                Log in to manage quotes on your tasks, track requests, and edit
                 your customer profile.
               </Text>
               {meErrorMessage ? (

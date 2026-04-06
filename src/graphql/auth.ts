@@ -31,18 +31,7 @@ export const LOGIN_WITH_METHOD_MUTATION = gql`
       user {
         id
         email
-        activeMode
       }
-    }
-  }
-`
-
-export const SWITCH_MODE_MUTATION = gql`
-  mutation SwitchMode($mode: UserMode!) {
-    switchMode(mode: $mode) {
-      id
-      email
-      activeMode
     }
   }
 `

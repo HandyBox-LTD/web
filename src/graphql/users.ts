@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 export const PROFESSIONAL_PROFILE_QUERY = gql`
   query ProfessionalProfile($id: ID!) {
-    professionalProfile(id: $id) {
+    worker(id: $id) {
       id
       bio
       isVerified
@@ -41,8 +41,8 @@ export const SEARCH_PROFESSIONALS_QUERY = gql`
 export const WORKER_QUERY = gql`
   query Worker($id: ID!) {
     worker(id: $id) {
-      workerUserId
-      averageRating
+      userId
+      rating
       reviewCount
     }
   }

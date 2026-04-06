@@ -5,7 +5,7 @@ import type { MeQuery } from '@codegen/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { TASKS_QUERY } from '@/graphql/jobs'
+import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TasksQueryData } from '@/graphql/tasks-query.types'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 

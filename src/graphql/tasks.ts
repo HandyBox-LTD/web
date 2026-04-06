@@ -92,19 +92,20 @@ export const TASK_QUERY = gql`
   }
 `
 
-// Server-side filters (category, geo radius, budget) — use on the tasks page when the
-// resolver is available; the UI currently filters `tasks` client-side.
+// Alias browse-style filtering to the current tasks resolver shape.
 export const BROWSE_TASKS_QUERY = gql`
-  query BrowseTasks($category: String, $lat: Float, $lng: Float, $maxBudget: Float, $minBudget: Float, $radius: Int) {
-    browseTasks(category: $category, lat: $lat, lng: $lng, maxBudget: $maxBudget, minBudget: $minBudget, radius: $radius) {
-      id
-      title
-      description
-      location
-      status
-      priceOfferPence
-      createdAt
-      category
+  query BrowseTasks($category: String, $minPricePence: Int, $maxPricePence: Int) {
+    tasks(category: $category, minPricePence: $minPricePence, maxPricePence: $maxPricePence) {
+      items {
+        id
+        title
+        description
+        location
+        status
+        priceOfferPence
+        createdAt
+        category
+      }
     }
   }
 `

@@ -108,7 +108,7 @@ export default function DashboardQuotesPage() {
           <Stack gap={4}>
             <Heading size="md">No quotes sent yet</Heading>
             <Text color="muted">
-              Your worker profile is ready. Browse available jobs and send your
+              Your worker profile is ready. Browse available tasks and send your
               first quote to populate this workspace.
             </Text>
             <Button as={NextLink} href="/" alignSelf="flex-start">

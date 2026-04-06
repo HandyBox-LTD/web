@@ -45,7 +45,7 @@ export function HomeHeroSection() {
         </Heading>
 
         <Text color="muted" fontSize="lg" maxW="2xl">
-          Post a job, get offers, and book a vetted handyman in minutes.
+          Post a task, get offers, and book a vetted handyman in minutes.
           Experience the architectural precision of master craftsmanship at your
           doorstep.
         </Text>

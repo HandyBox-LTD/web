@@ -14,6 +14,8 @@ import {
 import { ME_QUERY } from '@/graphql/auth'
 import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TasksQueryData } from '@/graphql/tasks-query.types'
+import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
+
 import {
   type MyOfferItem,
   type TaskItem,
@@ -23,16 +25,14 @@ import {
   isTaskCompleted,
   matchesSearch,
   timeFromUnknown,
-} from '@/utils/dashboardHelpers'
+} from './dashboardHelpers'
 import type {
   DashboardProfile,
   DashboardTrade,
   DashboardWorkerProfile,
   ServiceHistoryEntry,
-} from '@/utils/dashboardTypes'
-import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { getWorkerRegistered, setWorkerRegistered } from '@/utils/workerSession'
-import { useDashboardSearchStore } from '@store/dashboardSearchStore'
+} from './dashboardTypes'
+import { getWorkerRegistered, setWorkerRegistered } from './workerSession'
 
 type LiveHistoryItem =
   | {
@@ -129,8 +129,7 @@ type DashboardDataProviderProps = {
 export function DashboardDataProvider({
   children,
 }: DashboardDataProviderProps) {
-  const search = useDashboardSearchStore((s) => s.search)
-  const setSearch = useDashboardSearchStore((s) => s.setSearch)
+  const [search, setSearch] = useState('')
   const [profile, setProfile] = useState<DashboardProfile | null>(null)
   const [workerProfile, setWorkerProfile] = useState<DashboardWorkerProfile>(
     defaultWorkerProfile(),
@@ -463,7 +462,6 @@ export function DashboardDataProvider({
       userInitial,
       workerEnabled,
       workerProfile,
-      setSearch,
     ],
   )
 

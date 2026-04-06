@@ -286,7 +286,7 @@ export function TaskBrowseFilters({
               🗺️
             </Box>
             <Stack gap={1}>
-              <Heading size="sm">See jobs on a map</Heading>
+              <Heading size="sm">See tasks on a map</Heading>
               <Text fontSize="sm" color="muted">
                 Browse the same listings in list + map view. Pins are
                 illustrative until task locations include coordinates.

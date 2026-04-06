@@ -68,7 +68,7 @@ export function AvailableJobsHeader({
           </Text>
           <NativeSelect.Root flex={1} minW={0}>
             <NativeSelect.Field
-              aria-label="Sort jobs"
+              aria-label="Sort tasks"
               bg="transparent"
               borderWidth={0}
               color="fg"
