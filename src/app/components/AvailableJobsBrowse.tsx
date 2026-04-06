@@ -1,10 +1,10 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { Box, Grid, Link, Stack } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 
+import { TaskBrowseMapbox } from '@/app/components/TaskBrowseMapbox'
 import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
@@ -36,50 +36,6 @@ function endOfLocalDay(d = new Date()) {
   const x = startOfLocalDay(d)
   x.setHours(23, 59, 59, 999)
   return x
-}
-
-function mapTasksToPreviewPositions(
-  tasks: TaskListItem[],
-): Map<string, { leftPct: number; topPct: number }> {
-  const withCoords = tasks.filter(
-    (t) =>
-      t.locationLat != null &&
-      t.locationLng != null &&
-      Number.isFinite(t.locationLat) &&
-      Number.isFinite(t.locationLng),
-  )
-  const map = new Map<string, { leftPct: number; topPct: number }>()
-  if (withCoords.length === 0) return map
-
-  let minLat = withCoords[0].locationLat as number
-  let maxLat = minLat
-  let minLng = withCoords[0].locationLng as number
-  let maxLng = minLng
-  for (const t of withCoords) {
-    const la = t.locationLat as number
-    const ln = t.locationLng as number
-    minLat = Math.min(minLat, la)
-    maxLat = Math.max(maxLat, la)
-    minLng = Math.min(minLng, ln)
-    maxLng = Math.max(maxLng, ln)
-  }
-  const latPad = Math.max((maxLat - minLat) * 0.08, 0.002)
-  const lngPad = Math.max((maxLng - minLng) * 0.08, 0.002)
-  minLat -= latPad
-  maxLat += latPad
-  minLng -= lngPad
-  maxLng += lngPad
-  const latSpan = maxLat - minLat || 1
-  const lngSpan = maxLng - minLng || 1
-
-  for (const t of withCoords) {
-    const la = t.locationLat as number
-    const ln = t.locationLng as number
-    const leftPct = 10 + ((ln - minLng) / lngSpan) * 80
-    const topPct = 15 + (1 - (la - minLat) / latSpan) * 70
-    map.set(t.id, { leftPct, topPct })
-  }
-  return map
 }
 
 const FILTER_CATEGORIES = [
@@ -173,83 +129,6 @@ function matchesUrgency(task: TaskListItem, urgency: UrgencyFilter): boolean {
   return true
 }
 
-function TasksMapPanel({
-  tasks,
-  positions,
-}: {
-  tasks: TaskListItem[]
-  positions: Map<string, { leftPct: number; topPct: number }>
-}) {
-  return (
-    <Box
-      borderRadius="xl"
-      position={{ lg: 'sticky' }}
-      top={{ lg: 6 }}
-      h={{ base: '280px', lg: 'min(70vh, 560px)' }}
-      bg="linear-gradient(165deg, #dbe5f7 0%, #c5d9f5 40%, #e8eef8 100%)"
-      boxShadow="ghostBorder"
-      overflow="hidden"
-      borderWidth="1px"
-      borderColor="border"
-    >
-      <Box
-        position="relative"
-        w="full"
-        h="full"
-        role="img"
-        aria-label="Map preview of open tasks with coordinates"
-      >
-        <Text
-          position="absolute"
-          top={4}
-          left={4}
-          fontSize="xs"
-          fontWeight={700}
-          color="muted"
-        >
-          Map preview
-        </Text>
-        <Text
-          position="absolute"
-          bottom={4}
-          left={4}
-          right={4}
-          fontSize="xs"
-          color="muted"
-        >
-          Pins use task coordinates when available; search uses London as the
-          default centre with your chosen radius.
-        </Text>
-        {tasks.map((task, i) => {
-          const pos = positions.get(task.id)
-          const left = pos?.leftPct ?? 12 + ((i * 17) % 76)
-          const top = pos?.topPct ?? 18 + ((i * 23) % 62)
-          return (
-            <Link
-              key={task.id}
-              as={NextLink}
-              href={`/task/${task.id}`}
-              position="absolute"
-              left={`${left}%`}
-              top={`${top}%`}
-              w={3}
-              h={3}
-              borderRadius="full"
-              bg="primary.500"
-              borderWidth="2px"
-              borderColor="white"
-              boxShadow="sm"
-              title={task.title}
-              aria-label={`Open task: ${task.title}`}
-              _hover={{ textDecoration: 'none', opacity: 0.9 }}
-            />
-          )
-        })}
-      </Box>
-    </Box>
-  )
-}
-
 export type AvailableJobsBrowseProps = {
   layout?: 'default' | 'mapSplit'
   headerTitle?: string
@@ -329,6 +208,8 @@ export function AvailableJobsBrowse({
     notifyOnNetworkStatusChange: true,
   })
 
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+
   const filteredSorted = useMemo(() => {
     const items = data?.tasks ?? []
 
@@ -352,11 +233,6 @@ export function AvailableJobsBrowse({
     }
     return next
   }, [data, selectedCategories, urgency, sort])
-
-  const mapPositions = useMemo(
-    () => mapTasksToPreviewPositions(filteredSorted),
-    [filteredSorted],
-  )
 
   const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
 
@@ -493,17 +369,32 @@ export function AvailableJobsBrowse({
         >
           {filterBlock}
           {listBlock}
-          <TasksMapPanel tasks={pageItems} positions={mapPositions} />
+          <TaskBrowseMapbox
+            accessToken={mapboxToken}
+            centerLat={queryVariables.lat}
+            centerLng={queryVariables.lng}
+            radiusMiles={queryVariables.radiusMiles}
+            tasks={filteredSorted}
+          />
         </Grid>
       ) : (
-        <Grid
-          templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
-          gap={{ base: 8, lg: 10 }}
-          alignItems="start"
-        >
-          {filterBlock}
-          {listBlock}
-        </Grid>
+        <Stack gap={{ base: 8, lg: 10 }}>
+          <Grid
+            templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
+            gap={{ base: 8, lg: 10 }}
+            alignItems="start"
+          >
+            {filterBlock}
+            {listBlock}
+          </Grid>
+          <TaskBrowseMapbox
+            accessToken={mapboxToken}
+            centerLat={queryVariables.lat}
+            centerLng={queryVariables.lng}
+            radiusMiles={queryVariables.radiusMiles}
+            tasks={filteredSorted}
+          />
+        </Stack>
       )}
     </Stack>
   )

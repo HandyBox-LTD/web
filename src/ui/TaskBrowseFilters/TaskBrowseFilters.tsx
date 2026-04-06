@@ -302,8 +302,8 @@ export function TaskBrowseFilters({
             <Stack gap={1}>
               <Heading size="sm">See tasks on a map</Heading>
               <Text fontSize="sm" color="muted">
-                Browse the same listings in list + map view. Pins are
-                illustrative until task locations include coordinates.
+                Open the full list + Mapbox view. Tasks with coordinates appear
+                as pins on the map.
               </Text>
             </Stack>
             <Button
