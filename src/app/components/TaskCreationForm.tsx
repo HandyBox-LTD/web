@@ -54,6 +54,8 @@ export function TaskCreationForm() {
   const [title, setTitle] = useState('Fix a leaky tap')
   const [description, setDescription] = useState('Tap leaking under the sink')
   const [location, setLocation] = useState('Hackney, London')
+  const [locationLat, setLocationLat] = useState('51.5416')
+  const [locationLng, setLocationLng] = useState('-0.0572')
   const [preferredDate, setPreferredDate] = useState('')
   const [preferredTimeSlot, setPreferredTimeSlot] =
     useState<TimeSlot>('MORNING')
@@ -73,6 +75,8 @@ export function TaskCreationForm() {
     const trimmedDescription = description.trim()
     const trimmedCategory = category.trim()
     const trimmedContactMethod = contactMethod.trim()
+    const parsedLocationLat = Number.parseFloat(locationLat)
+    const parsedLocationLng = Number.parseFloat(locationLng)
     const parsedPriceOfferPence = Number.parseInt(priceOfferPence, 10)
 
     if (targetStep === 1) {
@@ -82,6 +86,20 @@ export function TaskCreationForm() {
       }
       if (!trimmedCategory) {
         setError('Please choose a category.')
+        return false
+      }
+      if (
+        !Number.isFinite(parsedLocationLat) ||
+        Number.isNaN(parsedLocationLat)
+      ) {
+        setError('Please provide a valid latitude.')
+        return false
+      }
+      if (
+        !Number.isFinite(parsedLocationLng) ||
+        Number.isNaN(parsedLocationLng)
+      ) {
+        setError('Please provide a valid longitude.')
         return false
       }
     }
@@ -134,6 +152,8 @@ export function TaskCreationForm() {
     const trimmedLocation = location.trim()
     const trimmedCategory = category.trim()
     const trimmedContactMethod = contactMethod.trim()
+    const parsedLocationLat = Number.parseFloat(locationLat)
+    const parsedLocationLng = Number.parseFloat(locationLng)
     const parsedPriceOfferPence = Number.parseInt(priceOfferPence, 10)
     const isoDateTime = toIsoDateTime(preferredDate, preferredTimeSlot)
 
@@ -160,6 +180,8 @@ export function TaskCreationForm() {
             title: trimmedTitle,
             description: trimmedDescription,
             location: trimmedLocation || undefined,
+            locationLat: parsedLocationLat,
+            locationLng: parsedLocationLng,
             dateTime: isoDateTime,
             category: trimmedCategory,
             priceOfferPence: parsedPriceOfferPence,
@@ -227,6 +249,24 @@ export function TaskCreationForm() {
                     value={location}
                     onChange={(event) => setLocation(event.target.value)}
                     placeholder="e.g. Hackney, London"
+                  />
+                </FormField>
+                <FormField label="Latitude">
+                  <TextInput
+                    type="number"
+                    step="any"
+                    value={locationLat}
+                    onChange={(event) => setLocationLat(event.target.value)}
+                    placeholder="e.g. 51.5416"
+                  />
+                </FormField>
+                <FormField label="Longitude">
+                  <TextInput
+                    type="number"
+                    step="any"
+                    value={locationLng}
+                    onChange={(event) => setLocationLng(event.target.value)}
+                    placeholder="e.g. -0.0572"
                   />
                 </FormField>
               </SimpleGrid>

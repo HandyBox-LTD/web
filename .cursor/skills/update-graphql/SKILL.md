@@ -25,10 +25,11 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
 3. **Analyze the Schema**
    Read `.codegen/schema.ts` (or schema SDL if available) and confirm the correct `Query`, `Mutation`, and object field names before editing operations.
 
-4. **Update GraphQL Operations**
-   Review the files in the `src/graphql/` directory (e.g., `tasks.ts`, `auth.ts`, `users.ts`, `categories.ts`, `reviews.ts`) and update them accordingly:
+4. **Update GraphQL Operations (Full Audit)**
+   Review **every** operation file in `src/graphql/` (for example: `tasks.ts`, `auth.ts`, `users.ts`, `categories.ts`, `reviews.ts`) and compare each operation against the latest schema inputs/outputs:
    - Add any new queries or mutations that exist in the schema but are missing from the `src/graphql/` folder.
    - Update the fields of existing operations if the schema has changed (e.g., added/removed/renamed fields).
+   - Ensure required input fields in schema input types are reflected in FE payload builders/forms (example: required `CreateTaskInput.locationLat` / `locationLng` must be provided by the create-task flow).
    - Ensure the structure strictly follows the generated schema types.
 
 5. **Identify Affected Frontend Components**
@@ -38,7 +39,7 @@ When requested to update the GraphQL schema or run codegen, follow these steps t
    Update the affected frontend components to align with the new GraphQL operation signatures, fields, and TypeScript types. Ensure that variables passed to mutations/queries match the new schema requirements.
 
 7. **Check API and Add New Features**
-    compare with the current `src/graphql/` operations and `.codegen/schema.ts`:
+   Compare API capabilities with the current `src/graphql/` operations and `.codegen/schema.ts`:
    - Identify newly added queries/mutations/types.
    - Add missing operations in `src/graphql/` for APIs that are now available.
    - Wire new operations into frontend flows where relevant (or add TODO notes if UI work is out of scope).

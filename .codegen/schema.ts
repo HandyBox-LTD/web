@@ -640,7 +640,7 @@ export type CreateTaskMutationVariables = Exact<{
 }>;
 
 
-export type CreateTaskMutation = { createTask: { id: string, title: string, description: string, location?: string | null, dateTime?: any | null, category?: string | null, priceOfferPence?: number | null, paymentMethod?: TaskPaymentMethod | null, contactMethod?: string | null } };
+export type CreateTaskMutation = { createTask: { id: string, title: string, description: string, location?: string | null, locationLat?: number | null, locationLng?: number | null, dateTime?: any | null, category?: string | null, priceOfferPence?: number | null, paymentMethod?: TaskPaymentMethod | null, contactMethod?: string | null } };
 
 export type AddOfferMutationVariables = Exact<{
   input: AddOfferInput;

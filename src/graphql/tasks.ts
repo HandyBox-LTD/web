@@ -7,6 +7,8 @@ export const CREATE_TASK = gql`
       title
       description
       location
+      locationLat
+      locationLng
       dateTime
       category
       priceOfferPence
