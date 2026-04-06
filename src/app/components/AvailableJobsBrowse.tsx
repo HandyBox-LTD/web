@@ -20,9 +20,67 @@ import type { JobCardBadgeVariant, UrgencyFilter } from '@ui'
 const PAGE_SIZE = 5
 
 const SORT_OPTIONS = [
+  { value: 'nearest', label: 'Nearest' },
   { value: 'newest', label: 'Newest' },
   { value: 'oldest', label: 'Oldest' },
 ] as const
+
+const LONDON_LAT = 51.5074
+const LONDON_LNG = -0.1278
+
+function startOfLocalDay(d = new Date()) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+function endOfLocalDay(d = new Date()) {
+  const x = startOfLocalDay(d)
+  x.setHours(23, 59, 59, 999)
+  return x
+}
+
+function mapTasksToPreviewPositions(
+  tasks: TaskListItem[],
+): Map<string, { leftPct: number; topPct: number }> {
+  const withCoords = tasks.filter(
+    (t) =>
+      t.locationLat != null &&
+      t.locationLng != null &&
+      Number.isFinite(t.locationLat) &&
+      Number.isFinite(t.locationLng),
+  )
+  const map = new Map<string, { leftPct: number; topPct: number }>()
+  if (withCoords.length === 0) return map
+
+  let minLat = withCoords[0].locationLat as number
+  let maxLat = minLat
+  let minLng = withCoords[0].locationLng as number
+  let maxLng = minLng
+  for (const t of withCoords) {
+    const la = t.locationLat as number
+    const ln = t.locationLng as number
+    minLat = Math.min(minLat, la)
+    maxLat = Math.max(maxLat, la)
+    minLng = Math.min(minLng, ln)
+    maxLng = Math.max(maxLng, ln)
+  }
+  const latPad = Math.max((maxLat - minLat) * 0.08, 0.002)
+  const lngPad = Math.max((maxLng - minLng) * 0.08, 0.002)
+  minLat -= latPad
+  maxLat += latPad
+  minLng -= lngPad
+  maxLng += lngPad
+  const latSpan = maxLat - minLat || 1
+  const lngSpan = maxLng - minLng || 1
+
+  for (const t of withCoords) {
+    const la = t.locationLat as number
+    const ln = t.locationLng as number
+    const leftPct = 10 + ((ln - minLng) / lngSpan) * 80
+    const topPct = 15 + (1 - (la - minLat) / latSpan) * 70
+    map.set(t.id, { leftPct, topPct })
+  }
+  return map
+}
 
 const FILTER_CATEGORIES = [
   'Plumbing',
@@ -115,7 +173,13 @@ function matchesUrgency(task: TaskListItem, urgency: UrgencyFilter): boolean {
   return true
 }
 
-function TasksMapPanel({ tasks }: { tasks: TaskListItem[] }) {
+function TasksMapPanel({
+  tasks,
+  positions,
+}: {
+  tasks: TaskListItem[]
+  positions: Map<string, { leftPct: number; topPct: number }>
+}) {
   return (
     <Box
       borderRadius="xl"
@@ -133,7 +197,7 @@ function TasksMapPanel({ tasks }: { tasks: TaskListItem[] }) {
         w="full"
         h="full"
         role="img"
-        aria-label="Illustrative map of open tasks on this page"
+        aria-label="Map preview of open tasks with coordinates"
       >
         <Text
           position="absolute"
@@ -153,12 +217,13 @@ function TasksMapPanel({ tasks }: { tasks: TaskListItem[] }) {
           fontSize="xs"
           color="muted"
         >
-          Pins match the current page of results. Real geocoding will replace
-          this layout when locations include coordinates.
+          Pins use task coordinates when available; search uses London as the
+          default centre with your chosen radius.
         </Text>
         {tasks.map((task, i) => {
-          const left = 12 + ((i * 17) % 76)
-          const top = 18 + ((i * 23) % 62)
+          const pos = positions.get(task.id)
+          const left = pos?.leftPct ?? 12 + ((i * 17) % 76)
+          const top = pos?.topPct ?? 18 + ((i * 23) % 62)
           return (
             <Link
               key={task.id}
@@ -196,50 +261,102 @@ export function AvailableJobsBrowse({
   headerTitle = 'Find work near you',
   headerSubtitle,
 }: AvailableJobsBrowseProps = {}) {
-  const [sort, setSort] = useState<string>('newest')
+  const [sort, setSort] = useState<string>('nearest')
   const [page, setPage] = useState(0)
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     () => new Set(FILTER_CATEGORIES),
   )
-  const [radiusMiles, setRadiusMiles] = useState(15)
+  const [radiusMiles, setRadiusMiles] = useState(10)
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const t = window.setTimeout(
+      () => setDebouncedSearch(searchInput.trim()),
+      300,
+    )
+    return () => window.clearTimeout(t)
+  }, [searchInput])
+
+  const queryVariables = useMemo(() => {
+    const minStr = minBudget.trim()
+    const maxStr = maxBudget.trim()
+    const minP = minStr === '' ? undefined : Number.parseFloat(minStr) * 100
+    const maxP = maxStr === '' ? undefined : Number.parseFloat(maxStr) * 100
+    const radius = Math.min(500, Math.max(1, radiusMiles))
+    const singleCategory =
+      selectedCategories.size === 1 ? [...selectedCategories][0] : undefined
+
+    let dateTimeFrom: string | undefined
+    let dateTimeTo: string | undefined
+    if (urgency === 'today') {
+      dateTimeFrom = startOfLocalDay().toISOString()
+      dateTimeTo = endOfLocalDay().toISOString()
+    } else if (urgency === 'week') {
+      const start = startOfLocalDay()
+      start.setDate(start.getDate() - 6)
+      dateTimeFrom = start.toISOString()
+      dateTimeTo = endOfLocalDay().toISOString()
+    }
+
+    return {
+      lat: LONDON_LAT,
+      lng: LONDON_LNG,
+      radiusMiles: radius,
+      search: debouncedSearch || undefined,
+      category: singleCategory,
+      minPricePence:
+        minP != null && Number.isFinite(minP) ? Math.round(minP) : undefined,
+      maxPricePence:
+        maxP != null && Number.isFinite(maxP) ? Math.round(maxP) : undefined,
+      dateTimeFrom,
+      dateTimeTo,
+    }
+  }, [
+    debouncedSearch,
+    minBudget,
+    maxBudget,
+    radiusMiles,
+    selectedCategories,
+    urgency,
+  ])
 
   const { data, loading, error } = useQuery<TasksQueryData>(TASKS_QUERY, {
+    variables: queryVariables,
     notifyOnNetworkStatusChange: true,
   })
 
   const filteredSorted = useMemo(() => {
-    const items = data?.tasks.items ?? []
-    const minP =
-      minBudget.trim() === '' ? null : Number.parseFloat(minBudget) * 100
-    const maxP =
-      maxBudget.trim() === '' ? null : Number.parseFloat(maxBudget) * 100
+    const items = data?.tasks ?? []
 
     let next = items.filter((task) => {
       if (selectedCategories.size > 0) {
         const cat = (task.category ?? '').trim()
         if (cat && !selectedCategories.has(cat)) return false
       }
-      const budget = effectiveBudgetPence(task)
-      if (minP != null && Number.isFinite(minP)) {
-        if (budget == null || budget < minP) return false
+      if (urgency === 'emergency' && !matchesUrgency(task, urgency)) {
+        return false
       }
-      if (maxP != null && Number.isFinite(maxP)) {
-        if (budget == null || budget > maxP) return false
-      }
-      if (!matchesUrgency(task, urgency)) return false
       return true
     })
 
-    next = [...next].sort((a, b) => {
-      const ta = taskCreatedTime(a)
-      const tb = taskCreatedTime(b)
-      return sort === 'oldest' ? ta - tb : tb - ta
-    })
+    if (sort === 'newest' || sort === 'oldest') {
+      next = [...next].sort((a, b) => {
+        const ta = taskCreatedTime(a)
+        const tb = taskCreatedTime(b)
+        return sort === 'oldest' ? ta - tb : tb - ta
+      })
+    }
     return next
-  }, [data, selectedCategories, minBudget, maxBudget, urgency, sort])
+  }, [data, selectedCategories, urgency, sort])
+
+  const mapPositions = useMemo(
+    () => mapTasksToPreviewPositions(filteredSorted),
+    [filteredSorted],
+  )
 
   const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE))
 
@@ -271,8 +388,16 @@ export function AvailableJobsBrowse({
         categories={FILTER_CATEGORIES}
         selectedCategories={selectedCategories}
         onToggleCategory={toggleCategory}
+        searchQuery={searchInput}
+        onSearchChange={(v) => {
+          setSearchInput(v)
+          setPage(0)
+        }}
         radiusMiles={radiusMiles}
-        onRadiusChange={setRadiusMiles}
+        onRadiusChange={(m) => {
+          setRadiusMiles(m)
+          setPage(0)
+        }}
         minBudgetPounds={minBudget}
         maxBudgetPounds={maxBudget}
         onMinBudgetChange={(v) => {
@@ -368,7 +493,7 @@ export function AvailableJobsBrowse({
         >
           {filterBlock}
           {listBlock}
-          <TasksMapPanel tasks={pageItems} />
+          <TasksMapPanel tasks={pageItems} positions={mapPositions} />
         </Grid>
       ) : (
         <Grid
