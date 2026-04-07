@@ -10,13 +10,15 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { CREATE_TASK } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { type CreateTaskMutation, TaskPaymentMethod } from '@codegen/schema'
 import { Button, FormField, GlassCard, Heading, Text, TextInput } from '@ui'
+
+import { TaskLocationMapPicker } from './TaskLocationMapPicker'
 
 const TOTAL_STEPS = 3
 
@@ -51,24 +53,32 @@ function toIsoDateTime(preferredDate: string, preferredTimeSlot: TimeSlot) {
 export function TaskCreationForm() {
   const router = useRouter()
   const [step, setStep] = useState(1)
-  const [title, setTitle] = useState('Fix a leaky tap')
-  const [description, setDescription] = useState('Tap leaking under the sink')
-  const [location, setLocation] = useState('Hackney, London')
-  const [locationLat, setLocationLat] = useState('51.5416')
-  const [locationLng, setLocationLng] = useState('-0.0572')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [location, setLocation] = useState('')
+  const [locationLat, setLocationLat] = useState('')
+  const [locationLng, setLocationLng] = useState('')
   const [preferredDate, setPreferredDate] = useState('')
   const [preferredTimeSlot, setPreferredTimeSlot] =
     useState<TimeSlot>('MORNING')
-  const [category, setCategory] = useState('Plumbing')
-  const [priceOfferPence, setPriceOfferPence] = useState('4500')
+  const [category, setCategory] = useState('')
+  const [priceOfferPence, setPriceOfferPence] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<TaskPaymentMethod>(
     TaskPaymentMethod.Cash,
   )
-  const [contactMethod, setContactMethod] = useState('Phone')
+  const [contactMethod, setContactMethod] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const [runCreateTask, { loading: creating }] =
     useMutation<CreateTaskMutation>(CREATE_TASK)
+
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+
+  useEffect(() => {
+    if (!getAuthToken()) {
+      router.replace(`/login?next=${encodeURIComponent('/tasks/create')}`)
+    }
+  }, [router])
 
   function validateStep(targetStep: number) {
     const trimmedTitle = title.trim()
@@ -168,8 +178,7 @@ export function TaskCreationForm() {
     }
 
     if (!getAuthToken()) {
-      setError('Please log in before posting a task.')
-      router.push(`/login?next=${encodeURIComponent('/tasks/create')}`)
+      router.replace(`/login?next=${encodeURIComponent('/tasks/create')}`)
       return
     }
 
@@ -244,32 +253,28 @@ export function TaskCreationForm() {
                     placeholder="e.g. Fix a leaky tap"
                   />
                 </FormField>
-                <FormField label="Location (optional)">
-                  <TextInput
-                    value={location}
-                    onChange={(event) => setLocation(event.target.value)}
-                    placeholder="e.g. Hackney, London"
-                  />
-                </FormField>
-                <FormField label="Latitude">
-                  <TextInput
-                    type="number"
-                    step="any"
-                    value={locationLat}
-                    onChange={(event) => setLocationLat(event.target.value)}
-                    placeholder="e.g. 51.5416"
-                  />
-                </FormField>
-                <FormField label="Longitude">
-                  <TextInput
-                    type="number"
-                    step="any"
-                    value={locationLng}
-                    onChange={(event) => setLocationLng(event.target.value)}
-                    placeholder="e.g. -0.0572"
-                  />
-                </FormField>
               </SimpleGrid>
+
+              <GlassCard p={{ base: 4, md: 5 }} bg="surfaceContainerLow">
+                <Stack gap={4}>
+                  <Stack gap={1}>
+                    <Heading size="md">Task location</Heading>
+                    <Text fontSize="sm" color="muted">
+                      Search by place or move the map — coordinates stay in sync
+                      with the pin at the centre.
+                    </Text>
+                  </Stack>
+                  <TaskLocationMapPicker
+                    accessToken={mapboxToken}
+                    location={location}
+                    locationLat={locationLat}
+                    locationLng={locationLng}
+                    onLocationChange={setLocation}
+                    onLocationLatChange={setLocationLat}
+                    onLocationLngChange={setLocationLng}
+                  />
+                </Stack>
+              </GlassCard>
 
               <FormField label="Category">
                 <HStack gap={2} flexWrap="wrap">
