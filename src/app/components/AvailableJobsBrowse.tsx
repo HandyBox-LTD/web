@@ -164,10 +164,7 @@ export function AvailableJobsBrowse({
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
 
   const isDesktopSplit =
-    useBreakpointValue(
-      { base: false, md: true },
-      { fallback: 'md', ssr: false },
-    ) ?? false
+    useBreakpointValue({ base: false, md: true }, { fallback: 'base' }) ?? false
 
   useEffect(() => {
     const t = window.setTimeout(
