@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { Box, Grid, Stack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack, useBreakpointValue } from '@chakra-ui/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { TaskBrowseMapbox } from '@/app/components/TaskBrowseMapbox'
@@ -9,8 +9,10 @@ import { TASKS_QUERY } from '@/graphql/tasks'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import {
+  AppDrawer,
   AvailableJobCard,
   AvailableJobsHeader,
+  Button,
   TaskBrowseFilters,
   TaskListPagination,
   Text,
@@ -158,6 +160,14 @@ export function AvailableJobsBrowse({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const prevSelectedTaskIdRef = useRef<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
+
+  const isDesktopSplit =
+    useBreakpointValue(
+      { base: false, md: true },
+      { fallback: 'md', ssr: false },
+    ) ?? false
 
   useEffect(() => {
     const t = window.setTimeout(
@@ -404,81 +414,168 @@ export function AvailableJobsBrowse({
   )
 
   if (layout === 'mapHero') {
-    return (
-      <Box position="relative" w="full" minH={{ base: '100dvh', md: '100dvh' }}>
-        <TaskBrowseMapbox
-          accessToken={mapboxToken}
-          centerLat={queryVariables.lat}
-          centerLng={queryVariables.lng}
-          radiusMiles={queryVariables.radiusMiles}
-          tasks={mapTasksForBox}
-          variant="fullscreen"
-          selectedTaskId={selectedTaskId}
-          onMarkerSelect={setSelectedTaskId}
-        />
+    const listPanelInner = (
+      <>
+        <Box
+          px={{ base: 3, md: 4 }}
+          pt={{ base: 3, md: 4 }}
+          pb={2}
+          flexShrink={0}
+        >
+          <HStack gap={2} flexWrap="wrap" align="center">
+            <Button
+              type="button"
+              variant="subtle"
+              bg="surfaceContainerHigh"
+              size="sm"
+              onClick={() => setFiltersOpen(true)}
+            >
+              Filters
+            </Button>
+          </HStack>
+        </Box>
+
+        <Box px={{ base: 3, md: 4 }} pt={0} flexShrink={0}>
+          <AvailableJobsHeader
+            title={headerTitle}
+            subtitle={subtitle}
+            sortValue={sort}
+            sortOptions={SORT_OPTIONS}
+            onSortChange={(v) => {
+              setSort(v)
+              setPage(0)
+            }}
+          />
+        </Box>
 
         <Box
-          position="absolute"
-          zIndex={2}
-          top={{ base: 3, md: 5 }}
-          left={{ base: 3, md: 5 }}
-          bottom={{ base: 3, md: 5 }}
-          w={{ base: 'calc(100% - 24px)', md: 'min(420px, 38vw)' }}
-          maxW="440px"
-          display="flex"
-          flexDirection="column"
-          pointerEvents="none"
+          flex={1}
+          minH={0}
+          overflowY="auto"
+          px={{ base: 3, md: 4 }}
+          pb={{ base: 3, md: 4 }}
         >
-          <Stack
-            gap={4}
-            flex={1}
-            minH={0}
-            bg="surfaceContainerLowest"
-            borderRadius="2xl"
-            boxShadow="0 8px 40px rgba(15,23,42,0.18)"
-            borderWidth="1px"
-            borderColor="border"
-            overflow="hidden"
-            pointerEvents="auto"
+          <Stack gap={4}>{listBody}</Stack>
+        </Box>
+      </>
+    )
+
+    return (
+      <>
+        <AppDrawer
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          title="Filters"
+          description="Refine tasks by search, area, budget, and urgency."
+          placement="start"
+          size="md"
+          primaryActionLabel="Apply"
+        >
+          {filterBlock}
+        </AppDrawer>
+
+        <Box position="relative" w="full" minH="100dvh">
+          <Box
+            position="absolute"
+            inset={0}
+            display={
+              isDesktopSplit ? 'block' : mobileView === 'map' ? 'block' : 'none'
+            }
+            zIndex={0}
           >
-            <Box
-              flexShrink={0}
-              maxH={{ base: '38vh', md: '42vh' }}
-              overflowY="auto"
-              px={{ base: 3, md: 4 }}
-              pt={{ base: 3, md: 4 }}
-              pb={2}
-              borderBottomWidth="1px"
-              borderColor="border"
-            >
-              {filterBlock}
-            </Box>
+            <TaskBrowseMapbox
+              accessToken={mapboxToken}
+              centerLat={queryVariables.lat}
+              centerLng={queryVariables.lng}
+              radiusMiles={queryVariables.radiusMiles}
+              tasks={mapTasksForBox}
+              variant="fullscreen"
+              visible={isDesktopSplit || mobileView === 'map'}
+              selectedTaskId={selectedTaskId}
+              onMarkerSelect={(id) => {
+                setSelectedTaskId(id)
+                if (!isDesktopSplit) setMobileView('list')
+              }}
+            />
+          </Box>
 
-            <Box px={{ base: 3, md: 4 }} pt={0} flexShrink={0}>
-              <AvailableJobsHeader
-                title={headerTitle}
-                subtitle={subtitle}
-                sortValue={sort}
-                sortOptions={SORT_OPTIONS}
-                onSortChange={(v) => {
-                  setSort(v)
-                  setPage(0)
-                }}
-              />
-            </Box>
-
-            <Box
+          <Box
+            position="absolute"
+            zIndex={2}
+            top={{ base: 3, md: 5 }}
+            left={{ base: 3, md: 5 }}
+            bottom={{ base: 3, md: 5 }}
+            w={{
+              base: 'calc(100% - 24px)',
+              md: 'min(420px, 38vw)',
+            }}
+            maxW="440px"
+            display="flex"
+            flexDirection="column"
+            pointerEvents="none"
+          >
+            <Stack
+              gap={0}
               flex={1}
               minH={0}
-              overflowY="auto"
-              px={{ base: 3, md: 4 }}
-              pb={{ base: 3, md: 4 }}
+              bg="surfaceContainerLowest"
+              borderRadius="2xl"
+              boxShadow="0 8px 40px rgba(15,23,42,0.18)"
+              borderWidth="1px"
+              borderColor="border"
+              overflow="hidden"
+              pointerEvents="auto"
+              display={
+                isDesktopSplit
+                  ? 'flex'
+                  : mobileView === 'list'
+                    ? 'flex'
+                    : 'none'
+              }
             >
-              <Stack gap={4}>{listBody}</Stack>
-            </Box>
-          </Stack>
+              {listPanelInner}
+            </Stack>
+          </Box>
+
+          {!isDesktopSplit ? (
+            <HStack
+              position="absolute"
+              zIndex={3}
+              bottom={4}
+              left="50%"
+              transform="translateX(-50%)"
+              gap={2}
+              bg="surfaceContainerLowest"
+              borderRadius="full"
+              boxShadow="0 4px 24px rgba(15,23,42,0.15)"
+              borderWidth="1px"
+              borderColor="border"
+              p={1}
+            >
+              <Button
+                type="button"
+                size="sm"
+                variant={mobileView === 'list' ? 'solid' : 'subtle'}
+                borderRadius="full"
+                px={5}
+                onClick={() => setMobileView('list')}
+              >
+                List
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={mobileView === 'map' ? 'solid' : 'subtle'}
+                borderRadius="full"
+                px={5}
+                onClick={() => setMobileView('map')}
+              >
+                Map
+              </Button>
+            </HStack>
+          ) : null}
         </Box>
-      </Box>
+      </>
     )
   }
 

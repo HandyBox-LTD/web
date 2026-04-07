@@ -26,6 +26,11 @@ export type TaskBrowseMapboxProps = {
   variant?: 'panel' | 'fullscreen'
   selectedTaskId?: string | null
   onMarkerSelect?: (taskId: string) => void
+  /**
+   * When false, the map may be `display:none` (e.g. mobile list tab). Toggle to
+   * true so Mapbox can `resize()` after becoming visible.
+   */
+  visible?: boolean
 }
 
 function milesToLatDegrees(miles: number) {
@@ -129,6 +134,7 @@ export function TaskBrowseMapbox({
   variant = 'panel',
   selectedTaskId = null,
   onMarkerSelect,
+  visible = true,
 }: TaskBrowseMapboxProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapboxMap | null>(null)
@@ -215,6 +221,15 @@ export function TaskBrowseMapbox({
     source?.setData(radiusFeature(centerLng, centerLat, radiusMiles))
     map.easeTo({ center: [centerLng, centerLat], duration: 450 })
   }, [mapReady, centerLat, centerLng, radiusMiles])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!mapReady || !map || !visible) return
+    const id = requestAnimationFrame(() => {
+      map.resize()
+    })
+    return () => cancelAnimationFrame(id)
+  }, [mapReady, visible])
 
   useEffect(() => {
     const map = mapRef.current
