@@ -27,6 +27,10 @@ export type AvailableJobCardProps = {
   imageFallback?: string
   offerHref: string
   detailsHref: string
+  /** Highlights the card when synced with the map selection. */
+  isActive?: boolean
+  /** Called when the card is clicked (e.g. to sync with map). Buttons still navigate normally. */
+  onActivate?: () => void
 }
 
 function categoryGradient(category: string): string {
@@ -55,6 +59,8 @@ export function AvailableJobCard({
   imageFallback = 'HB',
   offerHref,
   detailsHref,
+  isActive = false,
+  onActivate,
 }: AvailableJobCardProps) {
   const showBadge = badgeVariant !== 'none' && badgeText
   const badgeBg =
@@ -67,7 +73,7 @@ export function AvailableJobCard({
       ? `${description.slice(0, 217).trim()}…`
       : description
 
-  return (
+  const card = (
     <HStack
       align="stretch"
       gap={0}
@@ -76,8 +82,8 @@ export function AvailableJobCard({
       bg="surfaceContainerLowest"
       boxShadow="card"
       overflow="hidden"
-      borderWidth="1px"
-      borderColor="border"
+      borderWidth="2px"
+      borderColor={isActive ? 'primary.500' : 'border'}
       transition="all 180ms ease"
       _hover={{ transform: 'translateY(-2px)', boxShadow: 'ambient' }}
     >
@@ -168,6 +174,7 @@ export function AvailableJobCard({
             flex={{ base: '1 1 100%', sm: 2 }}
             minW={{ base: 'full', sm: '140px' }}
             size="md"
+            onClick={(e) => e.stopPropagation()}
           >
             Make an offer
           </Button>
@@ -181,6 +188,7 @@ export function AvailableJobCard({
             minW={{ base: 'full', sm: '100px' }}
             size="md"
             boxShadow="none"
+            onClick={(e) => e.stopPropagation()}
           >
             Details
           </Button>
@@ -188,4 +196,28 @@ export function AvailableJobCard({
       </Stack>
     </HStack>
   )
+
+  if (onActivate) {
+    return (
+      <button
+        type="button"
+        onClick={onActivate}
+        aria-current={isActive ? 'true' : undefined}
+        style={{
+          border: 'none',
+          padding: 0,
+          margin: 0,
+          width: '100%',
+          textAlign: 'left',
+          background: 'transparent',
+          cursor: 'pointer',
+          font: 'inherit',
+        }}
+      >
+        {card}
+      </button>
+    )
+  }
+
+  return card
 }

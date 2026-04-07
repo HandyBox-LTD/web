@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client/react'
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { TaskBrowseMapbox } from '@/app/components/TaskBrowseMapbox'
 import { TASKS_QUERY } from '@/graphql/tasks'
@@ -130,13 +130,17 @@ function matchesUrgency(task: TaskListItem, urgency: UrgencyFilter): boolean {
 }
 
 export type AvailableJobsBrowseProps = {
-  layout?: 'default' | 'mapSplit'
+  /**
+   * `mapHero` — full-viewport map with a floating list panel (homepage default).
+   * `classic` — filters + list in a grid, map panel below (no full bleed).
+   */
+  layout?: 'mapHero' | 'classic'
   headerTitle?: string
   headerSubtitle?: string
 }
 
 export function AvailableJobsBrowse({
-  layout = 'default',
+  layout = 'mapHero',
   headerTitle = 'Find work near you',
   headerSubtitle,
 }: AvailableJobsBrowseProps = {}) {
@@ -151,6 +155,9 @@ export function AvailableJobsBrowse({
   const [urgency, setUrgency] = useState<UrgencyFilter>('any')
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const prevSelectedTaskIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     const t = window.setTimeout(
@@ -244,6 +251,35 @@ export function AvailableJobsBrowse({
   const sliceStart = safePage * PAGE_SIZE
   const pageItems = filteredSorted.slice(sliceStart, sliceStart + PAGE_SIZE)
 
+  useEffect(() => {
+    if (!selectedTaskId) {
+      prevSelectedTaskIdRef.current = null
+      return
+    }
+    if (!filteredSorted.some((t) => t.id === selectedTaskId)) {
+      setSelectedTaskId(null)
+      prevSelectedTaskIdRef.current = null
+      return
+    }
+  }, [filteredSorted, selectedTaskId])
+
+  useEffect(() => {
+    if (selectedTaskId === prevSelectedTaskIdRef.current) return
+    prevSelectedTaskIdRef.current = selectedTaskId
+    if (!selectedTaskId) return
+    const idx = filteredSorted.findIndex((t) => t.id === selectedTaskId)
+    if (idx < 0) return
+    setPage(Math.floor(idx / PAGE_SIZE))
+  }, [selectedTaskId, filteredSorted])
+
+  useEffect(() => {
+    if (!selectedTaskId) return
+    if (!pageItems.some((t) => t.id === selectedTaskId)) return
+    const el = cardRefs.current.get(selectedTaskId)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [selectedTaskId, pageItems])
+
   const toggleCategory = (category: string, checked: boolean) => {
     setSelectedCategories((prev) => {
       const next = new Set(prev)
@@ -259,44 +295,57 @@ export function AvailableJobsBrowse({
     `Browse ${filteredSorted.length} open tasks. Details are read-only until you sign in to quote.`
 
   const filterBlock = (
-    <Box position={{ lg: 'sticky' }} top={{ lg: 6 }}>
-      <TaskBrowseFilters
-        categories={FILTER_CATEGORIES}
-        selectedCategories={selectedCategories}
-        onToggleCategory={toggleCategory}
-        searchQuery={searchInput}
-        onSearchChange={(v) => {
-          setSearchInput(v)
-          setPage(0)
-        }}
-        radiusMiles={radiusMiles}
-        onRadiusChange={(m) => {
-          setRadiusMiles(m)
-          setPage(0)
-        }}
-        minBudgetPounds={minBudget}
-        maxBudgetPounds={maxBudget}
-        onMinBudgetChange={(v) => {
-          setMinBudget(v)
-          setPage(0)
-        }}
-        onMaxBudgetChange={(v) => {
-          setMaxBudget(v)
-          setPage(0)
-        }}
-        urgency={urgency}
-        onUrgencyChange={(u) => {
-          setUrgency(u)
-          setPage(0)
-        }}
-        mapHref="/map"
-        showMapPromo={layout !== 'mapSplit'}
-      />
-    </Box>
+    <TaskBrowseFilters
+      categories={FILTER_CATEGORIES}
+      selectedCategories={selectedCategories}
+      onToggleCategory={toggleCategory}
+      searchQuery={searchInput}
+      onSearchChange={(v) => {
+        setSearchInput(v)
+        setPage(0)
+      }}
+      radiusMiles={radiusMiles}
+      onRadiusChange={(m) => {
+        setRadiusMiles(m)
+        setPage(0)
+      }}
+      minBudgetPounds={minBudget}
+      maxBudgetPounds={maxBudget}
+      onMinBudgetChange={(v) => {
+        setMinBudget(v)
+        setPage(0)
+      }}
+      onMaxBudgetChange={(v) => {
+        setMaxBudget(v)
+        setPage(0)
+      }}
+      urgency={urgency}
+      onUrgencyChange={(u) => {
+        setUrgency(u)
+        setPage(0)
+      }}
+      showMapPromo={false}
+    />
   )
 
-  const listBlock = (
-    <Stack gap={5}>
+  const mapTasksForBox = useMemo(
+    () =>
+      filteredSorted.map((task) => {
+        const { main, sub } = formatBudget(task)
+        return {
+          id: task.id,
+          title: task.title,
+          location: task.location,
+          locationLat: task.locationLat,
+          locationLng: task.locationLng,
+          detailLine: `${main} · ${sub}`,
+        }
+      }),
+    [filteredSorted],
+  )
+
+  const listBody = (
+    <>
       {loading && !data ? (
         <Text color="muted">Loading tasks…</Text>
       ) : error ? (
@@ -314,21 +363,30 @@ export function AvailableJobsBrowse({
           const loc = task.location?.trim() || 'Location on request'
           const cat = task.category?.trim() || 'General'
           return (
-            <AvailableJobCard
+            <Box
               key={task.id}
-              title={task.title}
-              description={task.description}
-              locationLabel={loc}
-              timeLabel={formatRelativeTime(task.createdAt)}
-              categoryLabel={cat}
-              budgetMain={main}
-              budgetSub={sub}
-              badgeVariant={badge.variant}
-              badgeText={badge.text}
-              imageFallback={cat.slice(0, 2)}
-              offerHref={`/task/${task.id}#offer`}
-              detailsHref={`/task/${task.id}`}
-            />
+              ref={(node: HTMLDivElement | null) => {
+                if (node) cardRefs.current.set(task.id, node)
+                else cardRefs.current.delete(task.id)
+              }}
+            >
+              <AvailableJobCard
+                title={task.title}
+                description={task.description}
+                locationLabel={loc}
+                timeLabel={formatRelativeTime(task.createdAt)}
+                categoryLabel={cat}
+                budgetMain={main}
+                budgetSub={sub}
+                badgeVariant={badge.variant}
+                badgeText={badge.text}
+                imageFallback={cat.slice(0, 2)}
+                offerHref={`/task/${task.id}#offer`}
+                detailsHref={`/task/${task.id}`}
+                isActive={selectedTaskId === task.id}
+                onActivate={() => setSelectedTaskId(task.id)}
+              />
+            </Box>
           )
         })
       )}
@@ -342,8 +400,87 @@ export function AvailableJobsBrowse({
           onSelectPage={setPage}
         />
       ) : null}
-    </Stack>
+    </>
   )
+
+  if (layout === 'mapHero') {
+    return (
+      <Box position="relative" w="full" minH={{ base: '100dvh', md: '100dvh' }}>
+        <TaskBrowseMapbox
+          accessToken={mapboxToken}
+          centerLat={queryVariables.lat}
+          centerLng={queryVariables.lng}
+          radiusMiles={queryVariables.radiusMiles}
+          tasks={mapTasksForBox}
+          variant="fullscreen"
+          selectedTaskId={selectedTaskId}
+          onMarkerSelect={setSelectedTaskId}
+        />
+
+        <Box
+          position="absolute"
+          zIndex={2}
+          top={{ base: 3, md: 5 }}
+          left={{ base: 3, md: 5 }}
+          bottom={{ base: 3, md: 5 }}
+          w={{ base: 'calc(100% - 24px)', md: 'min(420px, 38vw)' }}
+          maxW="440px"
+          display="flex"
+          flexDirection="column"
+          pointerEvents="none"
+        >
+          <Stack
+            gap={4}
+            flex={1}
+            minH={0}
+            bg="surfaceContainerLowest"
+            borderRadius="2xl"
+            boxShadow="0 8px 40px rgba(15,23,42,0.18)"
+            borderWidth="1px"
+            borderColor="border"
+            overflow="hidden"
+            pointerEvents="auto"
+          >
+            <Box
+              flexShrink={0}
+              maxH={{ base: '38vh', md: '42vh' }}
+              overflowY="auto"
+              px={{ base: 3, md: 4 }}
+              pt={{ base: 3, md: 4 }}
+              pb={2}
+              borderBottomWidth="1px"
+              borderColor="border"
+            >
+              {filterBlock}
+            </Box>
+
+            <Box px={{ base: 3, md: 4 }} pt={0} flexShrink={0}>
+              <AvailableJobsHeader
+                title={headerTitle}
+                subtitle={subtitle}
+                sortValue={sort}
+                sortOptions={SORT_OPTIONS}
+                onSortChange={(v) => {
+                  setSort(v)
+                  setPage(0)
+                }}
+              />
+            </Box>
+
+            <Box
+              flex={1}
+              minH={0}
+              overflowY="auto"
+              px={{ base: 3, md: 4 }}
+              pb={{ base: 3, md: 4 }}
+            >
+              <Stack gap={4}>{listBody}</Stack>
+            </Box>
+          </Stack>
+        </Box>
+      </Box>
+    )
+  }
 
   return (
     <Stack gap={{ base: 8, md: 10 }}>
@@ -358,44 +495,27 @@ export function AvailableJobsBrowse({
         }}
       />
 
-      {layout === 'mapSplit' ? (
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            lg: 'minmax(260px,320px) minmax(0,1fr) minmax(280px,1fr)',
-          }}
-          gap={{ base: 8, lg: 10 }}
-          alignItems="start"
-        >
+      <Grid
+        templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
+        gap={{ base: 8, lg: 10 }}
+        alignItems="start"
+      >
+        <Box position={{ lg: 'sticky' }} top={{ lg: 6 }}>
           {filterBlock}
-          {listBlock}
-          <TaskBrowseMapbox
-            accessToken={mapboxToken}
-            centerLat={queryVariables.lat}
-            centerLng={queryVariables.lng}
-            radiusMiles={queryVariables.radiusMiles}
-            tasks={filteredSorted}
-          />
-        </Grid>
-      ) : (
-        <Stack gap={{ base: 8, lg: 10 }}>
-          <Grid
-            templateColumns={{ base: '1fr', lg: 'minmax(260px,320px) 1fr' }}
-            gap={{ base: 8, lg: 10 }}
-            alignItems="start"
-          >
-            {filterBlock}
-            {listBlock}
-          </Grid>
-          <TaskBrowseMapbox
-            accessToken={mapboxToken}
-            centerLat={queryVariables.lat}
-            centerLng={queryVariables.lng}
-            radiusMiles={queryVariables.radiusMiles}
-            tasks={filteredSorted}
-          />
-        </Stack>
-      )}
+        </Box>
+        <Stack gap={5}>{listBody}</Stack>
+      </Grid>
+
+      <TaskBrowseMapbox
+        accessToken={mapboxToken}
+        centerLat={queryVariables.lat}
+        centerLng={queryVariables.lng}
+        radiusMiles={queryVariables.radiusMiles}
+        tasks={mapTasksForBox}
+        variant="panel"
+        selectedTaskId={selectedTaskId}
+        onMarkerSelect={setSelectedTaskId}
+      />
     </Stack>
   )
 }
