@@ -95,6 +95,26 @@ function buildPopupHtml(task: TaskBrowseMapTask) {
   `
 }
 
+/** GraphQL / JSON often returns coordinates as strings; Mapbox needs finite numbers. */
+function parseCoord(value: unknown): number | null {
+  if (value == null) return null
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const n = Number.parseFloat(value.trim())
+    return Number.isFinite(n) ? n : null
+  }
+  return null
+}
+
+function taskLngLat(
+  task: TaskBrowseMapTask,
+): { lng: number; lat: number } | null {
+  const lat = parseCoord(task.locationLat)
+  const lng = parseCoord(task.locationLng)
+  if (lat == null || lng == null) return null
+  return { lat, lng }
+}
+
 function markerButtonEl(selected: boolean): {
   el: HTMLButtonElement
   setSelected: (v: boolean) => void
@@ -102,7 +122,7 @@ function markerButtonEl(selected: boolean): {
   const el = document.createElement('button')
   el.type = 'button'
   const apply = (isSel: boolean) => {
-    const s = isSel ? 22 : 15
+    const s = isSel ? 24 : 18
     Object.assign(el.style, {
       display: 'block',
       width: `${s}px`,
@@ -231,114 +251,124 @@ export function TaskBrowseMapbox({
     return () => cancelAnimationFrame(id)
   }, [mapReady, visible])
 
+  // Include `visible` so switching to the Map tab (mobile) re-runs sync after display:none.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: visible is intentionally extra
   useEffect(() => {
     const map = mapRef.current
-    if (!mapReady || !map?.isStyleLoaded()) return
+    if (!mapReady || !map) return
 
-    hoverPopupRef.current?.remove()
-    hoverPopupRef.current = null
-    for (const { marker } of markersRef.current) marker.remove()
-    markersRef.current = []
+    const syncMarkers = () => {
+      if (!map.isStyleLoaded()) return
 
-    const withCoords = tasks.filter(
-      (t) =>
-        t.locationLat != null &&
-        t.locationLng != null &&
-        Number.isFinite(t.locationLat) &&
-        Number.isFinite(t.locationLng),
-    )
+      hoverPopupRef.current?.remove()
+      hoverPopupRef.current = null
+      for (const { marker } of markersRef.current) marker.remove()
+      markersRef.current = []
 
-    void import('mapbox-gl').then((mapboxgl) => {
-      const current = mapRef.current
-      if (!current?.isStyleLoaded()) return
-
-      for (const task of withCoords) {
-        const { el, setSelected } = markerButtonEl(false)
-        el.setAttribute(
-          'aria-label',
-          `Task: ${task.title}. Select to highlight in list.`,
-        )
-        el.addEventListener('click', (e) => {
-          e.stopPropagation()
-          onMarkerSelectRef.current?.(task.id)
+      const withCoords = tasks
+        .map((t) => {
+          const ll = taskLngLat(t)
+          return ll ? { task: t, ...ll } : null
         })
+        .filter((x): x is NonNullable<typeof x> => x != null)
 
-        const lng = task.locationLng as number
-        const lat = task.locationLat as number
+      void import('mapbox-gl').then((mapboxgl) => {
+        const current = mapRef.current
+        if (!current?.isStyleLoaded()) return
 
-        let enterTimer: ReturnType<typeof setTimeout> | undefined
-        el.addEventListener('mouseenter', () => {
-          enterTimer = setTimeout(() => {
+        for (const { task, lat, lng } of withCoords) {
+          const { el, setSelected } = markerButtonEl(false)
+          el.setAttribute(
+            'aria-label',
+            `Task: ${task.title}. Select to highlight in list.`,
+          )
+          el.addEventListener('click', (e) => {
+            e.stopPropagation()
+            onMarkerSelectRef.current?.(task.id)
+          })
+
+          let enterTimer: ReturnType<typeof setTimeout> | undefined
+          el.addEventListener('mouseenter', () => {
+            enterTimer = setTimeout(() => {
+              hoverPopupRef.current?.remove()
+              const popup = new mapboxgl.default.Popup({
+                closeButton: false,
+                closeOnClick: false,
+                offset: 18,
+                maxWidth: '280px',
+                className: 'task-browse-map-popup',
+              })
+                .setLngLat([lng, lat])
+                .setHTML(buildPopupHtml(task))
+                .addTo(current)
+              hoverPopupRef.current = popup
+            }, 120)
+          })
+          el.addEventListener('mouseleave', () => {
+            if (enterTimer) clearTimeout(enterTimer)
             hoverPopupRef.current?.remove()
-            const popup = new mapboxgl.default.Popup({
-              closeButton: false,
-              closeOnClick: false,
-              offset: 18,
-              maxWidth: '280px',
-              className: 'task-browse-map-popup',
-            })
-              .setLngLat([lng, lat])
-              .setHTML(buildPopupHtml(task))
-              .addTo(current)
-            hoverPopupRef.current = popup
-          }, 120)
-        })
-        el.addEventListener('mouseleave', () => {
-          if (enterTimer) clearTimeout(enterTimer)
-          hoverPopupRef.current?.remove()
-          hoverPopupRef.current = null
-        })
+            hoverPopupRef.current = null
+          })
 
-        const marker = new mapboxgl.default.Marker({ element: el })
-          .setLngLat([lng, lat])
-          .addTo(current)
-        markersRef.current.push({ marker, taskId: task.id, setSelected })
-      }
-
-      const sig = withCoords
-        .map((t) => `${t.id}:${t.locationLat},${t.locationLng}`)
-        .join('|')
-      const tasksChanged = sig !== prevTasksSigRef.current
-      prevTasksSigRef.current = sig
-
-      if (tasksChanged && withCoords.length > 0) {
-        const b = new mapboxgl.default.LngLatBounds()
-        for (const t of withCoords) {
-          b.extend([t.locationLng as number, t.locationLat as number])
+          const marker = new mapboxgl.default.Marker({
+            element: el,
+            anchor: 'center',
+          })
+            .setLngLat([lng, lat])
+            .addTo(current)
+          markersRef.current.push({ marker, taskId: task.id, setSelected })
         }
-        b.extend([centerLng, centerLat])
-        current.fitBounds(b, {
-          padding: variant === 'fullscreen' ? 80 : 48,
-          maxZoom: 13,
-          duration: 500,
-        })
-      } else if (tasksChanged && withCoords.length === 0) {
-        current.easeTo({
-          center: [centerLng, centerLat],
-          zoom: 11,
-          duration: 400,
-        })
-      }
-    })
-  }, [mapReady, tasks, centerLat, centerLng, variant])
+
+        const sig = withCoords
+          .map((row) => `${row.task.id}:${row.lat},${row.lng}`)
+          .join('|')
+        const tasksChanged = sig !== prevTasksSigRef.current
+        prevTasksSigRef.current = sig
+
+        if (tasksChanged && withCoords.length > 0) {
+          const b = new mapboxgl.default.LngLatBounds()
+          for (const row of withCoords) {
+            b.extend([row.lng, row.lat])
+          }
+          b.extend([centerLng, centerLat])
+          current.fitBounds(b, {
+            padding: variant === 'fullscreen' ? 80 : 48,
+            maxZoom: 13,
+            duration: 500,
+          })
+        } else if (tasksChanged && withCoords.length === 0) {
+          current.easeTo({
+            center: [centerLng, centerLat],
+            zoom: 11,
+            duration: 400,
+          })
+        }
+      })
+    }
+
+    if (map.isStyleLoaded()) {
+      syncMarkers()
+    } else {
+      map.once('load', syncMarkers)
+    }
+
+    return () => {
+      map.off('load', syncMarkers)
+    }
+  }, [mapReady, tasks, centerLat, centerLng, variant, visible])
 
   useEffect(() => {
     const map = mapRef.current
     if (!mapReady || !map?.isStyleLoaded() || !selectedTaskId) return
 
     const task = tasks.find((t) => t.id === selectedTaskId)
-    if (
-      !task ||
-      task.locationLat == null ||
-      task.locationLng == null ||
-      !Number.isFinite(task.locationLat) ||
-      !Number.isFinite(task.locationLng)
-    ) {
+    const ll = task ? taskLngLat(task) : null
+    if (!ll) {
       return
     }
 
     map.flyTo({
-      center: [task.locationLng, task.locationLat],
+      center: [ll.lng, ll.lat],
       zoom: Math.max(map.getZoom(), 13.5),
       duration: 650,
       essential: true,
