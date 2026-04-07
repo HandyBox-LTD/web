@@ -11,6 +11,11 @@ export { LandingHero } from './LandingHero'
 export { LandingHighlights } from './LandingHighlights'
 export { LandingWorkerActions } from './LandingWorkerActions'
 export { TaskBoard } from './TaskBoard'
+export { TaskBrowseMapbox } from './TaskBrowseMapbox'
 export { TaskCreationForm } from './TaskCreationForm'
 export type { AvailableJobsBrowseProps } from './AvailableJobsBrowse'
 export type { TaskBoardProps } from './TaskBoard'
+export type {
+  TaskBrowseMapboxProps,
+  TaskBrowseMapTask,
+} from './TaskBrowseMapbox'

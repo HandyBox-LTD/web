@@ -29,6 +29,8 @@ export type TaskBrowseFiltersProps = {
   categories: readonly string[]
   selectedCategories: Set<string>
   onToggleCategory: (category: string, checked: boolean) => void
+  searchQuery: string
+  onSearchChange: (value: string) => void
   radiusMiles: number
   onRadiusChange: (miles: number) => void
   minBudgetPounds: string
@@ -104,6 +106,8 @@ export function TaskBrowseFilters({
   categories,
   selectedCategories,
   onToggleCategory,
+  searchQuery,
+  onSearchChange,
   radiusMiles,
   onRadiusChange,
   minBudgetPounds,
@@ -124,6 +128,20 @@ export function TaskBrowseFilters({
         boxShadow="ghostBorder"
       >
         <Stack gap={6}>
+          <Stack gap={3}>
+            <FilterSectionTitle>Search</FilterSectionTitle>
+            <TextInput
+              type="search"
+              placeholder="Title, description, location…"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              bg="surfaceContainerLowest"
+              borderWidth="1px"
+              borderColor="border"
+              borderRadius="lg"
+            />
+          </Stack>
+
           <Stack gap={3}>
             <FilterSectionTitle>Category</FilterSectionTitle>
             <Stack gap={2.5}>
@@ -167,13 +185,9 @@ export function TaskBrowseFilters({
                 {radiusMiles} miles
               </Text>
             </HStack>
-            {/*
-              Radius is visual-only until browseTasks(lat/lng/radius) is wired;
-              see TODO on mapHref / BROWSE_TASKS_QUERY.
-            */}
             <Slider.Root
               min={1}
-              max={50}
+              max={500}
               step={1}
               value={[radiusMiles]}
               onValueChange={(d) => {
@@ -288,8 +302,8 @@ export function TaskBrowseFilters({
             <Stack gap={1}>
               <Heading size="sm">See tasks on a map</Heading>
               <Text fontSize="sm" color="muted">
-                Browse the same listings in list + map view. Pins are
-                illustrative until task locations include coordinates.
+                Open the full list + Mapbox view. Tasks with coordinates appear
+                as pins on the map.
               </Text>
             </Stack>
             <Button

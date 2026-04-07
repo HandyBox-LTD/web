@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { AppDrawer } from './AppDrawer/AppDrawer'
 export { AvailableJobCard } from './AvailableJobCard/AvailableJobCard'
 export { AvailableJobsHeader } from './AvailableJobsHeader/AvailableJobsHeader'
 export { Badge } from './Badge'
@@ -31,6 +32,7 @@ export * from './Header'
 export * from './Layout'
 export * from './PostJobForm'
 export * from './Typography'
+export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
 export type {
   AvailableJobCardProps,
   JobCardBadgeVariant,

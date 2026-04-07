@@ -5,7 +5,7 @@ import { Box } from '@chakra-ui/react'
 import { AvailableJobsBrowse } from '@/app/components'
 import { Container, Footer, Header } from '@ui'
 
-export default function HomePage() {
+export default function MapBrowsePage() {
   return (
     <Box
       bg="surface"
@@ -29,7 +29,11 @@ export default function HomePage() {
         </Container>
       </Box>
       <Box position="relative" w="full" flex="1" minH={0}>
-        <AvailableJobsBrowse layout="mapHero" />
+        <AvailableJobsBrowse
+          layout="mapHero"
+          headerTitle="Tasks on the map"
+          headerSubtitle="List and map stay in sync with your filters."
+        />
       </Box>
       <Box flexShrink={0}>
         <Footer />

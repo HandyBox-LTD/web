@@ -18,6 +18,8 @@ const meta = {
     categories: CATEGORIES,
     selectedCategories: noopSet,
     onToggleCategory: () => {},
+    searchQuery: '',
+    onSearchChange: () => {},
     radiusMiles: 15,
     onRadiusChange: () => {},
     minBudgetPounds: '',
@@ -54,6 +56,8 @@ export const Default: Story = {
             return next
           })
         }}
+        searchQuery=""
+        onSearchChange={() => {}}
         radiusMiles={radius}
         onRadiusChange={setRadius}
         minBudgetPounds={minB}
