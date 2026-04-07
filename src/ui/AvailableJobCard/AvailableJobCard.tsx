@@ -68,9 +68,12 @@ export function AvailableJobCard({
   const badgeColor =
     badgeVariant === 'emergency' ? 'onSecondaryFixed' : 'primary.700'
 
+  const compact = Boolean(onActivate && !isActive)
+
+  const summaryMax = compact ? 100 : 220
   const summary =
-    description.length > 220
-      ? `${description.slice(0, 217).trim()}…`
+    description.length > summaryMax
+      ? `${description.slice(0, summaryMax - 1).trim()}…`
       : description
 
   const card = (
@@ -78,11 +81,11 @@ export function AvailableJobCard({
       align="stretch"
       gap={0}
       flexDir={{ base: 'column', sm: 'row' }}
-      borderRadius="xl"
+      borderRadius={compact ? 'lg' : 'xl'}
       bg="surfaceContainerLowest"
-      boxShadow="card"
+      boxShadow={compact ? 'sm' : 'card'}
       overflow="hidden"
-      borderWidth="2px"
+      borderWidth={compact ? '1px' : '2px'}
       borderColor={isActive ? 'primary.500' : 'border'}
       transition="all 180ms ease"
       _hover={{ transform: 'translateY(-2px)', boxShadow: 'ambient' }}
@@ -90,17 +93,24 @@ export function AvailableJobCard({
       <Box
         position="relative"
         flexShrink={0}
-        w={{ base: 'full', sm: '168px' }}
-        minH={{ base: '140px', sm: 'auto' }}
+        w={{ base: 'full', sm: compact ? '88px' : '168px' }}
+        minH={
+          compact ? { base: '72px', sm: 'auto' } : { base: '140px', sm: 'auto' }
+        }
         alignSelf={{ base: 'stretch', sm: 'auto' }}
         bg={categoryGradient(categoryLabel)}
       >
         {showBadge ? (
-          <Box position="absolute" top={3} left={3} zIndex={1}>
+          <Box
+            position="absolute"
+            top={compact ? 2 : 3}
+            left={compact ? 2 : 3}
+            zIndex={1}
+          >
             <Badge
-              px={2}
+              px={compact ? 1.5 : 2}
               py={0.5}
-              fontSize="10px"
+              fontSize="9px"
               letterSpacing="0.04em"
               bg={badgeBg}
               color={badgeColor}
@@ -114,12 +124,16 @@ export function AvailableJobCard({
           display="flex"
           w="full"
           h="full"
-          minH={{ base: '120px', sm: '168px' }}
+          minH={
+            compact
+              ? { base: '64px', sm: '88px' }
+              : { base: '120px', sm: '168px' }
+          }
           alignItems="center"
           justifyContent="center"
           color="white"
           fontWeight={800}
-          fontSize="xl"
+          fontSize={compact ? 'md' : 'xl'}
           letterSpacing="0.08em"
           textShadow="0 1px 2px rgba(0,0,0,0.2)"
         >
@@ -127,53 +141,92 @@ export function AvailableJobCard({
         </Box>
       </Box>
 
-      <Stack gap={4} flex={1} p={{ base: 4, sm: 5 }} minW={0}>
-        <HStack align="flex-start" justify="space-between" gap={4}>
-          <Heading size="md" color="fg" lineHeight="1.25">
+      <Stack
+        gap={compact ? 2 : 4}
+        flex={1}
+        p={compact ? { base: 2.5, sm: 3 } : { base: 4, sm: 5 }}
+        minW={0}
+      >
+        <HStack align="flex-start" justify="space-between" gap={3}>
+          <Heading
+            size={compact ? 'sm' : 'md'}
+            color="fg"
+            lineHeight="1.25"
+            css={
+              compact
+                ? {
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }
+                : undefined
+            }
+          >
             {title}
           </Heading>
           <Stack gap={0} align="flex-end" flexShrink={0} textAlign="right">
-            <Text fontWeight={800} fontSize="lg" color="fg">
+            <Text fontWeight={800} fontSize={compact ? 'md' : 'lg'} color="fg">
               {budgetMain}
             </Text>
-            <Text fontSize="xs" color="muted">
+            <Text fontSize="2xs" color="muted">
               {budgetSub}
             </Text>
           </Stack>
         </HStack>
 
-        <HStack gap={4} flexWrap="wrap" rowGap={2}>
-          <HStack gap={1.5} minW={0}>
-            <IconMapPin />
-            <Text fontSize="sm" color="muted" truncate>
+        <HStack gap={compact ? 2 : 4} flexWrap="wrap" rowGap={1}>
+          <HStack gap={1} minW={0}>
+            <Box flexShrink={0} transform={compact ? 'scale(0.85)' : undefined}>
+              <IconMapPin />
+            </Box>
+            <Text fontSize={compact ? 'xs' : 'sm'} color="muted" truncate>
               {locationLabel}
             </Text>
           </HStack>
-          <HStack gap={1.5}>
-            <IconClock />
-            <Text fontSize="sm" color="muted">
+          <HStack gap={1}>
+            <Box flexShrink={0} transform={compact ? 'scale(0.85)' : undefined}>
+              <IconClock />
+            </Box>
+            <Text fontSize={compact ? 'xs' : 'sm'} color="muted">
               {timeLabel}
             </Text>
           </HStack>
-          <HStack gap={1.5} minW={0}>
-            <IconWrench />
-            <Text fontSize="sm" color="muted" truncate>
+          <HStack gap={1} minW={0}>
+            <Box flexShrink={0} transform={compact ? 'scale(0.85)' : undefined}>
+              <IconWrench />
+            </Box>
+            <Text fontSize={compact ? 'xs' : 'sm'} color="muted" truncate>
               {categoryLabel}
             </Text>
           </HStack>
         </HStack>
 
-        <Text fontSize="sm" color="muted" lineHeight="1.55">
+        <Text
+          fontSize={compact ? 'xs' : 'sm'}
+          color="muted"
+          lineHeight="1.5"
+          css={
+            compact
+              ? {
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }
+              : undefined
+          }
+        >
           {summary}
         </Text>
 
-        <HStack gap={3} flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+        <HStack gap={compact ? 2 : 3} flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
           <Button
             as={NextLink}
             href={offerHref}
             flex={{ base: '1 1 100%', sm: 2 }}
-            minW={{ base: 'full', sm: '140px' }}
-            size="md"
+            minW={{ base: 'full', sm: compact ? '100px' : '140px' }}
+            size={compact ? 'sm' : 'md'}
             onClick={(e) => e.stopPropagation()}
           >
             Make an offer
@@ -185,8 +238,8 @@ export function AvailableJobCard({
             bg="surfaceContainerHigh"
             color="fg"
             flex={{ base: '1 1 100%', sm: 1 }}
-            minW={{ base: 'full', sm: '100px' }}
-            size="md"
+            minW={{ base: 'full', sm: compact ? '72px' : '100px' }}
+            size={compact ? 'sm' : 'md'}
             boxShadow="none"
             onClick={(e) => e.stopPropagation()}
           >
