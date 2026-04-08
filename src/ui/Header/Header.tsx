@@ -3,7 +3,7 @@
 import { Box, type BoxProps, HStack, IconButton, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { clearAuthToken, getAuthToken } from '@/utils/auth'
 import { AppDrawer } from '../AppDrawer/AppDrawer'
@@ -84,8 +84,13 @@ export type HeaderProps = {
 
 function SiteNavigation() {
   const router = useRouter()
-  const isLoggedIn = Boolean(getAuthToken())
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(getAuthToken()))
+  }, [])
+
   const taskerHref = isLoggedIn
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`

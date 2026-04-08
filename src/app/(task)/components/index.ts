@@ -30,6 +30,5 @@ export type {
   TaskBrowseFiltersProps,
   UrgencyFilter,
 } from './(web)/TaskBrowseFilters'
-export type { TaskListProps } from './(web)/TaskList'
 export type { TaskLocationMapPickerProps } from './(web)/TaskLocationMapPicker'
 export type { TaskMapProps, TaskMapTask } from './(web)/TaskMap'

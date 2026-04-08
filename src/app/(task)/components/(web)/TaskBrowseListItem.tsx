@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, HStack, Stack } from '@chakra-ui/react'
+import Image from 'next/image'
 import NextLink from 'next/link'
 
 import { Button, Heading, IconMapPin, Text } from '@ui'
@@ -12,6 +13,7 @@ export type TaskBrowseListItemProps = {
   description: string
   priceLabel: string
   metaLine: string
+  imageSeed?: string
   detailsHref: string
   detailsCtaLabel?: string
   badgeVariant?: JobCardBadgeVariant
@@ -28,111 +30,128 @@ function badgeStyles(variant: JobCardBadgeVariant) {
 
 export function TaskBrowseListItem({
   title,
-  description,
   priceLabel,
   metaLine,
+  imageSeed,
   detailsHref,
-  detailsCtaLabel = 'View Details',
+  detailsCtaLabel = 'VIEW DETAILS',
   badgeVariant = 'none',
   badgeText,
   isActive = false,
   onActivate,
 }: TaskBrowseListItemProps) {
+  const thumbnailSrc = imageSeed
+    ? `https://picsum.photos/seed/${encodeURIComponent(imageSeed)}/200/300`
+    : 'https://picsum.photos/200/300'
   const showBadge = badgeVariant !== 'none' && Boolean(badgeText?.trim())
   const { bg: badgeBg, color: badgeColor } = badgeStyles(badgeVariant)
 
   const shell = (
-    <Stack
+    <HStack
       gap={3}
-      p={5}
+      p={2.5}
+      align="stretch"
       bg="surfaceContainerLowest"
       borderRadius="2xl"
-      boxShadow="sm"
+      boxShadow="0 4px 14px rgba(15,23,42,0.08)"
       borderWidth="1px"
-      borderColor={isActive ? 'primary.500' : 'border'}
+      borderColor={isActive ? 'rgba(26,86,219,0.42)' : 'rgba(148,163,184,0.32)'}
       transition="box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease"
       _hover={
         onActivate
           ? {
-              boxShadow: 'ambient',
+              boxShadow: '0 8px 22px rgba(15,23,42,0.12)',
               transform: 'translateY(-1px)',
             }
           : undefined
       }
     >
-      <HStack
-        align="flex-start"
-        justify={showBadge ? 'space-between' : 'flex-end'}
-        gap={3}
+      <Box
+        position="relative"
+        w="84px"
+        h="84px"
+        flexShrink={0}
+        borderRadius="lg"
+        overflow="hidden"
+        bg="surfaceContainerHigh"
       >
-        {showBadge ? (
+        <Image
+          src={thumbnailSrc}
+          alt={`${title} thumbnail`}
+          fill
+          sizes="84px"
+          style={{ objectFit: 'cover' }}
+        />
+      </Box>
+      <Stack flex={1} minW={0} gap={1.5}>
+        <HStack justify="space-between" align="flex-start" gap={2}>
+          <Heading size="sm" color="fg" lineHeight="1.25" flex={1} minW={0}>
+            <Text
+              as="span"
+              display="block"
+              truncate
+              fontWeight={700}
+              color="inherit"
+              fontSize="inherit"
+              lineHeight="inherit"
+            >
+              {title}
+            </Text>
+          </Heading>
           <Text
-            as="span"
-            display="inline-block"
-            fontSize="xs"
-            fontWeight={800}
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-            px={2.5}
-            py={1}
-            borderRadius="full"
-            bg={badgeBg}
-            color={badgeColor}
+            flexShrink={0}
+            fontWeight={600}
+            fontSize="lg"
+            lineHeight="1"
+            color="primary.700"
           >
-            {badgeText}
+            {priceLabel}
           </Text>
-        ) : (
-          <Box flex={1} minW={0} aria-hidden />
-        )}
-        <Text
-          flexShrink={0}
-          fontWeight={800}
-          fontSize="lg"
-          lineHeight="shorter"
-          color="primary.700"
-        >
-          {priceLabel}
-        </Text>
-      </HStack>
+        </HStack>
 
-      <Stack gap={1.5}>
-        <Heading size="sm" color="fg" lineHeight="snug">
-          {title}
-        </Heading>
-        <Text
-          fontSize="sm"
-          color="muted"
-          lineHeight="1.5"
-          css={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
-          {description}
-        </Text>
-      </Stack>
-
-      <HStack justify="space-between" align="center" gap={3} pt={1}>
         <HStack gap={1.5} minW={0}>
           <IconMapPin />
           <Text fontSize="sm" color="muted" truncate>
             {metaLine}
           </Text>
         </HStack>
-        <Button
-          as={NextLink}
-          href={detailsHref}
-          size="sm"
-          px={4}
-          borderRadius="lg"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {detailsCtaLabel}
-        </Button>
-      </HStack>
-    </Stack>
+
+        <HStack justify="space-between" align="center" gap={2}>
+          {showBadge ? (
+            <Text
+              as="span"
+              display="inline-block"
+              fontSize="xs"
+              fontWeight={800}
+              letterSpacing="0.03em"
+              px={2.5}
+              py={1}
+              borderRadius="full"
+              bg={badgeBg}
+              color={badgeColor}
+              truncate
+              maxW="60%"
+            >
+              {badgeText}
+            </Text>
+          ) : (
+            <Box />
+          )}
+          <Button
+            as={NextLink}
+            href={detailsHref}
+            px={2}
+            mt="auto"
+            h="auto"
+            fontSize="xs"
+            fontWeight={600}
+            onClick={(e) => e.stopPropagation()}
+          >
+            View details
+          </Button>
+        </HStack>
+      </Stack>
+    </HStack>
   )
 
   if (onActivate) {

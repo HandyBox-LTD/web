@@ -1,7 +1,7 @@
 'use client'
 
-import { Badge, Box, HStack, IconButton, Stack } from '@chakra-ui/react'
-import { Text } from '@ui'
+import { Badge, Box, HStack, Input, Stack } from '@chakra-ui/react'
+import { Button, Text } from '@ui'
 
 import {
   useTaskBrowseData,
@@ -20,7 +20,6 @@ export function WebLayout() {
   const {
     sort,
     setSort,
-    subtitle,
     categories,
     selectedCategorySet,
     toggleCategory,
@@ -48,9 +47,8 @@ export function WebLayout() {
 
   const activeFilterTags: string[] = []
   if (searchInput.trim()) activeFilterTags.push(`Search: ${searchInput.trim()}`)
-  if (areaLocationInput.trim())
-    activeFilterTags.push(`Area: ${areaLocationInput.trim()}`)
-  if (radiusMiles !== 10) activeFilterTags.push(`Radius: ${radiusMiles}mi`)
+
+  activeFilterTags.push(`Radius: ${radiusMiles}mi`)
   if (minBudget.trim()) activeFilterTags.push(`Min £${minBudget.trim()}`)
   if (maxBudget.trim()) activeFilterTags.push(`Max £${maxBudget.trim()}`)
   if (urgency !== 'any') {
@@ -104,9 +102,9 @@ export function WebLayout() {
       <Box
         position="absolute"
         zIndex={2}
-        top={{ base: 74, md: 20 }}
-        left={{ base: 3, md: 5 }}
-        bottom={{ base: 3, md: 5 }}
+        top={2}
+        left={2}
+        bottom={2}
         w={{ base: 'calc(100% - 24px)', md: 'min(420px, 38vw)' }}
         maxW="440px"
         display="flex"
@@ -119,35 +117,17 @@ export function WebLayout() {
           display="flex"
           justifyContent="flex-start"
         >
-          <Box
-            bg="surfaceContainerLowest/92"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="border"
-            boxShadow="0 6px 20px rgba(15,23,42,0.16)"
-            px={2}
-            py={1.5}
-            w="full"
-          >
+          <Box borderRadius="xl" px={2} py={1.5} w="full">
             <Stack gap={2}>
-              <HStack justify="space-between" align="flex-start" gap={3}>
-                <Box>
-                  <Text
-                    fontWeight={700}
-                    fontSize={{ base: 'xl', md: '2xl' }}
-                    lineHeight="1.1"
-                  >
-                    Find work near you
-                  </Text>
-                  <Text fontSize="sm" color="muted">
-                    {subtitle}
-                  </Text>
-                </Box>
-                <IconButton
-                  aria-label={isFilterOpen ? 'Show results' : 'Open filters'}
-                  size="sm"
-                  variant={isFilterOpen ? 'solid' : 'subtle'}
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+              <Box position="relative">
+                <Box
+                  position="absolute"
+                  left={3}
+                  top="50%"
+                  transform="translateY(-50%)"
+                  color="muted"
+                  pointerEvents="none"
+                  zIndex={1}
                 >
                   <svg
                     width="16"
@@ -156,29 +136,66 @@ export function WebLayout() {
                     fill="none"
                     aria-hidden
                   >
-                    <title>Filters</title>
+                    <title>Search</title>
                     <path
-                      d="M4 7H20M7 12H17M10 17H14"
+                      d="M11 19a8 8 0 1 1 5.3-14l5.1 5.1"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="m20 20-3.3-3.3"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                     />
                   </svg>
-                </IconButton>
+                </Box>
+                <Input
+                  value={areaLocationInput}
+                  onChange={(e) => setAreaLocationInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitAreaLocationSearch()
+                  }}
+                  type="search"
+                  bg="surfaceContainerLowest"
+                  onBlur={commitAreaLocationSearch}
+                  placeholder="Find pros or jobs near you..."
+                  borderRadius="xl"
+                  h={11}
+                  ps={10}
+                />
+              </Box>
+              <HStack gap={1.5} flexWrap="wrap">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={isFilterOpen ? 'solid' : 'subtle'}
+                  borderRadius="full"
+                  px={4}
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  Filters
+                </Button>
+                {activeFilterTags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    borderRadius="full"
+                    px={3}
+                    py={1.5}
+                    bg="primary.600"
+                    color="white"
+                    fontWeight={600}
+                    fontSize="xs"
+                  >
+                    {tag}
+                  </Badge>
+                ))}
               </HStack>
-              {activeFilterTags.length > 0 ? (
-                <HStack gap={1.5} flexWrap="wrap">
-                  {activeFilterTags.map((tag) => (
-                    <Badge key={tag} borderRadius="full" px={2} py={0.5}>
-                      {tag}
-                    </Badge>
-                  ))}
-                </HStack>
-              ) : null}
             </Stack>
           </Box>
         </Box>
-        <Box flex={1} minH={0}>
+        <Box flex={1} minH={0} mb={6}>
           {isFilterOpen ? (
             <Box h="full" overflowY="auto" pr={{ base: 1, md: 0 }}>
               <TaskBrowseFilters
@@ -206,7 +223,7 @@ export function WebLayout() {
               />
             </Box>
           ) : (
-            <TaskList variant="classic" />
+            <TaskList />
           )}
         </Box>
       </Box>

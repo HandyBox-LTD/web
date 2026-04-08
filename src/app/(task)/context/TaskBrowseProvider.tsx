@@ -69,7 +69,6 @@ type TaskBrowseDataContextValue = {
   pageItems: TaskListItem[]
   totalPages: number
   safePage: number
-  subtitle: string
   effectiveMapTasksForBox: {
     id: string
     title: string
@@ -105,14 +104,12 @@ type TaskBrowseProviderProps = {
   children: React.ReactNode
   initialTasks: TaskListItem[]
   isDesktop: boolean
-  headerSubtitle?: string
 }
 
 export function TaskBrowseProvider({
   children,
   initialTasks,
   isDesktop,
-  headerSubtitle,
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
@@ -255,10 +252,6 @@ export function TaskBrowseProvider({
     setPage(Math.floor(idx / PAGE_SIZE))
   }, [selectedTaskId, filteredSorted])
 
-  const subtitle =
-    headerSubtitle ??
-    `Browse ${filteredSorted.length} open tasks. Details are read-only until you sign in to quote.`
-
   const mapTasksForBox = useMemo(
     () =>
       filtered.map((task) => {
@@ -391,7 +384,6 @@ export function TaskBrowseProvider({
       pageItems,
       totalPages,
       safePage,
-      subtitle,
       effectiveMapTasksForBox:
         data?.tasks != null ? mapTasksForBox : initialMapTasksForBox,
       shouldWaitForMap,
@@ -424,7 +416,6 @@ export function TaskBrowseProvider({
       selectedTaskId,
       shouldWaitForMap,
       sort,
-      subtitle,
       toggleCategory,
       totalPages,
       urgency,
