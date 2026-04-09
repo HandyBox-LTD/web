@@ -42,7 +42,6 @@ next-env.d.ts
 .env*.local
 
 .codegen/*
-!.codegen/schema.ts
 
 # storybook
 /storybook-static/
