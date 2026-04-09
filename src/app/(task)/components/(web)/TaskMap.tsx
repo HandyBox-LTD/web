@@ -288,7 +288,7 @@ function taskMarkerElement(
       border: isSel ? '2px solid #ea580c' : '1px solid rgba(226,232,240,0.9)',
       opacity: isPopupVisible ? '0' : '1',
       transform: isPopupVisible
-        ? 'translateY(4px) scale(0.94)'
+        ? 'translateY(-6px) scale(0.94)'
         : 'translateY(0) scale(1)',
       transformOrigin: 'center bottom',
       pointerEvents: isPopupVisible ? 'none' : 'auto',
@@ -308,11 +308,6 @@ function taskMarkerElement(
       boxShadow: isSel
         ? '0 2px 10px rgba(234,88,12,0.45)'
         : '0 1px 4px rgba(0,0,0,0.25)',
-      transform: isPopupVisible
-        ? 'translateY(-2px) scale(1.05)'
-        : 'translateY(0) scale(1)',
-      transition:
-        'width 0.15s ease, height 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.18s ease',
     })
   }
 
@@ -406,6 +401,10 @@ export function TaskMap({
             padding: '10px 12px 8px',
             boxShadow: '0 10px 28px rgba(15,23,42,0.22)',
             border: '1px solid rgba(226,232,240,0.95)',
+            opacity: '0',
+            transform: 'translateY(6px) scale(0.98)',
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
+            transformOrigin: 'center top',
           })
         }
         const closeEl = popupEl.querySelector('.mapboxgl-popup-close-button')
@@ -422,6 +421,17 @@ export function TaskMap({
             background: '#f8fafc',
           })
         }
+        requestAnimationFrame(() => {
+          const animatedContent = popupEl.querySelector(
+            '.mapboxgl-popup-content',
+          )
+          if (animatedContent instanceof HTMLElement) {
+            Object.assign(animatedContent.style, {
+              opacity: '1',
+              transform: 'translateY(0) scale(1)',
+            })
+          }
+        })
       }
       setPopupMarker(task.id)
       popupOpenReasonRef.current = reason
