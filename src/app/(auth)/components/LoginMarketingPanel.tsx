@@ -110,7 +110,7 @@ export function LoginMarketingPanel() {
             fontWeight={500}
           >
             Manage your projects, handle bookings, and scale your business with
-            the precision of a master craftsman. HandyBox is your digital
+            the precision of a master craftsman. Slashie is your digital
             toolbox.
           </Text>
         </Box>

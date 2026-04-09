@@ -3,7 +3,7 @@
 import { useMutation } from '@apollo/client/react'
 import { Box, Link, Stack } from '@chakra-ui/react'
 import type { ForgotPasswordMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField, Heading, Input, SlashieWordmark, Text } from '@ui'
 import NextLink from 'next/link'
 import { useState } from 'react'
 
@@ -115,7 +115,7 @@ export default function ForgotPasswordPage() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <SlashieWordmark size="lg" />
       </Link>
 
       <Box

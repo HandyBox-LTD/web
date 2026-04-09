@@ -9,7 +9,7 @@ function HeaderCustomChildrenStory() {
   return (
     <Header>
       <HStack justify="space-between" py={2}>
-        <Heading size="md">HandyBox</Heading>
+        <Heading size="md">Slashie</Heading>
         <HStack gap={2}>
           <Button size="sm" variant="subtle" bg="surfaceContainerLow">
             Log in

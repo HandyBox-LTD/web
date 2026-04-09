@@ -290,7 +290,7 @@ export function DashboardShell({
               >
                 <NavIcon aria-hidden>
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <title>HandyBox</title>
+                    <title>Slashie</title>
                     <path
                       d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.36 6.36a2.83 2.83 0 1 1-4-4l6.36-6.36a6 6 0 0 1 7.94-7.94l-3.77 3.77Z"
                       stroke="currentColor"
@@ -302,7 +302,7 @@ export function DashboardShell({
               </Box>
               <Stack gap={0}>
                 <Heading size="sm" lineHeight={1.25}>
-                  HandyBox
+                  Slashie
                 </Heading>
                 <Text
                   fontSize="10px"

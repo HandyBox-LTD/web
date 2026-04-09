@@ -3,7 +3,7 @@
 import { useMutation } from '@apollo/client/react'
 import { Box, HStack, IconButton, Link, Stack } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField, Heading, Input, SlashieWordmark, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -256,7 +256,7 @@ export default function ResetPasswordPage() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.92 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <SlashieWordmark size="lg" />
       </Link>
 
       <Box
@@ -456,7 +456,7 @@ export default function ResetPasswordPage() {
         <IconShieldSmall />
       </HStack>
       <Text fontSize="xs" color="muted" textAlign="center">
-        © 2024 HandyBox Technologies. Secure Infrastructure v2.4.0
+        © 2024 Slashie App. Secure Infrastructure v2.4.0
       </Text>
     </Stack>
   )

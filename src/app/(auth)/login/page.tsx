@@ -11,7 +11,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { LoginMutation, MeQuery } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField, Heading, Input, SlashieWordmark, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -154,7 +154,7 @@ export default function LoginPage() {
           href="/"
           _hover={{ textDecoration: 'none', opacity: 0.9 }}
         >
-          <HandyBoxWordmark size="lg" />
+          <SlashieWordmark size="lg" />
         </Link>
 
         <Box>

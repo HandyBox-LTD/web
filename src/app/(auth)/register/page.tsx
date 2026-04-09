@@ -11,7 +11,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
-import { Button, FormField, HandyBoxWordmark, Heading, Input, Text } from '@ui'
+import { Button, FormField, Heading, Input, SlashieWordmark, Text } from '@ui'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -228,7 +228,7 @@ export default function RegisterPage() {
         href="/"
         _hover={{ textDecoration: 'none', opacity: 0.9 }}
       >
-        <HandyBoxWordmark size="lg" />
+        <SlashieWordmark size="lg" />
       </Link>
 
       <Box>
@@ -236,7 +236,7 @@ export default function RegisterPage() {
           Create your account
         </Heading>
         <Text mt={2} color="muted" fontSize="sm">
-          Start your journey with HandyBox today.
+          Start your journey with Slashie today.
         </Text>
       </Box>
 

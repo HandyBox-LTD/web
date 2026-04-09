@@ -138,7 +138,7 @@ export function RegisterMarketingPanel() {
             fontWeight={500}
           >
             Whether you&apos;re fixing a leak or managing a commercial
-            development, HandyBox connects craftsmanship with opportunity.
+            development, Slashie connects craftsmanship with opportunity.
           </Text>
         </Box>
       </Stack>

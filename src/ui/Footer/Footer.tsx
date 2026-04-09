@@ -30,13 +30,13 @@ export function Footer() {
           gap={3}
         >
           <Stack gap={1}>
-            <Text fontWeight={700}>HandyBox</Text>
+            <Text fontWeight={700}>Slashie</Text>
             <Text fontSize="sm" color="muted">
               Connecting master craftsmen with homeowners who value quality
               workmanship.
             </Text>
             <Text fontSize="sm" color="muted">
-              © 2024 HandyBox. Built for Master Craftsmen.
+              © 2024 Slashie. Built for Master Craftsmen.
             </Text>
           </Stack>
 

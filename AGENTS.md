@@ -1,8 +1,8 @@
-# Project Overview: HandyBox Web MVP
+# Project Overview: Slashie App Web MVP
 
 ## 1. Project Mission
 
-HandyBox is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare offers, complete the work, and leave feedback.
+Slashie is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare offers, complete the work, and leave feedback.
 
 ## 2. Primary Personas
 

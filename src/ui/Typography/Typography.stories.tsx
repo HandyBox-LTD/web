@@ -10,7 +10,7 @@ function TypographyStory() {
       <Heading size="2xl">Master Craftsman</Heading>
       <Heading size="lg">Architectural Layering</Heading>
       <Text fontSize="lg" color="muted">
-        HandyBox blends precision and warmth for every workflow.
+        Slashie blends precision and warmth for every workflow.
       </Text>
       <Text fontSize="sm">Metadata and utility copy.</Text>
     </Stack>

@@ -4,7 +4,7 @@ import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
   const localPart = (email ?? '').split('@')[0]?.trim()
-  if (!localPart) return 'HandyBox Member'
+  if (!localPart) return 'Slashie Member'
 
   return localPart
     .split(/[._-]+/)

@@ -338,7 +338,7 @@ export default function CustomerRequestsPage() {
         <Grid templateColumns={{ base: '1fr', lg: '1.2fr 0.8fr' }}>
           <Stack gap={4} p={{ base: 6, md: 8 }}>
             <Badge alignSelf="flex-start" bg="primary.900" color="white">
-              HANDYBOX PRO ADVICE
+              SLASHIE PRO ADVICE
             </Badge>
             <Heading size="lg" color="white">
               Save 15% on your next renovation with Project Bundles.

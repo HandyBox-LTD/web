@@ -1,16 +1,16 @@
 import { Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { HandyBoxWordmark } from './HandyBoxWordmark'
+import { SlashieWordmark } from './SlashieWordmark'
 
 const meta = {
-  title: 'ui/HandyBoxWordmark',
-  component: HandyBoxWordmark,
+  title: 'ui/SlashieWordmark',
+  component: SlashieWordmark,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<typeof HandyBoxWordmark>
+} satisfies Meta<typeof SlashieWordmark>
 
 export default meta
 
@@ -21,8 +21,8 @@ export const Default: Story = {}
 export const Sizes: Story = {
   render: () => (
     <Stack gap={6} align="flex-start">
-      <HandyBoxWordmark size="md" />
-      <HandyBoxWordmark size="lg" />
+      <SlashieWordmark size="md" />
+      <SlashieWordmark size="lg" />
     </Stack>
   ),
 }

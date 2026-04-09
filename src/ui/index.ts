@@ -10,7 +10,6 @@ export { Container } from './Container'
 export { Dock } from './Dock'
 export { FormField } from './FormField/FormField'
 export { GlassCard } from './Card/GlassCard'
-export { HandyBoxWordmark } from './HandyBoxWordmark/HandyBoxWordmark'
 export {
   IconCalendar,
   IconClock,
@@ -20,6 +19,7 @@ export {
   IconWrench,
 } from './TaskBrowseMetaIcons'
 export { Input, TextInput } from './Input'
+export { SlashieWordmark } from './SlashieWordmark/SlashieWordmark'
 export * from './Footer'
 export * from './Header'
 export * from './Layout'
@@ -27,4 +27,4 @@ export * from './Typography'
 export type { AppDrawerPlacement, AppDrawerProps } from './AppDrawer/AppDrawer'
 export type { FormFieldProps } from './FormField/FormField'
 export type { GlassCardProps } from './Card/GlassCard'
-export type { HandyBoxWordmarkProps } from './HandyBoxWordmark/HandyBoxWordmark'
+export type { SlashieWordmarkProps } from './SlashieWordmark/SlashieWordmark'

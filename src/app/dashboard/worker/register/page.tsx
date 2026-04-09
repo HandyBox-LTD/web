@@ -261,7 +261,7 @@ export default function WorkerRegistrationPage() {
           >
             <Stack gap={4}>
               <Heading size="md" color="white">
-                Why join HandyBox?
+                Why join Slashie?
               </Heading>
               <Stack gap={3}>
                 <Text color="whiteAlpha.900">
@@ -312,7 +312,7 @@ export default function WorkerRegistrationPage() {
                 </HStack>
               </Stack>
               <Button onClick={() => handleSubmit()}>
-                {workerEnabled ? 'Update worker profile' : 'Join HandyBox'}
+                {workerEnabled ? 'Update worker profile' : 'Join Slashie'}
               </Button>
             </Stack>
           </GlassCard>

@@ -4,16 +4,16 @@ import { Box, HStack, type StackProps } from '@chakra-ui/react'
 
 import { Heading } from '../Typography'
 
-export type HandyBoxWordmarkProps = StackProps & {
+export type SlashieWordmarkProps = StackProps & {
   /** Larger logo tile for auth headers */
   size?: 'md' | 'lg'
 }
 
-export function HandyBoxWordmark({
+export function SlashieWordmark({
   size = 'md',
   gap = 3,
   ...props
-}: HandyBoxWordmarkProps) {
+}: SlashieWordmarkProps) {
   const tile =
     size === 'lg'
       ? { boxSize: 11, iconW: 22, iconH: 22 }
@@ -40,7 +40,7 @@ export function HandyBoxWordmark({
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden
         >
-          <title>HandyBox mark</title>
+          <title>Slashie mark</title>
           <path
             d="M5 19V10.5L12 6l7 4.5V19h-3v-6.5L12 9.2 8 12.5V19H5Z"
             stroke="white"
@@ -56,7 +56,7 @@ export function HandyBoxWordmark({
         </svg>
       </Box>
       <Heading size={size === 'lg' ? 'lg' : 'md'} color="primary.600" mb={0}>
-        HandyBox
+        Slashie
       </Heading>
     </HStack>
   )
