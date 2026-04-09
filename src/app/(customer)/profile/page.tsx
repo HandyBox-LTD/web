@@ -92,7 +92,7 @@ export default function CustomerProfilePage() {
                 minH="140px"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="A short note for taskers who quote on your tasks."
+                placeholder="A short note for workers who quote on your tasks."
                 bg="surfaceContainerLowest"
                 borderColor="border"
               />

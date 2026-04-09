@@ -91,7 +91,7 @@ function SiteNavigation() {
     setIsLoggedIn(Boolean(getAuthToken()))
   }, [])
 
-  const taskerHref = isLoggedIn
+  const workerHref = isLoggedIn
     ? '/dashboard'
     : `/login?next=${encodeURIComponent('/dashboard')}`
 
@@ -157,11 +157,11 @@ function SiteNavigation() {
         </Button>
         <Button
           as={NextLink}
-          href={taskerHref}
+          href={workerHref}
           size="sm"
           display={{ base: 'none', md: 'inline-flex' }}
         >
-          Become a tasker
+          Become a worker
         </Button>
         {isLoggedIn ? (
           <>
@@ -252,11 +252,11 @@ function SiteNavigation() {
           </Link>
           <Link
             as={NextLink}
-            href={taskerHref}
+            href={workerHref}
             {...navLinkProps}
             onClick={() => setMobileMenuOpen(false)}
           >
-            Become a tasker
+            Become a worker
           </Link>
           {isLoggedIn ? (
             <>

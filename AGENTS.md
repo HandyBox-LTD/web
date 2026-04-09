@@ -25,7 +25,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 - Task detail is publicly readable.
 - Unauthenticated users are read-only; login is required to make offers or perform account actions.
 - The app supports two intents:
-  - become a tasker (worker flow and dashboard), or
+  - become a worker (worker flow and dashboard), or
   - post a task (client flow for requesting help and managing quotes/requests).
 
 ## 4. Core Feature Areas

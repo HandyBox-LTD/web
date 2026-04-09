@@ -18,7 +18,7 @@ export default function DashboardMessagesPage() {
 
       <GlassCard p={6}>
         <Text color="muted">
-          No conversations yet. This workspace is reserved for tasker–customer
+          No conversations yet. This workspace is reserved for worker–customer
           threads once messaging ships.
         </Text>
       </GlassCard>

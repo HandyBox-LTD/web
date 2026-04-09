@@ -60,7 +60,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
             <Stack gap={4}>
               <Heading size="md">Sign in to open your dashboard</Heading>
               <Text color="muted">
-                You need an account for the tasker workspace. Posting tasks and
+                You need an account for the worker workspace. Posting tasks and
                 customer tools use the main site under Quotes, Requests, and
                 Profile.
               </Text>

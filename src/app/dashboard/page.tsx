@@ -150,7 +150,7 @@ export default function DashboardOverviewPage() {
               href="/dashboard/worker/register"
               alignSelf="flex-start"
             >
-              Become a tasker
+              Become a worker
             </Button>
           </Stack>
         </GlassCard>

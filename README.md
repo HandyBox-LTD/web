@@ -1,6 +1,6 @@
 # HandyBox (web MVP)
 
-Next.js front end for a local task marketplace: task hunters browse open work on the home page; customers post tasks and review quotes; taskers run quotes and earnings from the dashboard. Backed by a GraphQL API.
+Next.js front end for a local task marketplace: task hunters browse open work on the home page; customers post tasks and review quotes; workers run quotes and earnings from the dashboard. Backed by a GraphQL API.
 
 ---
 
@@ -15,9 +15,9 @@ Next.js front end for a local task marketplace: task hunters browse open work on
 
 ## 1. Executive summary
 
-- **What is this project?** A web MVP that connects people who need help (“customers”) with **taskers** who browse open tasks, send quotes, and track work. The **default homepage experience** is the task hunter view: a filterable task list plus a map-style browse page (`/map`). **Without authentication**, users can read tasks and open details; **quoting and account-only views require sign-in.**
+- **What is this project?** A web MVP that connects people who need help (“customers”) with **workers** who browse open tasks, send quotes, and track work. The **default homepage experience** is the task hunter view: a filterable task list plus a map-style browse page (`/map`). **Without authentication**, users can read tasks and open details; **quoting and account-only views require sign-in.**
 - **Why are we doing it?** To validate demand for a lightweight marketplace for local handyman-style work without committing to native apps or a full product suite upfront.
-- **Desired outcome:** A shippable web experience backed by a live GraphQL API, with clear separation between **customer** routes (quotes on your tasks, posted requests, profile) and the **tasker dashboard** (quotes you sent, earnings, worker setup)—so we can learn from real usage and iterate.
+- **Desired outcome:** A shippable web experience backed by a live GraphQL API, with clear separation between **customer** routes (quotes on your tasks, posted requests, profile) and the **worker dashboard** (quotes you sent, earnings, worker setup)—so we can learn from real usage and iterate.
 
 ## 2. Problem statement / opportunity
 
@@ -38,7 +38,7 @@ Next.js front end for a local task marketplace: task hunters browse open work on
 
 ## 4. Target audience
 
-- **Primary — task hunters / taskers:** People looking for paid work; they land on `/` (and `/map`), filter tasks, open details, and **log in to submit an offer** (after worker setup in the dashboard). The **`/dashboard`** area is the **tasker workspace** (quotes, earnings, history as a worker, worker registration).
+- **Primary — task hunters / workers:** People looking for paid work; they land on `/` (and `/map`), filter tasks, open details, and **log in to submit an offer** (after worker setup in the dashboard). The **`/dashboard`** area is the **worker workspace** (quotes, earnings, history as a worker, worker registration).
 - **Primary — customers (task posters):** People who need a task done; they use **Post a task** (`/tasks/create`), then **Quotes** (`/quotes`), **Requests** (`/requests`), and **Profile** (`/profile`)—all **without** the `/dashboard` prefix. They review offers on their tasks and track posted work.
 - **Secondary:** Internal team using Storybook and deployments for QA and design review.
 
@@ -50,7 +50,7 @@ Web app (Next.js, Chakra UI, Apollo Client) talking to **Handyman Apollo** Graph
 
 - **Home (`/`):** Task browse for task hunters (filters, sort, pagination); read-only until sign-in for offers. **`/tasks` redirects to `/`.**
 - **Map browse (`/map`):** Same data as the home list with a list + illustrative map column (real geocoding when the API supports it).
-- **Global nav:** **Post a task**, **Become a tasker** (dashboard, or login with `next=/dashboard`). When signed in: **Quotes**, **Requests**, **Profile**, **Log out**.
+- **Global nav:** **Post a task**, **Become a worker** (dashboard, or login with `next=/dashboard`). When signed in: **Quotes**, **Requests**, **Profile**, **Log out**.
 - **Customer account (auth required):** `/quotes` (offers on tasks you posted), `/requests` (your posted tasks / status), `/profile` (customer profile; session-local until profile APIs exist).
 - **Worker dashboard (auth required):** `/dashboard` — quotes you sent, earnings, worker-side history, worker setup, placeholder messages. **Not** the place for “my posted tasks as a customer” (that is `/requests`).
 - Task detail and **make an offer** (auth + worker setup).
