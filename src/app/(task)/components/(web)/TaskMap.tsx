@@ -279,10 +279,15 @@ function taskMarkerElement(
 
   let isSelected = selected
   let expanded = false
+  let isHovered = false
   const apply = () => {
     const isSel = isSelected
     const isExpanded = expanded || isSel
     const dotPx = isSel ? 30 : 26
+    const zIndex = isHovered && expanded ? '3' : isExpanded ? '2' : '1'
+    Object.assign(root.style, {
+      zIndex,
+    })
     Object.assign(card.style, {
       display: 'block',
       background: '#ffffff',
@@ -333,6 +338,15 @@ function taskMarkerElement(
   }
 
   apply()
+
+  root.addEventListener('mouseenter', () => {
+    isHovered = true
+    apply()
+  })
+  root.addEventListener('mouseleave', () => {
+    isHovered = false
+    apply()
+  })
 
   root.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
