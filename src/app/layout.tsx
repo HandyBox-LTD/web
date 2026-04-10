@@ -32,7 +32,14 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <Box flex={1} position="relative">
+          <Box
+            as="main"
+            flex={1}
+            minH={0}
+            position="relative"
+            display="flex"
+            flexDirection="column"
+          >
             {children}
           </Box>
           <Dock />

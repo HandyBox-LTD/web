@@ -24,9 +24,9 @@ export { TaskMap } from './(web)/TaskMap'
 export { WebLayout } from './(web)/WebLayout'
 export type {
   JobCardBadgeVariant,
+  TaskBrowseListCardTask,
   TaskBrowseListItemProps,
 } from './(web)/TaskBrowseListItem'
-export type { MobileTaskCarouselProps } from './(mobile)/MobileTaskCarousel'
 export type { SearchThisAreaButtonProps } from './(web)/SearchThisAreaButton'
 export type {
   TaskBrowseFiltersProps,

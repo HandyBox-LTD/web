@@ -10,13 +10,16 @@ import {
   useTaskBrowseLayout,
   useTaskMapBindings,
 } from '../../context/TaskBrowseProvider'
+import { SearchThisAreaButton } from './SearchThisAreaButton'
 import { TaskBrowseFilters } from './TaskBrowseFilters'
 import { TaskList } from './TaskList'
 import { TaskMap } from './TaskMap'
 import { SORT_OPTIONS } from './taskBrowseHelpers'
 
+const SINGLE_PANEL_BUTTON_LEFT_INSET = '1.25rem + min(420px, 38vw)'
+
 export function WebLayout() {
-  const { isFilterOpen, setIsFilterOpen, windowOffsetWidth } =
+  const { isFilterOpen, setIsFilterOpen, windowOffsetWidth, searchThisAreaUi } =
     useTaskBrowseLayout()
   const mapBindings = useTaskMapBindings()
   const filterProps = useTaskBrowseFiltersProps('compact')
@@ -69,11 +72,12 @@ export function WebLayout() {
   }
 
   return (
-    <Box w="full" h="full">
-      <Box position="absolute" inset={0} zIndex={0}>
+    <Box flex={1} minH={0} w="full" position="relative">
+      <Box position="absolute" inset={0} zIndex={1}>
         <TaskMap
           {...mapBindings}
           leftViewportPadding={windowOffsetWidth}
+          searchAreaButtonLeftInset={SINGLE_PANEL_BUTTON_LEFT_INSET}
           onSelectTask={(taskId) => {
             if (taskId) setIsFilterOpen(false)
             setSelectedTaskId(taskId)
@@ -186,6 +190,21 @@ export function WebLayout() {
           ) : (
             <TaskList />
           )}
+        </Box>
+      </Box>
+
+      <Box
+        position="absolute"
+        bottom={6}
+        left={0}
+        right={0}
+        zIndex={3}
+        display="flex"
+        justifyContent="center"
+        pointerEvents="none"
+      >
+        <Box pointerEvents="auto">
+          <SearchThisAreaButton {...searchThisAreaUi} />
         </Box>
       </Box>
     </Box>

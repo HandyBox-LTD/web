@@ -1,35 +1,37 @@
 'use client'
 
+import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Box, HStack } from '@chakra-ui/react'
 import useEmblaCarousel from 'embla-carousel-react'
 import WheelGesturesPlugin from 'embla-carousel-wheel-gestures'
 import { motion } from 'motion/react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { Text } from '@ui'
 import { TaskBrowseListItem } from '../(web)/TaskBrowseListItem'
+import { formatBudget, inferBadge } from '../(web)/taskBrowseHelpers'
+import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 
-type MobileTaskCard = {
-  id: string
-  title: string
-  description: string
-  location: string
-  priceLabel: string
-  badgeText?: string
-  imageSeed?: string
-}
-
-export type MobileTaskCarouselProps = {
-  tasks: MobileTaskCard[]
-  selectedTaskId: string | null
-  onSelectTask: (taskId: string | null) => void
-}
-
-export function MobileTaskCarousel({
-  tasks,
-  selectedTaskId,
-  onSelectTask,
-}: MobileTaskCarouselProps) {
+export function MobileTaskCarousel() {
+  const { pageItems, selectedTaskId, setSelectedTaskId } = useTaskBrowseData()
+  const tasks = useMemo(
+    () =>
+      pageItems.map((task) => {
+        const { main } = formatBudget(task)
+        const badge = inferBadge(task)
+        return {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          location:
+            taskPublicLocationLabel(task).trim() || 'Location on request',
+          priceLabel: main,
+          badgeText: badge.text,
+          imageSeed: task.id,
+        }
+      }),
+    [pageItems],
+  )
   const isSingleItem = tasks.length === 1
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { align: 'center', containScroll: 'trimSnaps', dragFree: false },
@@ -45,13 +47,13 @@ export function MobileTaskCarousel({
 
   const handleSelectTask = (taskId: string) => {
     if (selectedTaskId === taskId) {
-      onSelectTask(null)
+      setSelectedTaskId(null)
       requestAnimationFrame(() => {
-        onSelectTask(taskId)
+        setSelectedTaskId(taskId)
       })
       return
     }
-    onSelectTask(taskId)
+    setSelectedTaskId(taskId)
   }
 
   if (tasks.length === 0) {
@@ -112,14 +114,7 @@ export function MobileTaskCarousel({
               }}
             >
               <TaskBrowseListItem
-                title={task.title}
-                description={task.description}
-                priceLabel={task.priceLabel}
-                metaLine={task.location}
-                imageSeed={task.imageSeed}
-                detailsHref={`/task/${task.id}`}
-                badgeVariant={task.badgeText ? 'featured' : 'none'}
-                badgeText={task.badgeText}
+                task={task}
                 isActive={selectedTaskId === task.id}
                 onActivate={() => handleSelectTask(task.id)}
               />

@@ -8,7 +8,27 @@ import { Button, Heading, IconMapPin, Text } from '@ui'
 
 export type JobCardBadgeVariant = 'emergency' | 'featured' | 'none'
 
-export type TaskBrowseListItemProps = {
+/** Card-shaped task for list/carousel rows (`location` maps to the pin/meta line). */
+export type TaskBrowseListCardTask = {
+  id: string
+  title: string
+  description: string
+  location: string
+  priceLabel: string
+  badgeText?: string
+  imageSeed?: string
+}
+
+type TaskBrowseListItemWithTask = {
+  task: TaskBrowseListCardTask
+  detailsHref?: string
+  detailsCtaLabel?: string
+  badgeVariant?: JobCardBadgeVariant
+  isActive?: boolean
+  onActivate?: () => void
+}
+
+type TaskBrowseListItemLegacy = {
   title: string
   description: string
   priceLabel: string
@@ -22,24 +42,53 @@ export type TaskBrowseListItemProps = {
   onActivate?: () => void
 }
 
+export type TaskBrowseListItemProps =
+  | TaskBrowseListItemWithTask
+  | TaskBrowseListItemLegacy
+
+function isTaskBrowseListItemWithTask(
+  props: TaskBrowseListItemProps,
+): props is TaskBrowseListItemWithTask {
+  return 'task' in props && props.task != null
+}
+
 function badgeStyles(variant: JobCardBadgeVariant) {
   if (variant === 'emergency') return { bg: 'red.50', color: 'red.700' }
   if (variant === 'featured') return { bg: 'primary.100', color: 'primary.700' }
   return { bg: 'surfaceContainerHigh', color: 'muted' }
 }
 
-export function TaskBrowseListItem({
-  title,
-  priceLabel,
-  metaLine,
-  imageSeed,
-  detailsHref,
-  detailsCtaLabel = 'VIEW DETAILS',
-  badgeVariant = 'none',
-  badgeText,
-  isActive = false,
-  onActivate,
-}: TaskBrowseListItemProps) {
+export function TaskBrowseListItem(props: TaskBrowseListItemProps) {
+  const isActive = props.isActive ?? false
+  const onActivate = props.onActivate
+
+  let title: string
+  let priceLabel: string
+  let metaLine: string
+  let imageSeed: string | undefined
+  let detailsHref: string
+  let badgeVariant: JobCardBadgeVariant
+  let badgeText: string | undefined
+
+  if (isTaskBrowseListItemWithTask(props)) {
+    const { task } = props
+    title = task.title
+    priceLabel = task.priceLabel
+    metaLine = task.location
+    imageSeed = task.imageSeed
+    detailsHref = props.detailsHref ?? `/task/${task.id}`
+    badgeVariant = props.badgeVariant ?? (task.badgeText ? 'featured' : 'none')
+    badgeText = task.badgeText
+  } else {
+    title = props.title
+    priceLabel = props.priceLabel
+    metaLine = props.metaLine
+    imageSeed = props.imageSeed
+    detailsHref = props.detailsHref
+    badgeVariant = props.badgeVariant ?? 'none'
+    badgeText = props.badgeText
+  }
+
   const thumbnailSrc = imageSeed
     ? `https://picsum.photos/seed/${encodeURIComponent(imageSeed)}/200/300`
     : 'https://picsum.photos/200/300'

@@ -1,15 +1,11 @@
 'use client'
 
-import {
-  formatTaskCategoryLabel,
-  taskPublicLocationLabel,
-} from '@/utils/taskLocationDisplay'
-import { Box, HStack, IconButton, Input } from '@chakra-ui/react'
+import { formatTaskCategoryLabel } from '@/utils/taskLocationDisplay'
+import { Box, HStack, Input } from '@chakra-ui/react'
 import { Button } from '@ui'
 import { SearchThisAreaButton } from '../(web)/SearchThisAreaButton'
 import { TaskBrowseFilters } from '../(web)/TaskBrowseFilters'
 import { TaskMap } from '../(web)/TaskMap'
-import { formatBudget, inferBadge } from '../(web)/taskBrowseHelpers'
 import {
   useTaskBrowseData,
   useTaskBrowseFiltersProps,
@@ -30,25 +26,8 @@ export function MobileLayout() {
     commitAreaLocationSearch,
     radiusMiles,
     urgency,
-    selectedTaskId,
-    setSelectedTaskId,
-    pageItems,
     categories,
   } = useTaskBrowseData()
-
-  const mobileCards = pageItems.map((task) => {
-    const { main } = formatBudget(task)
-    const badge = inferBadge(task)
-    return {
-      id: task.id,
-      title: task.title,
-      description: task.description,
-      location: taskPublicLocationLabel(task).trim() || 'Location on request',
-      priceLabel: main,
-      badgeText: badge.text,
-      imageSeed: task.id,
-    }
-  })
 
   const activeFilterTags: string[] = []
   if (
@@ -73,8 +52,10 @@ export function MobileLayout() {
   activeFilterTags.push(`${radiusMiles}mi`)
 
   return (
-    <>
-      <TaskMap {...mapBindings} />
+    <Box flex={1} minH={0} w="full" position="relative" minW={0}>
+      <Box position="absolute" inset={0} zIndex={0}>
+        <TaskMap {...mapBindings} />
+      </Box>
 
       <Box
         position="absolute"
@@ -157,13 +138,9 @@ export function MobileLayout() {
         >
           <SearchThisAreaButton {...searchThisAreaUi} />
 
-          <MobileTaskCarousel
-            tasks={mobileCards}
-            selectedTaskId={selectedTaskId}
-            onSelectTask={setSelectedTaskId}
-          />
+          <MobileTaskCarousel />
         </Box>
       )}
-    </>
+    </Box>
   )
 }
