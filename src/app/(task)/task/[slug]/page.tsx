@@ -251,9 +251,6 @@ export default function TaskDetailPage() {
     return (
       <Box bg="bg" color="fg" minH="100vh">
         <Stack gap={0}>
-          <Section id="header" py={{ base: 6, md: 8 }}>
-            <Header activeItem="home" />
-          </Section>
           <Section>
             <Link
               as={NextLink}

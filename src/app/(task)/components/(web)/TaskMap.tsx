@@ -294,14 +294,14 @@ function taskMarkerElement(
       borderRadius: isExpanded ? '14px' : '999px',
       boxShadow: '0 1px 4px rgba(15,23,42,0.2)',
       whiteSpace: isExpanded ? 'normal' : 'nowrap',
-      width: isExpanded ? '260px' : '120px',
-      maxWidth: isExpanded ? '260px' : '120px',
+      width: isExpanded ? '260px' : 'auto',
+      maxWidth: isExpanded ? '260px' : 'none',
       minHeight: isExpanded ? '140px' : '26px',
       overflow: 'hidden',
       textOverflow: isExpanded ? 'clip' : 'ellipsis',
       border: isSel ? '2px solid #ea580c' : '1px solid rgba(226,232,240,0.9)',
       transition:
-        'width 0.2s ease, min-height 0.2s ease, border-radius 0.2s ease, padding 0.2s ease',
+        'min-height 0.2s ease, border-radius 0.2s ease, padding 0.2s ease',
     })
     Object.assign(priceRow.style, {
       display: isExpanded ? 'none' : 'block',

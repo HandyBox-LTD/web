@@ -86,20 +86,27 @@ function SiteNavigation({ activeItem }: { activeItem: HeaderActiveItem }) {
   const router = useRouter()
   const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
+    setHasMounted(true)
     setIsLoggedIn(Boolean(getAuthToken()))
   }, [])
 
+  // Pathname from `usePathname()` can disagree between SSR and the first client
+  // paint (e.g. null vs real path). Defer route-derived highlighting until after
+  // mount so server and client render the same tree for hydration.
   const resolvedActive: HeaderActiveItem =
     activeItem !== 'none'
       ? activeItem
-      : pathname?.startsWith('/tasks/create')
-        ? 'post-task'
-        : pathname === '/' || pathname?.startsWith('/tasks')
-          ? 'home'
-          : 'none'
+      : !hasMounted
+        ? 'none'
+        : pathname?.startsWith('/tasks/create')
+          ? 'post-task'
+          : pathname === '/' || pathname?.startsWith('/tasks')
+            ? 'home'
+            : 'none'
 
   const browseTasksLinkProps =
     resolvedActive === 'home' || resolvedActive === 'tasks'
