@@ -141,7 +141,10 @@ export function WebLayout() {
                   value={areaLocationInput}
                   onChange={(e) => setAreaLocationInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitAreaLocationSearch()
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      e.currentTarget.blur()
+                    }
                   }}
                   type="search"
                   bg="surfaceContainerLowest"

@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
@@ -25,10 +26,9 @@ import type { TaskMapProps } from '../components/(web)/TaskMap'
 import {
   PAGE_SIZE,
   SORT_OPTIONS,
-  endOfLocalDay,
+  effectiveTaskPricePenceForFilter,
   formatBudget,
   matchesUrgency,
-  startOfLocalDay,
   taskCreatedTime,
 } from '../components/(web)/taskBrowseHelpers'
 
@@ -162,6 +162,8 @@ export function TaskBrowseProvider({
   const [searchCenterLat, setSearchCenterLat] = useState(DEFAULT_SEARCH_LAT)
   const [searchCenterLng, setSearchCenterLng] = useState(DEFAULT_SEARCH_LNG)
   const [areaLocationInput, setAreaLocationInput] = useState('')
+  const pendingAreaSearchQueryRef = useRef<string | null>(null)
+  const lastResolvedAreaSearchQueryRef = useRef<string | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [isMapReadyForQuery, setIsMapReadyForQuery] = useState(!hasMapboxToken)
 
@@ -183,49 +185,13 @@ export function TaskBrowseProvider({
   )
 
   const queryVariables = useMemo(() => {
-    const minStr = minBudget.trim()
-    const maxStr = maxBudget.trim()
-    const minP = minStr === '' ? undefined : Number.parseFloat(minStr) * 100
-    const maxP = maxStr === '' ? undefined : Number.parseFloat(maxStr) * 100
     const radius = clampRadiusMiles(radiusMiles)
-    const singleCategory: TaskCategory | undefined =
-      selectedCategories.length === 1 ? selectedCategories[0] : undefined
-
-    let dateTimeFrom: string | undefined
-    let dateTimeTo: string | undefined
-    if (urgency === 'today') {
-      dateTimeFrom = startOfLocalDay().toISOString()
-      dateTimeTo = endOfLocalDay().toISOString()
-    } else if (urgency === 'week') {
-      const start = startOfLocalDay()
-      start.setDate(start.getDate() - 6)
-      dateTimeFrom = start.toISOString()
-      dateTimeTo = endOfLocalDay().toISOString()
-    }
-
     return {
       lat: searchCenterLat,
       lng: searchCenterLng,
       radiusMiles: radius,
-      search: debouncedSearch || undefined,
-      category: singleCategory,
-      minPricePence:
-        minP != null && Number.isFinite(minP) ? Math.round(minP) : undefined,
-      maxPricePence:
-        maxP != null && Number.isFinite(maxP) ? Math.round(maxP) : undefined,
-      dateTimeFrom,
-      dateTimeTo,
     }
-  }, [
-    debouncedSearch,
-    minBudget,
-    maxBudget,
-    radiusMiles,
-    searchCenterLat,
-    searchCenterLng,
-    selectedCategories,
-    urgency,
-  ])
+  }, [radiusMiles, searchCenterLat, searchCenterLng])
 
   const shouldWaitForMap = hasMapboxToken
   const { data, loading, error } = useQuery<TasksQueryData>(TASKS_QUERY, {
@@ -236,17 +202,42 @@ export function TaskBrowseProvider({
 
   const filtered = useMemo(() => {
     const items = data?.tasks ?? initialTasks
+    const text = debouncedSearch.trim().toLowerCase()
+    const minStr = minBudget.trim()
+    const maxStr = maxBudget.trim()
+    const minP = minStr === '' ? null : Number.parseFloat(minStr) * 100
+    const maxP = maxStr === '' ? null : Number.parseFloat(maxStr) * 100
 
     return items.filter((task) => {
+      if (text) {
+        const hay = `${task.title} ${task.description}`.toLowerCase()
+        if (!hay.includes(text)) return false
+      }
       if (selectedCategories.length > 0) {
         const cat = task.category
         if (cat && !selectedCategorySet.has(cat)) return false
       }
-      if (urgency === 'emergency' && !matchesUrgency(task, urgency))
-        return false
+      if (!matchesUrgency(task, urgency)) return false
+
+      const eff = effectiveTaskPricePenceForFilter(task)
+      if (minP != null && Number.isFinite(minP)) {
+        if (eff == null || eff < Math.round(minP)) return false
+      }
+      if (maxP != null && Number.isFinite(maxP)) {
+        if (eff != null && eff > Math.round(maxP)) return false
+      }
       return true
     })
-  }, [data, initialTasks, selectedCategories, selectedCategorySet, urgency])
+  }, [
+    data,
+    debouncedSearch,
+    initialTasks,
+    maxBudget,
+    minBudget,
+    selectedCategories,
+    selectedCategorySet,
+    urgency,
+  ])
 
   const filteredSorted = useMemo(() => {
     let next = filtered
@@ -359,24 +350,23 @@ export function TaskBrowseProvider({
     const q = areaLocationInput.trim()
     const token = mapboxToken?.trim()
     if (q.length < 2 || !token) return
-    void mapboxForwardGeocode(q, token).then((hit) => {
-      if (hit) {
-        setSearchCenter(hit.lat, hit.lng)
-        setAreaLocationInput(hit.placeName)
-      }
-    })
-  }, [areaLocationInput, mapboxToken, setSearchCenter])
+    if (pendingAreaSearchQueryRef.current === q) return
+    if (lastResolvedAreaSearchQueryRef.current === q) return
 
-  useEffect(() => {
-    const q = areaLocationInput.trim()
-    const token = mapboxToken?.trim()
-    if (q.length < 3 || !token) return
-    const t = window.setTimeout(() => {
-      void mapboxForwardGeocode(q, token).then((hit) => {
-        if (hit) setSearchCenter(hit.lat, hit.lng)
+    pendingAreaSearchQueryRef.current = q
+    void mapboxForwardGeocode(q, token)
+      .then((hit) => {
+        if (hit) {
+          setSearchCenter(hit.lat, hit.lng)
+          setAreaLocationInput(hit.placeName)
+          lastResolvedAreaSearchQueryRef.current = q
+        }
       })
-    }, 650)
-    return () => window.clearTimeout(t)
+      .finally(() => {
+        if (pendingAreaSearchQueryRef.current === q) {
+          pendingAreaSearchQueryRef.current = null
+        }
+      })
   }, [areaLocationInput, mapboxToken, setSearchCenter])
 
   const cycleSort = useCallback(() => {

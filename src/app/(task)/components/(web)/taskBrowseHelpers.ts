@@ -79,6 +79,20 @@ export function inferBadge(task: TaskListItem): {
   return { variant: 'none' }
 }
 
+/**
+ * Best-effort price for budget filters when the server query is geo-only.
+ * Uses fixed offer price when set; otherwise the lowest worker offer.
+ */
+export function effectiveTaskPricePenceForFilter(
+  task: TaskListItem,
+): number | null {
+  const fixed = task.priceOfferPence
+  if (fixed != null && fixed > 0) return fixed
+  const offers = task.offers
+  if (!offers.length) return null
+  return Math.min(...offers.map((o) => o.pricePence))
+}
+
 export function matchesUrgency(
   task: TaskListItem,
   urgency: UrgencyFilter,
