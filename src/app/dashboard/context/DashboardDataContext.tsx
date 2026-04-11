@@ -17,11 +17,11 @@ import { ME_QUERY } from '@/graphql/auth'
 import { MY_TASKS_QUERY } from '@/graphql/tasks'
 import type { MyTasksQueryData } from '@/graphql/tasks-query.types'
 import {
-  type MyOfferItem,
+  type MyQuoteItem,
   type TaskItem,
   formatPounds,
   getDisplayNameFromEmail,
-  isOfferAwarded,
+  isQuoteAwarded,
   isTaskCompleted,
   matchesSearch,
   timeFromUnknown,
@@ -104,16 +104,16 @@ type DashboardDataContextValue = {
   tasks: TaskItem[]
   myPostedTasks: TaskItem[]
   activePostedTasks: TaskItem[]
-  myOffers: MyOfferItem[]
+  myQuotes: MyQuoteItem[]
   filteredPostedTasks: TaskItem[]
-  filteredOffers: MyOfferItem[]
-  quotesInProgress: MyOfferItem[]
-  awardedQuotes: MyOfferItem[]
+  filteredMyQuotes: MyQuoteItem[]
+  quotesInProgress: MyQuoteItem[]
+  awardedQuotes: MyQuoteItem[]
   completedHistoryItems: LiveHistoryItem[]
   customerBookings: TaskItem[]
   totalSpendPence: number
   totalEarningsPence: number
-  offerCountOnMyTasks: number
+  quoteCountOnPostedTasks: number
   saveProfile: (profile: DashboardProfile) => void
   updateProfile: (patch: Partial<DashboardProfile>) => void
   registerWorker: (input: DashboardWorkerProfile) => void
@@ -188,12 +188,12 @@ export function DashboardDataProvider({
     ? getFriendlyErrorMessage(tasksError, 'Could not load tasks.')
     : null
 
-  const { myPostedTasks, myOffers, offerCountOnMyTasks } = useMemo(() => {
+  const { myPostedTasks, myQuotes, quoteCountOnPostedTasks } = useMemo(() => {
     if (!me) {
       return {
         myPostedTasks: [] as TaskItem[],
-        myOffers: [] as MyOfferItem[],
-        offerCountOnMyTasks: 0,
+        myQuotes: [] as MyQuoteItem[],
+        quoteCountOnPostedTasks: 0,
       }
     }
 
@@ -205,25 +205,25 @@ export function DashboardDataProvider({
 
     const submitted = tasks
       .flatMap((task) =>
-        task.offers
-          .filter((offer) => offer.workerUserId === me.id)
-          .map((offer) => ({ task, offer })),
+        task.quotes
+          .filter((quote) => quote.workerUserId === me.id)
+          .map((quote) => ({ task, quote })),
       )
       .sort(
         (a, b) =>
-          timeFromUnknown(b.offer.createdAt) -
-          timeFromUnknown(a.offer.createdAt),
+          timeFromUnknown(b.quote.createdAt) -
+          timeFromUnknown(a.quote.createdAt),
       )
 
-    const offerCount = posted.reduce(
-      (count, task) => count + task.offers.length,
+    const quoteCount = posted.reduce(
+      (count, task) => count + task.quotes.length,
       0,
     )
 
     return {
       myPostedTasks: posted,
-      myOffers: submitted,
-      offerCountOnMyTasks: offerCount,
+      myQuotes: submitted,
+      quoteCountOnPostedTasks: quoteCount,
     }
   }, [tasks, me])
 
@@ -237,20 +237,20 @@ export function DashboardDataProvider({
     [activePostedTasks, search],
   )
 
-  const filteredOffers = useMemo(
-    () => myOffers.filter(({ task }) => matchesSearch(task, search)),
-    [myOffers, search],
+  const filteredMyQuotes = useMemo(
+    () => myQuotes.filter(({ task }) => matchesSearch(task, search)),
+    [myQuotes, search],
   )
 
   const quotesInProgress = useMemo(
     () =>
-      myOffers.filter(({ task }) => !isTaskCompleted(task.status)).slice(0, 4),
-    [myOffers],
+      myQuotes.filter(({ task }) => !isTaskCompleted(task.status)).slice(0, 4),
+    [myQuotes],
   )
 
   const awardedQuotes = useMemo(
-    () => myOffers.filter(({ offer }) => isOfferAwarded(offer.status)),
-    [myOffers],
+    () => myQuotes.filter(({ quote }) => isQuoteAwarded(quote.status)),
+    [myQuotes],
   )
 
   const completedAsPoster = useMemo(
@@ -259,8 +259,8 @@ export function DashboardDataProvider({
   )
 
   const completedAsWorker = useMemo(
-    () => myOffers.filter(({ task }) => isTaskCompleted(task.status)),
-    [myOffers],
+    () => myQuotes.filter(({ task }) => isTaskCompleted(task.status)),
+    [myQuotes],
   )
 
   const completedHistoryItems = useMemo<LiveHistoryItem[]>(() => {
@@ -269,18 +269,18 @@ export function DashboardDataProvider({
       title: task.title,
       location: taskPublicLocationLabel(task) || 'Location TBC',
       completedAt: task.createdAt,
-      valuePence: task.priceOfferPence ?? 0,
+      valuePence: task.priceQuotePence ?? 0,
       summary: 'Posted task completed and archived in your customer history.',
       role: 'customer',
     }))
 
     const workerItems: LiveHistoryItem[] = completedAsWorker.map(
-      ({ task, offer }) => ({
-        id: `worker-${offer.id}`,
+      ({ task, quote }) => ({
+        id: `worker-${quote.id}`,
         title: task.title,
         location: taskPublicLocationLabel(task) || 'Location TBC',
-        completedAt: offer.createdAt,
-        valuePence: offer.pricePence,
+        completedAt: quote.createdAt,
+        valuePence: quote.pricePence,
         summary: 'Quote progressed to a completed worker engagement.',
         role: 'worker',
       }),
@@ -294,7 +294,7 @@ export function DashboardDataProvider({
   const customerBookings = useMemo(
     () =>
       activePostedTasks
-        .filter((task) => task.offers.length > 0)
+        .filter((task) => task.quotes.length > 0)
         .sort(
           (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
         ),
@@ -304,7 +304,7 @@ export function DashboardDataProvider({
   const totalSpendPence = useMemo(
     () =>
       completedAsPoster.reduce(
-        (sum, task) => sum + (task.priceOfferPence ?? 0),
+        (sum, task) => sum + (task.priceQuotePence ?? 0),
         0,
       ),
     [completedAsPoster],
@@ -313,7 +313,7 @@ export function DashboardDataProvider({
   const totalEarningsPence = useMemo(
     () =>
       awardedQuotes.reduce(
-        (sum, { offer }) => sum + (offer.pricePence ?? 0),
+        (sum, { quote }) => sum + (quote.pricePence ?? 0),
         0,
       ),
     [awardedQuotes],
@@ -328,7 +328,7 @@ export function DashboardDataProvider({
 
   const workerEnabled = Boolean(
     workerProfile.isActive ||
-      myOffers.length > 0 ||
+      myQuotes.length > 0 ||
       (me ? getWorkerRegistered(me.id) : false),
   )
 
@@ -418,16 +418,16 @@ export function DashboardDataProvider({
       tasks,
       myPostedTasks,
       activePostedTasks,
-      myOffers,
+      myQuotes,
       filteredPostedTasks,
-      filteredOffers,
+      filteredMyQuotes,
       quotesInProgress,
       awardedQuotes,
       completedHistoryItems,
       customerBookings,
       totalSpendPence,
       totalEarningsPence,
-      offerCountOnMyTasks,
+      quoteCountOnPostedTasks,
       saveProfile,
       updateProfile,
       registerWorker,
@@ -438,14 +438,14 @@ export function DashboardDataProvider({
       completedHistoryItems,
       customerBookings,
       displayName,
-      filteredOffers,
+      filteredMyQuotes,
       filteredPostedTasks,
       me,
       meErrorMessage,
       meLoading,
-      myOffers,
+      myQuotes,
       myPostedTasks,
-      offerCountOnMyTasks,
+      quoteCountOnPostedTasks,
       profile,
       quotesInProgress,
       refetchDashboardData,

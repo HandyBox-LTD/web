@@ -300,8 +300,8 @@ export function TaskLocationMapPicker({
         <Text fontSize="sm" color="muted">
           Adjust the map or use the search box. Map coordinates and the place
           label from Mapbox are saved for matching only — workers see
-          approximate area, not your full street address, until you accept an
-          offer.
+          approximate area, not your full street address, until you accept a
+          quote.
         </Text>
       ) : null}
     </Stack>

@@ -2,14 +2,14 @@
 
 ## 1. Project Mission
 
-HandyBox is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare offers, complete the work, and leave feedback.
+HandyBox is a high-trust marketplace connecting homeowners with local handyman professionals. The product goal is to make home maintenance simple: post a task, compare quotes, complete the work, and leave feedback.
 
 ## 2. Primary Personas
 
 ### Customer (Client)
 
 - Need: fast and reliable help with clear status tracking.
-- Core flow: post task -> receive offers/quotes -> choose pro -> complete task -> review.
+- Core flow: post task -> receive quotes -> choose pro -> complete task -> review.
 - App surfaces: `/quotes`, `/requests`, and `/profile` (client point of view).
 
 ### Worker
@@ -23,7 +23,7 @@ HandyBox is a high-trust marketplace connecting homeowners with local handyman p
 - Homepage defaults to the task-hunter experience.
 - Users can browse tasks on map/list and apply filters to find relevant tasks.
 - Task detail is publicly readable.
-- Unauthenticated users are read-only; login is required to make offers or perform account actions.
+- Unauthenticated users are read-only; login is required to submit quotes or perform account actions.
 - The app supports two intents:
   - become a worker (worker flow and dashboard), or
   - post a task (client flow for requesting help and managing quotes/requests).

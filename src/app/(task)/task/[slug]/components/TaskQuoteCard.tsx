@@ -4,7 +4,7 @@ import { Box, HStack, Stack } from '@chakra-ui/react'
 import { Badge, Button, Heading, Text } from '@ui'
 import NextLink from 'next/link'
 
-export type TaskOfferCardProps = {
+export type TaskQuoteCardProps = {
   name: string
   avatarLabel: string
   priceLabel: string
@@ -13,7 +13,7 @@ export type TaskOfferCardProps = {
   trustBadge?: 'pro' | 'verified'
   acceptPrimary?: boolean
   messageHref: string
-  isOwnOffer?: boolean
+  isOwnQuote?: boolean
   onAccept?: () => void
   acceptLoading?: boolean
   acceptDisabled?: boolean
@@ -27,7 +27,7 @@ function avatarGradient(seed: string): string {
   return `linear-gradient(135deg, hsl(${hue} 55% 42%) 0%, hsl(${(hue + 40) % 360} 60% 36%) 100%)`
 }
 
-export function TaskOfferCard({
+export function TaskQuoteCard({
   name,
   avatarLabel,
   priceLabel,
@@ -36,11 +36,11 @@ export function TaskOfferCard({
   trustBadge,
   acceptPrimary = false,
   messageHref,
-  isOwnOffer = false,
+  isOwnQuote = false,
   onAccept,
   acceptLoading = false,
   acceptDisabled = false,
-}: TaskOfferCardProps) {
+}: TaskQuoteCardProps) {
   const snippet =
     message && message.trim().length > 0
       ? message.length > 140
@@ -126,7 +126,7 @@ export function TaskOfferCard({
         >
           Message
         </Button>
-        {isOwnOffer ? (
+        {isOwnQuote ? (
           <Button
             size="sm"
             variant="outline"
@@ -136,7 +136,7 @@ export function TaskOfferCard({
             minW="120px"
             disabled
           >
-            Your offer
+            Your quote
           </Button>
         ) : onAccept ? (
           <Button
@@ -156,7 +156,7 @@ export function TaskOfferCard({
                   bg: 'primary.50',
                 })}
           >
-            Accept offer
+            Accept quote
           </Button>
         ) : null}
       </HStack>

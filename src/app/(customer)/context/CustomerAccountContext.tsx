@@ -17,7 +17,7 @@ import {
 
 export type IncomingQuoteRow = {
   task: TaskItem
-  offer: TaskItem['offers'][number]
+  quote: TaskItem['quotes'][number]
 }
 
 type CustomerAccountContextValue = {
@@ -74,15 +74,15 @@ export function CustomerAccountProvider({
         (a, b) => timeFromUnknown(b.createdAt) - timeFromUnknown(a.createdAt),
       )
 
-    const quotes: IncomingQuoteRow[] = posted.flatMap((task) =>
-      task.offers.map((offer) => ({ task, offer })),
+    const rows: IncomingQuoteRow[] = posted.flatMap((task) =>
+      task.quotes.map((quote) => ({ task, quote })),
     )
-    quotes.sort(
+    rows.sort(
       (a, b) =>
-        timeFromUnknown(b.offer.createdAt) - timeFromUnknown(a.offer.createdAt),
+        timeFromUnknown(b.quote.createdAt) - timeFromUnknown(a.quote.createdAt),
     )
 
-    return { myPostedTasks: posted, incomingQuotes: quotes }
+    return { myPostedTasks: posted, incomingQuotes: rows }
   }, [tasks, me])
 
   const activePostedTasks = useMemo(

@@ -7,13 +7,18 @@ import {
 } from '@/utils/taskLocationDisplay'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { Box, Grid, HStack, Link, Stack, VStack } from '@chakra-ui/react'
-import type { AddOfferMutation, MeQuery, TaskQuery } from '@codegen/schema'
+import type {
+  AcceptQuoteMutation,
+  AddQuoteMutation,
+  MeQuery,
+  TaskQuery,
+} from '@codegen/schema'
 import NextLink from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ME_QUERY } from '@/graphql/auth'
-import { ACCEPT_OFFER_MUTATION, ADD_OFFER, TASK_QUERY } from '@/graphql/tasks'
+import { ACCEPT_QUOTE_MUTATION, ADD_QUOTE, TASK_QUERY } from '@/graphql/tasks'
 import { getAuthToken } from '@/utils/auth'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
@@ -33,15 +38,7 @@ import {
   Text,
   TextInput,
 } from '@ui'
-import { TaskOfferCard } from './components/TaskOfferCard'
-
-type AcceptOfferMutationData = {
-  acceptOffer?: {
-    id: string
-    status: string
-    selectedOfferId?: string | null
-  } | null
-}
+import { TaskQuoteCard } from './components/TaskQuoteCard'
 
 function formatDateTime(isoDateTime: string) {
   return new Intl.DateTimeFormat('en-GB', {
@@ -87,11 +84,11 @@ function normaliseStatus(status: string) {
   return status.replaceAll('_', ' ').toUpperCase()
 }
 
-function statusBannerLabel(status: string, offerCount: number) {
+function statusBannerLabel(status: string, quoteCount: number) {
   const s = status.toUpperCase()
   if (s === 'OPEN' || s === 'POSTED' || s === 'PUBLISHED') {
-    const n = offerCount
-    return `OPEN — ${n} OFFER${n === 1 ? '' : 'S'} RECEIVED`
+    const n = quoteCount
+    return `OPEN — ${n} QUOTE${n === 1 ? '' : 'S'} RECEIVED`
   }
   return normaliseStatus(status)
 }
@@ -126,10 +123,10 @@ export default function TaskDetailPage() {
 
   const [pricePence, setPricePence] = useState('')
   const [message, setMessage] = useState('')
-  const [offerError, setOfferError] = useState<string | null>(null)
-  const [offerSuccess, setOfferSuccess] = useState<string | null>(null)
+  const [quoteError, setQuoteError] = useState<string | null>(null)
+  const [quoteSuccess, setQuoteSuccess] = useState<string | null>(null)
   const [acceptError, setAcceptError] = useState<string | null>(null)
-  const [acceptingOfferId, setAcceptingOfferId] = useState<string | null>(null)
+  const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
   const [workerProfileEnabled, setWorkerProfileEnabled] = useState(false)
 
   const hasToken = typeof window !== 'undefined' && Boolean(getAuthToken())
@@ -145,19 +142,17 @@ export default function TaskDetailPage() {
     skip: !taskId,
   })
 
-  const [addOffer, { loading: quoting }] =
-    useMutation<AddOfferMutation>(ADD_OFFER)
+  const [addQuote, { loading: quoting }] =
+    useMutation<AddQuoteMutation>(ADD_QUOTE)
 
-  const [acceptOffer] = useMutation<AcceptOfferMutationData>(
-    ACCEPT_OFFER_MUTATION,
-  )
+  const [acceptQuote] = useMutation<AcceptQuoteMutation>(ACCEPT_QUOTE_MUTATION)
 
   const task = data?.task
 
   const isOwner = Boolean(me && task && me.id === task.createdByUserId)
-  const myOffer = useMemo(() => {
+  const myQuote = useMemo(() => {
     if (!me || !task) return null
-    return task.offers.find((o) => o.workerUserId === me.id) ?? null
+    return task.quotes.find((o) => o.workerUserId === me.id) ?? null
   }, [me, task])
 
   useEffect(() => {
@@ -166,42 +161,42 @@ export default function TaskDetailPage() {
       return
     }
 
-    setWorkerProfileEnabled(getWorkerRegistered(me.id) || Boolean(myOffer))
-  }, [me, myOffer])
+    setWorkerProfileEnabled(getWorkerRegistered(me.id) || Boolean(myQuote))
+  }, [me, myQuote])
 
-  const sortedOffers = useMemo(() => {
+  const sortedQuotes = useMemo(() => {
     if (!task) return []
-    return [...task.offers].sort((a, b) => a.pricePence - b.pricePence)
+    return [...task.quotes].sort((a, b) => a.pricePence - b.pricePence)
   }, [task])
 
   const lowestPricePence = useMemo(() => {
-    if (sortedOffers.length === 0) return null
-    return sortedOffers[0]?.pricePence ?? null
-  }, [sortedOffers])
+    if (sortedQuotes.length === 0) return null
+    return sortedQuotes[0]?.pricePence ?? null
+  }, [sortedQuotes])
 
-  async function onSubmitOffer() {
-    setOfferError(null)
-    setOfferSuccess(null)
+  async function onSubmitQuote() {
+    setQuoteError(null)
+    setQuoteSuccess(null)
 
     if (!task) {
-      setOfferError('Task details are not loaded yet.')
+      setQuoteError('Task details are not loaded yet.')
       return
     }
 
     if (!getAuthToken()) {
-      setOfferError('Please log in before submitting an offer.')
-      router.push(`/login?next=${encodeURIComponent(`/task/${task.id}#offer`)}`)
+      setQuoteError('Please log in before submitting a quote.')
+      router.push(`/login?next=${encodeURIComponent(`/task/${task.id}#quote`)}`)
       return
     }
 
-    if (!workerProfileEnabled && !myOffer) {
-      setOfferError('Create a worker profile before submitting quotes.')
+    if (!workerProfileEnabled && !myQuote) {
+      setQuoteError('Create a worker profile before submitting quotes.')
       router.push('/dashboard/worker/register')
       return
     }
 
     try {
-      const res = await addOffer({
+      const res = await addQuote({
         variables: {
           input: {
             taskId: task.id,
@@ -210,42 +205,42 @@ export default function TaskDetailPage() {
           },
         },
       })
-      if (!res.data?.addOffer?.id) {
-        throw new Error('Offer submission failed. Please try again.')
+      if (!res.data?.addQuote?.id) {
+        throw new Error('Quote submission failed. Please try again.')
       }
-      setOfferSuccess('Offer submitted successfully.')
+      setQuoteSuccess('Quote submitted successfully.')
       void refetch()
     } catch (err: unknown) {
-      setOfferError(getFriendlyErrorMessage(err, 'Offer submission failed.'))
+      setQuoteError(getFriendlyErrorMessage(err, 'Quote submission failed.'))
     }
   }
 
-  async function onAcceptOffer(offerId: string) {
+  async function onAcceptQuote(quoteId: string) {
     if (!task) return
     setAcceptError(null)
-    setAcceptingOfferId(offerId)
+    setAcceptingQuoteId(quoteId)
     try {
-      const res = await acceptOffer({
-        variables: { offerId },
+      const res = await acceptQuote({
+        variables: { quoteId },
       })
-      if (!res.data?.acceptOffer?.id) {
-        throw new Error('Could not accept this offer.')
+      if (!res.data?.acceptQuote?.id) {
+        throw new Error('Could not accept this quote.')
       }
       await refetch()
     } catch (err: unknown) {
       setAcceptError(
-        getFriendlyErrorMessage(err, 'Could not accept this offer.'),
+        getFriendlyErrorMessage(err, 'Could not accept this quote.'),
       )
     } finally {
-      setAcceptingOfferId(null)
+      setAcceptingQuoteId(null)
     }
   }
 
-  const canAcceptOffers =
+  const canAcceptQuotes =
     isOwner &&
     task &&
     ['OPEN', 'POSTED', 'PUBLISHED'].includes(task.status.toUpperCase())
-  const canAccessWorkerTools = Boolean(workerProfileEnabled || myOffer)
+  const canAccessWorkerTools = Boolean(workerProfileEnabled || myQuote)
 
   if (!taskId) {
     return (
@@ -332,7 +327,7 @@ export default function TaskDetailPage() {
                             bg="white"
                             aria-hidden
                           />
-                          {statusBannerLabel(task.status, task.offers.length)}
+                          {statusBannerLabel(task.status, task.quotes.length)}
                         </Box>
                         <Heading
                           size="xl"
@@ -405,8 +400,8 @@ export default function TaskDetailPage() {
                                 </Text>
                               </Box>
                             ) : null}
-                            {task.priceOfferPence != null &&
-                            task.priceOfferPence > 0 ? (
+                            {task.priceQuotePence != null &&
+                            task.priceQuotePence > 0 ? (
                               <Box
                                 borderRadius="lg"
                                 bg="primary.50"
@@ -425,7 +420,7 @@ export default function TaskDetailPage() {
                                   CLIENT BUDGET
                                 </Text>
                                 <Text fontWeight={700} color="fg">
-                                  {formatPounds(task.priceOfferPence)}
+                                  {formatPounds(task.priceQuotePence)}
                                 </Text>
                               </Box>
                             ) : null}
@@ -550,7 +545,7 @@ export default function TaskDetailPage() {
                                 w="2px"
                                 minH="32px"
                                 bg={
-                                  task.offers.length > 0
+                                  task.quotes.length > 0
                                     ? '#F2994A'
                                     : 'outlineVariant'
                                 }
@@ -584,7 +579,7 @@ export default function TaskDetailPage() {
                                 fill="none"
                                 aria-hidden
                               >
-                                <title>Offers stage</title>
+                                <title>Quotes stage</title>
                                 <path
                                   d="M7 18.5 3 21v-3.5A4 4 0 0 1 5 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4 4 4 0 0 1-4 4H9l-2 1.5Z"
                                   stroke="currentColor"
@@ -595,13 +590,13 @@ export default function TaskDetailPage() {
                             </Box>
                             <Stack gap={0.5} pt={1}>
                               <Text fontWeight={700}>
-                                {task.offers.length > 0
-                                  ? 'Reviewing offers'
-                                  : 'Waiting for offers'}
+                                {task.quotes.length > 0
+                                  ? 'Reviewing quotes'
+                                  : 'Waiting for quotes'}
                               </Text>
                               <Text fontSize="sm" color="muted">
-                                {task.offers.length > 0
-                                  ? `${task.offers.length} professional${task.offers.length === 1 ? '' : 's'} interested`
+                                {task.quotes.length > 0
+                                  ? `${task.quotes.length} professional${task.quotes.length === 1 ? '' : 's'} interested`
                                   : 'Share this task to attract quotes faster.'}
                               </Text>
                             </Stack>
@@ -610,16 +605,16 @@ export default function TaskDetailPage() {
                       </Box>
 
                       {!isOwner ? (
-                        <Stack gap={6} id="offer">
-                          {myOffer ? (
+                        <Stack gap={6} id="quote">
+                          {myQuote ? (
                             <GlassCard p={6}>
                               <Stack gap={3}>
-                                <Heading size="md">Your offer</Heading>
+                                <Heading size="md">Your quote</Heading>
                                 <Text color="muted">
                                   You submitted{' '}
-                                  {formatPounds(myOffer.pricePence)}
-                                  {myOffer.message
-                                    ? ` — “${myOffer.message}”`
+                                  {formatPounds(myQuote.pricePence)}
+                                  {myQuote.message
+                                    ? ` — “${myQuote.message}”`
                                     : '.'}
                                 </Text>
                                 <Badge
@@ -627,7 +622,7 @@ export default function TaskDetailPage() {
                                   color="fg"
                                   w="fit-content"
                                 >
-                                  Status: {normaliseStatus(myOffer.status)}
+                                  Status: {normaliseStatus(myQuote.status)}
                                 </Badge>
                               </Stack>
                             </GlassCard>
@@ -659,14 +654,14 @@ export default function TaskDetailPage() {
                           ) : (
                             <GlassCard p={6}>
                               <Stack gap={4}>
-                                <Heading size="md">Make an offer</Heading>
+                                <Heading size="md">Submit a quote</Heading>
                                 <Text color="muted">
                                   Share your price and any message for the
                                   client.
                                 </Text>
                                 <Stack gap={3}>
                                   <TextInput
-                                    placeholder="Offer price (pence)"
+                                    placeholder="Quote price (pence)"
                                     value={pricePence}
                                     onChange={(e) =>
                                       setPricePence(e.target.value)
@@ -681,18 +676,18 @@ export default function TaskDetailPage() {
                                     background="linkBlue.600"
                                     color="white"
                                     loading={quoting}
-                                    onClick={() => void onSubmitOffer()}
+                                    onClick={() => void onSubmitQuote()}
                                   >
-                                    Submit offer
+                                    Submit quote
                                   </Button>
-                                  {offerError ? (
+                                  {quoteError ? (
                                     <Text color="red.400" fontSize="sm">
-                                      {offerError}
+                                      {quoteError}
                                     </Text>
                                   ) : null}
-                                  {offerSuccess ? (
+                                  {quoteSuccess ? (
                                     <Text color="green.600" fontSize="sm">
-                                      {offerSuccess}
+                                      {quoteSuccess}
                                     </Text>
                                   ) : null}
                                 </Stack>
@@ -709,15 +704,15 @@ export default function TaskDetailPage() {
                         top={{ xl: '88px' }}
                         w="full"
                       >
-                        <Stack gap={4} id="offers">
+                        <Stack gap={4} id="quotes">
                           <HStack justify="space-between" align="center">
                             <Heading size="md">
-                              Offers ({task.offers.length})
+                              Quotes ({task.quotes.length})
                             </Heading>
-                            {task.offers.length > 3 ? (
+                            {task.quotes.length > 3 ? (
                               <Link
                                 as={NextLink}
-                                href="#offers-list"
+                                href="#quotes-list"
                                 fontSize="sm"
                                 fontWeight={700}
                                 color="primary.600"
@@ -732,42 +727,42 @@ export default function TaskDetailPage() {
                               {acceptError}
                             </Text>
                           ) : null}
-                          {task.offers.length === 0 ? (
+                          {task.quotes.length === 0 ? (
                             <GlassCard p={6}>
                               <Text color="muted">
-                                No offers yet. Share your task link to get
+                                No quotes yet. Share your task link to get
                                 quotes from professionals.
                               </Text>
                             </GlassCard>
                           ) : (
                             <Stack
                               gap={4}
-                              id="offers-list"
+                              id="quotes-list"
                               maxH={{ xl: 'calc(100vh - 140px)' }}
                               overflowY={{ xl: 'auto' }}
                               pr={{ xl: 1 }}
                               style={{ scrollbarGutter: 'stable' }}
                             >
-                              {sortedOffers.map((offer) => (
-                                <TaskOfferCard
-                                  key={offer.id}
+                              {sortedQuotes.map((quote) => (
+                                <TaskQuoteCard
+                                  key={quote.id}
                                   name="Professional"
                                   avatarLabel={workerAvatarLabel(
-                                    offer.workerUserId,
+                                    quote.workerUserId,
                                   )}
-                                  priceLabel={formatPounds(offer.pricePence)}
-                                  message={offer.message}
+                                  priceLabel={formatPounds(quote.pricePence)}
+                                  message={quote.message}
                                   acceptPrimary={
-                                    offer.pricePence === lowestPricePence
+                                    quote.pricePence === lowestPricePence
                                   }
                                   messageHref="/dashboard"
-                                  isOwnOffer={false}
+                                  isOwnQuote={false}
                                   onAccept={
-                                    canAcceptOffers
-                                      ? () => void onAcceptOffer(offer.id)
+                                    canAcceptQuotes
+                                      ? () => void onAcceptQuote(quote.id)
                                       : undefined
                                   }
-                                  acceptLoading={acceptingOfferId === offer.id}
+                                  acceptLoading={acceptingQuoteId === quote.id}
                                 />
                               ))}
                             </Stack>

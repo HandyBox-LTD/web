@@ -21,7 +21,7 @@ export default function CustomerQuotesPage() {
       <Stack gap={2} maxW="3xl">
         <Heading size="xl">Quotes on your tasks</Heading>
         <Text color="muted">
-          Offers workers have sent on work you posted. Open the task to compare,
+          Quotes workers have sent on work you posted. Open the task to compare,
           message, or accept a quote.
         </Text>
       </Stack>
@@ -50,10 +50,10 @@ export default function CustomerQuotesPage() {
 
       {!tasksLoading && incomingQuotes.length > 0 ? (
         <Stack gap={4}>
-          {incomingQuotes.map(({ task, offer }) => {
+          {incomingQuotes.map(({ task, quote }) => {
             const visual = getCategoryVisual(task.category)
             return (
-              <GlassCard key={offer.id} p={5}>
+              <GlassCard key={quote.id} p={5}>
                 <HStack align="flex-start" gap={4} flexWrap="wrap">
                   <Box
                     w={14}
@@ -75,14 +75,14 @@ export default function CustomerQuotesPage() {
                     </Text>
                     <HStack gap={2} flexWrap="wrap">
                       <Badge bg="primary.50" color="primary.700">
-                        {formatPounds(offer.pricePence)}
+                        {formatPounds(quote.pricePence)}
                       </Badge>
                       <Text fontSize="xs" color="muted">
-                        {formatDate(offer.createdAt)}
+                        {formatDate(quote.createdAt)}
                       </Text>
                     </HStack>
-                    {offer.message ? (
-                      <Text fontSize="sm">{offer.message}</Text>
+                    {quote.message ? (
+                      <Text fontSize="sm">{quote.message}</Text>
                     ) : null}
                   </Stack>
                   <Button as={NextLink} href={`/task/${task.id}`} size="sm">

@@ -9,7 +9,7 @@ import {
   formatPounds,
   formatRelativePosted,
   getCategoryVisual,
-  isOfferAwarded,
+  isQuoteAwarded,
 } from '@/utils/dashboardHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, GlassCard, Heading, Text } from '@ui'
@@ -49,7 +49,7 @@ export default function DashboardQuotesPage() {
     workerEnabled,
     tasksLoading,
     tasksBootstrapping,
-    filteredOffers,
+    filteredMyQuotes,
     awardedQuotes,
     quotesInProgress,
   } = useDashboardData()
@@ -85,7 +85,7 @@ export default function DashboardQuotesPage() {
       <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
         <QuoteMetric
           label="Sent quotes"
-          value={String(filteredOffers.length)}
+          value={String(filteredMyQuotes.length)}
           helper="All quotes that match the current dashboard search."
         />
         <QuoteMetric
@@ -104,7 +104,7 @@ export default function DashboardQuotesPage() {
         <Text color="muted">Loading quote activity…</Text>
       ) : null}
 
-      {!isLoadingQuotes && filteredOffers.length === 0 ? (
+      {!isLoadingQuotes && filteredMyQuotes.length === 0 ? (
         <GlassCard p={6}>
           <Stack gap={4}>
             <Heading size="md">No quotes sent yet</Heading>
@@ -119,12 +119,12 @@ export default function DashboardQuotesPage() {
         </GlassCard>
       ) : !isLoadingQuotes ? (
         <Stack gap={4}>
-          {filteredOffers.map(({ task, offer }) => {
+          {filteredMyQuotes.map(({ task, quote }) => {
             const visual = getCategoryVisual(task.category)
-            const awarded = isOfferAwarded(offer.status)
+            const awarded = isQuoteAwarded(quote.status)
 
             return (
-              <GlassCard key={offer.id} p={5}>
+              <GlassCard key={quote.id} p={5}>
                 <HStack align="flex-start" gap={4} flexWrap="wrap">
                   <Stack
                     w={14}
@@ -150,14 +150,14 @@ export default function DashboardQuotesPage() {
                     </HStack>
                     <Text fontSize="sm" color="muted">
                       {taskPublicLocationLabel(task) || 'Location TBC'} ·{' '}
-                      {formatRelativePosted(offer.createdAt)}
+                      {formatRelativePosted(quote.createdAt)}
                     </Text>
                     <Text fontSize="sm">
                       Quote value:{' '}
-                      <strong>{formatPounds(offer.pricePence)}</strong>
+                      <strong>{formatPounds(quote.pricePence)}</strong>
                     </Text>
                     <Text fontSize="sm" color="muted">
-                      {offer.message?.trim() ||
+                      {quote.message?.trim() ||
                         'No message included with this quote.'}
                     </Text>
                   </Stack>

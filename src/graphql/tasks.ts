@@ -17,7 +17,7 @@ export const CREATE_TASK = gql`
       locationName
       dateTime
       category
-      priceOfferPence
+      priceQuotePence
       paymentMethod
       contactMethod
       images
@@ -25,9 +25,9 @@ export const CREATE_TASK = gql`
   }
 `
 
-export const ADD_OFFER = gql`
-  mutation AddOffer($input: AddOfferInput!) {
-    addOffer(input: $input) {
+export const ADD_QUOTE = gql`
+  mutation AddQuote($input: AddQuoteInput!) {
+    addQuote(input: $input) {
       id
       pricePence
       message
@@ -75,11 +75,11 @@ export const TASKS_QUERY = gql`
       createdAt
       dateTime
       category
-      priceOfferPence
+      priceQuotePence
       paymentMethod
       contactMethod
       images
-      offers {
+      quotes {
         id
         taskId
         workerUserId
@@ -112,10 +112,10 @@ export const TASK_QUERY = gql`
       createdAt
       dateTime
       category
-      priceOfferPence
+      priceQuotePence
       paymentMethod
       contactMethod
-      offers {
+      quotes {
         id
         taskId
         pricePence
@@ -164,7 +164,7 @@ export const BROWSE_TASKS_QUERY = gql`
       locationLng
       locationName
       status
-      priceOfferPence
+      priceQuotePence
       createdAt
       category
       images
@@ -192,11 +192,11 @@ export const MY_TASKS_QUERY = gql`
       createdAt
       dateTime
       category
-      priceOfferPence
+      priceQuotePence
       paymentMethod
       contactMethod
       images
-      offers {
+      quotes {
         id
         taskId
         workerUserId
@@ -214,7 +214,7 @@ export const TASK_WORKFLOW_QUERY = gql`
     taskWorkflow(id: $id) {
       id
       status
-      offers {
+      quotes {
         id
         status
         pricePence
@@ -223,21 +223,21 @@ export const TASK_WORKFLOW_QUERY = gql`
   }
 `
 
-export const ACCEPT_OFFER_MUTATION = gql`
-  mutation AcceptOffer($input: AcceptOfferInput, $offerId: ID) {
-    acceptOffer(input: $input, offerId: $offerId) {
+export const ACCEPT_QUOTE_MUTATION = gql`
+  mutation AcceptQuote($input: AcceptQuoteInput, $quoteId: ID) {
+    acceptQuote(input: $input, quoteId: $quoteId) {
       id
       status
-      selectedOfferId
+      selectedQuoteId
     }
   }
 `
 
-export const MAKE_OFFER_MUTATION = gql`
-  mutation MakeOffer($amount: Float!, $taskId: ID!, $message: String) {
-    makeOffer(amount: $amount, taskId: $taskId, message: $message) {
+export const MAKE_QUOTE_MUTATION = gql`
+  mutation MakeQuote($amount: Float!, $taskId: ID!, $message: String) {
+    makeQuote(amount: $amount, taskId: $taskId, message: $message) {
       id
-      amount
+      pricePence
       message
       status
     }

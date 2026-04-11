@@ -44,7 +44,7 @@ export default function DashboardOverviewPage() {
     displayName,
     workerEnabled,
     workerProfile,
-    myOffers,
+    myQuotes,
     quotesInProgress,
     awardedQuotes,
     totalEarningsPence,
@@ -100,8 +100,8 @@ export default function DashboardOverviewPage() {
         <SimpleGrid columns={{ base: 1, sm: 2, xl: 1 }} gap={4}>
           <MetricCard
             label="Quotes sent"
-            value={String(myOffers.length)}
-            helper="Offers you have submitted on open tasks."
+            value={String(myQuotes.length)}
+            helper="Quotes you have submitted on open tasks."
           />
           <MetricCard
             label="In progress"

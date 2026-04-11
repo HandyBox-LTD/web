@@ -24,24 +24,24 @@ export function formatBudget(task: TaskListItem): {
   main: string
   sub: string
 } {
-  const fixed = task.priceOfferPence
+  const fixed = task.priceQuotePence
   if (fixed != null && fixed > 0) {
     return {
       main: `£${(fixed / 100).toFixed(0)}`,
       sub: 'Fixed price',
     }
   }
-  const offers = task.offers
-  if (offers.length === 0) {
+  const quotes = task.quotes
+  if (quotes.length === 0) {
     return { main: 'Open', sub: 'Estimated budget' }
   }
-  const prices = offers.map((o) => o.pricePence)
+  const prices = quotes.map((o) => o.pricePence)
   const min = Math.min(...prices)
   const max = Math.max(...prices)
   if (min === max) {
     return {
       main: `£${(min / 100).toFixed(0)}`,
-      sub: 'From offers',
+      sub: 'From quotes',
     }
   }
   return {
@@ -72,7 +72,7 @@ export function inferBadge(task: TaskListItem): {
   }
   if (
     task.description.length > 280 ||
-    (task.priceOfferPence != null && task.priceOfferPence >= 50_000)
+    (task.priceQuotePence != null && task.priceQuotePence >= 50_000)
   ) {
     return { variant: 'featured', text: 'BIG PROJECT' }
   }
@@ -81,16 +81,16 @@ export function inferBadge(task: TaskListItem): {
 
 /**
  * Best-effort price for budget filters when the server query is geo-only.
- * Uses fixed offer price when set; otherwise the lowest worker offer.
+ * Uses fixed quote price when set; otherwise the lowest worker quote.
  */
 export function effectiveTaskPricePenceForFilter(
   task: TaskListItem,
 ): number | null {
-  const fixed = task.priceOfferPence
+  const fixed = task.priceQuotePence
   if (fixed != null && fixed > 0) return fixed
-  const offers = task.offers
-  if (!offers.length) return null
-  return Math.min(...offers.map((o) => o.pricePence))
+  const quotes = task.quotes
+  if (!quotes.length) return null
+  return Math.min(...quotes.map((o) => o.pricePence))
 }
 
 export function matchesUrgency(

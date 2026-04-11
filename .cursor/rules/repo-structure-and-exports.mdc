@@ -1,30 +1,57 @@
 ---
-description: Enforce repo structure and exports registration workflow
+description: Route feature layout (task as reference), App Router pages, components/(web|mobile), context colocation, barrel exports
 alwaysApply: true
 ---
 
-# Repo Structure and Exports Registration
+# Repo structure, route features, and exports
 
-When adding or reorganizing folders that rely on barrel exports, keep structure and export registration in sync.
+Treat **`src/app/(task)/`** as the **reference template** for other product areas under `src/app/(…)/**`: group by route segment, colocate UI, context, and helpers the same way.
 
-## Required workflow
+## Reference tree: `src/app/(task)/` (current)
 
-- Keep feature code grouped by route/domain (for example: `src/app/(task)`).
-- If a folder is expected to have an auto-generated `index.ts`, register that folder in `EXPORT_CONFIGS` inside `scripts/generate-exports.ts`.
-- Run `bun run exports-gen` after adding a new registered folder or moving files between registered folders.
-- Do not manually maintain generated barrel files if they are marked auto-generated.
+| Path | Role |
+|------|------|
+| **`page.tsx`** | Route entry: providers, breakpoint/intent split, composes layouts; mount **long-lived** clients here when switching child layouts must not remount them (e.g. map). |
+| **`context/`** | Segment-scoped providers and hooks (e.g. `TaskBrowseProvider.tsx`); optional `index.ts` for re-exports. |
+| **`helpers/`** | Pure helpers and segment-local types (e.g. `taskBrowseHelpers.ts`, `taskBrowseFilters.types.ts`) consumed by `components/` or `context/`. |
+| **`components/`** | Feature UI; **`components/index.ts`** is **auto-generated** (see exports below). |
+| **`components/(web)/`** | Desktop / split-view-only UI (e.g. `WebLayout`, `TaskList`, web-only filter panels). |
+| **`components/(mobile)/`** | Small-viewport-only UI (e.g. `MobileLayout`, bottom sheets, carousels). |
+| **`components/`** (files next to `(web)` / `(mobile)`) | **Cross-breakpoint** pieces: context-wired wrappers, primitives reused by both layouts, map shell (`TaskMap` / `TaskBrowseMapLayer`), shared filter summaries (`TaskBrowseFilterTags.tsx`), etc. |
+| **`tasks/create/`** | Nested route: `page.tsx`, schema, and **`tasks/create/components/`** for create-flow sections (colocate with that route). |
+| **`task/[slug]/`** | Dynamic route with its own `page.tsx` and colocated `components/` as needed. |
 
-## Reference example
+New domains should mirror this: **`(web)`** / **`(mobile)`** when UI forks by viewport; **`helpers/`** and **`context/`** at the segment when logic or types are shared across pages in that folder.
 
-Current registered folders include:
+## `page.tsx` (any `src/app/**/page.tsx`)
 
-- `src/ui`
-- `src/app/(task)/components`
+- Keep files **thin**: providers, layout choice, one-off composition.
+- Prefer **colocated `components/`** (and nested `…/components/` under child routes) for feature UI instead of large inline trees.
 
-These are configured in `scripts/generate-exports.ts` under `EXPORT_CONFIGS`.
+## `components/` under a route segment
 
-## Change checklist
+- **`(web)/`** — Layouts and panels only used in the desktop / split experience.
+- **`(mobile)/`** — Layouts and controls only used on small screens.
+- **Root of `components/`** — Shared across breakpoints; **context-wired wrappers** (read domain hooks next to the widget, not via props from `WebLayout` / `MobileLayout`); dumb primitives; maps and other heavy shells.
+- Do **not** duplicate the same markup under `(web)` and `(mobile)` unless it truly diverges; lift shared UI to the **components root**.
 
-- [ ] New folder location is added to `EXPORT_CONFIGS` when needed.
-- [ ] Exports are regenerated.
-- [ ] Imports in affected files are updated to use the new barrel path.
+### Context colocation (any route provider)
+
+- **`WebLayout` / `MobileLayout`-style shells** should mostly **compose** structure (position, z-index, flex) and mount children.
+- **Leaf or focused components** should call **`useYourData()` / `useYourLayout()`** (or your segment’s hooks) where they render—not only in the parent to forward props.
+- Prefer **small wrappers** next to the control (e.g. a button component that reads layout UI from context) over drilling from the shell.
+- **Avoid:** shell calls context solely to pass the same props into a child that could call the hook itself.
+
+## Barrel exports (`bun run exports-gen`)
+
+- Feature code stays grouped **by route/domain** (e.g. `src/app/(task)`).
+- Folders with an auto-generated **`index.ts`** must be listed in **`EXPORT_CONFIGS`** in **`scripts/generate-exports.ts`** (currently: **`src/ui`**, **`src/app/(task)/components`**).
+- After **adding** a registered folder or **moving** modules between registered folders, run **`bun run exports-gen`**.
+- Do **not** manually maintain generated barrel files where the header marks them auto-generated.
+- Nested folders (e.g. `tasks/create/components/`) are **not** in `EXPORT_CONFIGS` unless you add them; use local imports or add a config entry if a barrel is required.
+
+## Checklist
+
+- [ ] New exportable folder added to **`EXPORT_CONFIGS`** when it needs a root barrel.
+- [ ] **`bun run exports-gen`** run after moves/adds under registered folders.
+- [ ] Affected imports updated to barrel paths where the codebase uses `@/` / package barrels for that folder.

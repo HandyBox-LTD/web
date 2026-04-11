@@ -4,7 +4,7 @@ import type { TaskCategory } from '@codegen/schema'
  * Types for task list operations in `tasks.ts`. Prefer `@codegen/schema` once
  * `bun run codegen` succeeds against the GraphQL endpoint.
  */
-export type TaskOfferListItem = {
+export type TaskQuoteListItem = {
   id: string
   taskId: string
   workerUserId: string
@@ -34,11 +34,11 @@ export type TaskListItem = {
   createdAt: unknown
   dateTime?: unknown
   category?: TaskCategory | null
-  priceOfferPence?: number | null
+  priceQuotePence?: number | null
   paymentMethod?: string | null
   contactMethod?: string | null
   images?: string[] | null
-  offers: TaskOfferListItem[]
+  quotes: TaskQuoteListItem[]
 }
 
 export type TasksQueryData = {

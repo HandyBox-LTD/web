@@ -60,7 +60,7 @@ export function CreateTaskMapLocationPanel({
 
         <FormField
           label="Exact address"
-          helperText="Only shared with the professional you hire — not shown on your public listing until you accept an offer."
+          helperText="Only shared with the professional you hire — not shown on your public listing until you accept a quote."
           errorText={streetAddressError}
         >
           <Stack gap={2}>

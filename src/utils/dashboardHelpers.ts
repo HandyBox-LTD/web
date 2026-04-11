@@ -15,10 +15,10 @@ export function getDisplayNameFromEmail(email: string | null | undefined) {
 }
 
 export type TaskItem = MyTasksQueryData['myTasks'][number]
-export type TaskOfferItem = TaskItem['offers'][number]
-export type MyOfferItem = {
+export type TaskQuoteItem = TaskItem['quotes'][number]
+export type MyQuoteItem = {
   task: TaskItem
-  offer: TaskOfferItem
+  quote: TaskQuoteItem
 }
 
 export function formatPounds(pricePence: number) {
@@ -78,7 +78,7 @@ export function isTaskCompleted(status: string) {
   )
 }
 
-export function isOfferAwarded(status: string) {
+export function isQuoteAwarded(status: string) {
   return /accept|award|select|win|approved|chosen/i.test(status.trim())
 }
 
@@ -94,10 +94,10 @@ export function matchesSearch(task: TaskItem, q: string) {
   )
 }
 
-export function getOfferRange(offers: Array<{ pricePence: number }>) {
-  if (offers.length === 0) return null
+export function getQuoteRange(quotes: Array<{ pricePence: number }>) {
+  if (quotes.length === 0) return null
 
-  const prices = offers.map((offer) => offer.pricePence)
+  const prices = quotes.map((quote) => quote.pricePence)
   const min = Math.min(...prices)
   const max = Math.max(...prices)
 

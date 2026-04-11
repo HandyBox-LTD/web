@@ -41,7 +41,7 @@ export default function DashboardEarningsPage() {
   const {
     workerEnabled,
     workerProfile,
-    filteredOffers,
+    filteredMyQuotes,
     awardedQuotes,
     totalEarningsPence,
   } = useDashboardData()
@@ -56,25 +56,27 @@ export default function DashboardEarningsPage() {
   }
 
   const averageQuotePence =
-    filteredOffers.length > 0
+    filteredMyQuotes.length > 0
       ? Math.round(
-          filteredOffers.reduce((sum, { offer }) => sum + offer.pricePence, 0) /
-            filteredOffers.length,
+          filteredMyQuotes.reduce(
+            (sum, { quote }) => sum + quote.pricePence,
+            0,
+          ) / filteredMyQuotes.length,
         )
       : workerProfile.hourlyRatePence * 4
 
   const projectedPipelinePence =
-    filteredOffers
-      .filter(({ offer }) => !/reject|declin|cancel/i.test(offer.status))
-      .reduce((sum, { offer }) => sum + offer.pricePence, 0) ||
+    filteredMyQuotes
+      .filter(({ quote }) => !/reject|declin|cancel/i.test(quote.status))
+      .reduce((sum, { quote }) => sum + quote.pricePence, 0) ||
     averageQuotePence
 
   const payoutRows =
     awardedQuotes.length > 0
-      ? awardedQuotes.slice(0, 4).map(({ task, offer }, index) => ({
-          id: offer.id,
+      ? awardedQuotes.slice(0, 4).map(({ task, quote }, index) => ({
+          id: quote.id,
           title: task.title,
-          amountPence: offer.pricePence,
+          amountPence: quote.pricePence,
           status: index === 0 ? 'Processing' : 'Scheduled',
           payoutAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * (index + 2)),
         }))
