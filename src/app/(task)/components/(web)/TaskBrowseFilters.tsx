@@ -387,7 +387,7 @@ export function WebTaskBrowseFiltersBlock() {
   const filterProps = useTaskBrowseFiltersProps('compact')
 
   return (
-    <Box flex={1} minH={0} mb={6}>
+    <Box flex={1} minH={0} mb={6} pointerEvents="none">
       {isFilterOpen ? (
         <Box h="full" overflowY="auto" pr={{ base: 1, md: 0 }}>
           <TaskBrowseFilters {...filterProps} />

@@ -80,6 +80,23 @@ function fullscreenCenterOffsetPx(
   return [Math.max(0, (leftViewportPadding - 120) / 2), 0]
 }
 
+/** After `map.resize()`, re-apply pixel offset so the framing stays correct (same geo center, updated inset). */
+function reapplyMapCenterOffsetForLeftInset(
+  map: MapboxMap,
+  leftViewportPadding: number,
+) {
+  if (!map.isStyleLoaded()) return
+  const c = map.getCenter()
+  map.easeTo({
+    center: [c.lng, c.lat],
+    zoom: map.getZoom(),
+    duration: 0,
+    bearing: map.getBearing(),
+    pitch: map.getPitch(),
+    offset: fullscreenCenterOffsetPx(leftViewportPadding),
+  })
+}
+
 function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
   const toRad = (d: number) => (d * Math.PI) / 180
   const R = 3958.8
@@ -98,7 +115,7 @@ function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
 const POPUP_DESC_MAX = 240
 const MAX_SEARCH_RADIUS_MILES = 50
 const MAP_MIN_ZOOM = 10
-const MAP_MAX_ZOOM = 15
+const MAP_MAX_ZOOM = 17
 
 function truncateDescription(text: string, max: number): string {
   const t = text.trim()
@@ -423,15 +440,43 @@ export function TaskMap({
   const didApplyStartupOffsetRef = useRef(false)
   const prevSearchCenterKeyRef = useRef<string | null>(null)
 
+  const leftViewportPaddingRef = useRef(leftViewportPadding)
+  leftViewportPaddingRef.current = leftViewportPadding
+  const mapReadyRef = useRef(false)
+  mapReadyRef.current = mapReady
+  const visibleRef = useRef(visible)
+  visibleRef.current = visible
+
+  const scheduleReapplyInsetAfterResize = useCallback(() => {
+    requestAnimationFrame(() => {
+      const map = mapRef.current
+      if (!map || !mapReadyRef.current || !visibleRef.current) return
+      if (programmaticMoveRef.current) return
+      reapplyMapCenterOffsetForLeftInset(map, leftViewportPaddingRef.current)
+    })
+  }, [])
+
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     const ro = new ResizeObserver(() => {
-      mapRef.current?.resize()
+      const map = mapRef.current
+      if (map) {
+        map.resize()
+        scheduleReapplyInsetAfterResize()
+      }
     })
     ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
+    const onWindowResize = () => {
+      mapRef.current?.resize()
+      scheduleReapplyInsetAfterResize()
+    }
+    window.addEventListener('resize', onWindowResize)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', onWindowResize)
+    }
+  }, [scheduleReapplyInsetAfterResize])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: init once per token; centre/radius sync in later effects
   useEffect(() => {
@@ -449,9 +494,13 @@ export function TaskMap({
       mapboxgl.default.accessToken = accessToken
       mapboxRef.current = mapboxgl.default
 
+      const styleUrl =
+        process.env.NEXT_PUBLIC_MAPBOX_STYLE?.trim() ||
+        'mapbox://styles/mapbox/streets-v12'
+
       const map = new mapboxgl.default.Map({
         container,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: styleUrl,
         center: [centerLng, centerLat],
         zoom: 11,
         minZoom: MAP_MIN_ZOOM,
@@ -693,7 +742,7 @@ export function TaskMap({
           b.extend([centerLng, centerLat])
           current.fitBounds(b, {
             padding: fitPadding,
-            maxZoom: 13,
+            maxZoom: MAP_MAX_ZOOM,
             duration: 500,
           })
         } else if (tasksChanged && withCoords.length === 0) {

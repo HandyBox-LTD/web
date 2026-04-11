@@ -20,7 +20,7 @@ export function WebLayout() {
         maxW="440px"
         display="flex"
         flexDirection="column"
-        pointerEvents="auto"
+        pointerEvents="none"
       >
         <Box
           px={{ base: 1, md: 0 }}

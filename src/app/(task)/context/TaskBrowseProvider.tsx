@@ -132,13 +132,37 @@ type TaskBrowseProviderProps = {
   isDesktop: boolean
 }
 
+/** Matches `WebLayout` list column: `left-2` + `min(420px, 38vw)` (+ small gutter). */
+function desktopListPanelLeftInsetPx(): number {
+  if (typeof window === 'undefined') return 320
+  const w = window.innerWidth
+  const panel = Math.min(420, w * 0.38)
+  const marginGutter = 24
+  return Math.round(marginGutter + panel)
+}
+
 export function TaskBrowseProvider({
   children,
   initialTasks,
-  isDesktop: _isDesktop,
+  isDesktop,
 }: TaskBrowseProviderProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
+
+  const [windowOffsetWidth, setWindowOffsetWidth] = useState(() =>
+    typeof window !== 'undefined' && isDesktop
+      ? desktopListPanelLeftInsetPx()
+      : 320,
+  )
+
+  useEffect(() => {
+    if (!isDesktop) return
+    const sync = () => setWindowOffsetWidth(desktopListPanelLeftInsetPx())
+    sync()
+    if (typeof window === 'undefined') return
+    window.addEventListener('resize', sync)
+    return () => window.removeEventListener('resize', sync)
+  }, [isDesktop])
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchThisAreaUi, setSearchThisAreaUi] =
@@ -456,11 +480,11 @@ export function TaskBrowseProvider({
     () => ({
       isFilterOpen,
       setIsFilterOpen,
-      windowOffsetWidth: 300,
+      windowOffsetWidth,
       searchThisAreaUi,
       setSearchThisAreaUi,
     }),
-    [isFilterOpen, searchThisAreaUi],
+    [isFilterOpen, searchThisAreaUi, windowOffsetWidth],
   )
 
   return (

@@ -114,11 +114,13 @@ export function TaskList() {
 
   return (
     <Box
-      h="full"
+      maxH="full"
+      paddingBottom={8}
       ref={scrollRef}
       overflowY="auto"
       style={scrollWindowStyles}
       scrollbarWidth="none"
+      pointerEvents="auto"
       css={{
         msOverflowStyle: 'none',
         '&::-webkit-scrollbar': { display: 'none' },

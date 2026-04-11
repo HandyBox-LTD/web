@@ -11,11 +11,16 @@ import {
   DrawerPositioner,
   DrawerRoot,
   DrawerTitle,
+  HStack,
   IconButton,
+  Stack,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { Button } from '../Button'
+
+/** Matches `Container`: horizontal page gutters. */
+const drawerGutterX = { base: 4, md: 6 } as const
 
 export type AppDrawerPlacement = 'start' | 'end' | 'top' | 'bottom'
 
@@ -32,6 +37,13 @@ export type AppDrawerProps = {
   onPrimaryAction?: () => void
 }
 
+function drawerPanelRadius(placement: AppDrawerPlacement) {
+  if (placement === 'end') return { borderLeftRadius: 'xl' }
+  if (placement === 'start') return { borderRightRadius: 'xl' }
+  if (placement === 'bottom') return { borderTopRadius: '2xl' }
+  return { borderBottomRadius: '2xl' }
+}
+
 export function AppDrawer({
   open,
   onOpenChange,
@@ -43,6 +55,8 @@ export function AppDrawer({
   primaryActionLabel,
   onPrimaryAction,
 }: AppDrawerProps) {
+  const radius = drawerPanelRadius(placement)
+
   return (
     <DrawerRoot
       open={open}
@@ -50,26 +64,91 @@ export function AppDrawer({
       placement={placement}
       size={size}
     >
-      <DrawerBackdrop />
+      <DrawerBackdrop bg="blackAlpha.600" />
       <DrawerPositioner>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{title}</DrawerTitle>
-            {description ? (
-              <DrawerDescription>{description}</DrawerDescription>
-            ) : null}
-            <DrawerCloseTrigger asChild>
-              <IconButton aria-label="Close drawer" variant="ghost" size="sm">
-                ×
-              </IconButton>
-            </DrawerCloseTrigger>
+        <DrawerContent
+          bg="surfaceContainerLowest"
+          boxShadow="ambient"
+          display="flex"
+          flexDirection="column"
+          maxH="100dvh"
+          {...radius}
+        >
+          <DrawerHeader
+            px={drawerGutterX}
+            pt={4}
+            pb={4}
+            flexShrink={0}
+            borderBottomWidth="1px"
+            borderColor="border"
+          >
+            <Stack gap={description ? 2 : 0} align="stretch">
+              <HStack align="center" justify="space-between" gap={3} minH={11}>
+                <DrawerTitle
+                  fontFamily="heading"
+                  fontSize="lg"
+                  fontWeight={800}
+                  color="ink.900"
+                  lineHeight="short"
+                  letterSpacing="-0.02em"
+                  flex={1}
+                  minW={0}
+                >
+                  {title}
+                </DrawerTitle>
+                <DrawerCloseTrigger asChild>
+                  <IconButton
+                    aria-label="Close drawer"
+                    variant="ghost"
+                    borderRadius="full"
+                    minW={11}
+                    h={11}
+                    fontSize="xl"
+                    lineHeight={1}
+                    color="fg"
+                    flexShrink={0}
+                    _hover={{ bg: 'surfaceContainerHigh' }}
+                  >
+                    ×
+                  </IconButton>
+                </DrawerCloseTrigger>
+              </HStack>
+              {description ? (
+                <DrawerDescription
+                  color="muted"
+                  fontSize="sm"
+                  lineHeight="tall"
+                  fontWeight={500}
+                >
+                  {description}
+                </DrawerDescription>
+              ) : null}
+            </Stack>
           </DrawerHeader>
-          <DrawerBody>{children}</DrawerBody>
+          <DrawerBody
+            px={drawerGutterX}
+            pt={5}
+            pb={6}
+            flex={1}
+            minH={0}
+            overflowY="auto"
+          >
+            {children}
+          </DrawerBody>
           {primaryActionLabel ? (
-            <DrawerFooter>
+            <DrawerFooter
+              px={drawerGutterX}
+              pt={3}
+              pb="calc(16px + env(safe-area-inset-bottom, 0px))"
+              flexShrink={0}
+              borderTopWidth="1px"
+              borderColor="border"
+            >
               <Button
                 variant="solid"
                 w="full"
+                size="lg"
+                borderRadius="xl"
                 onClick={() => {
                   onPrimaryAction?.()
                   onOpenChange(false)

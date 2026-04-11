@@ -41,10 +41,7 @@ import {
   TaskDetailWorkerCtas,
   TaskDetailWorkerQuotePanel,
 } from './components/TaskDetailWorkerSidebar'
-import {
-  type TaskDetailRecord,
-  mapboxStaticMapUrl,
-} from './components/taskDetailUtils'
+import type { TaskDetailRecord } from './components/taskDetailUtils'
 
 function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
@@ -129,20 +126,6 @@ export default function TaskDetailPage() {
     if (sortedQuotes.length === 0) return null
     return sortedQuotes[0]?.pricePence ?? null
   }, [sortedQuotes])
-
-  const mapImageUrl = useMemo(() => {
-    if (!task) return null
-    const lat = task.location?.lat ?? task.locationLat
-    const lng = task.location?.lng ?? task.locationLng
-    if (lat == null || lng == null) return null
-    return mapboxStaticMapUrl({
-      lat,
-      lng,
-      accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
-      width: 440,
-      height: 220,
-    })
-  }, [task])
 
   const scrollToQuoteForm = useCallback(() => {
     document.getElementById('task-quote')?.scrollIntoView({
@@ -382,7 +365,6 @@ export default function TaskDetailPage() {
                       <Stack gap={4}>
                         <TaskDetailApproximateLocation
                           task={task}
-                          mapImageUrl={mapImageUrl}
                           variant="owner"
                         />
                         <TaskDetailOwnerPerformanceCard task={task} />
@@ -403,10 +385,7 @@ export default function TaskDetailPage() {
                           onScrollToQuoteForm={scrollToQuoteForm}
                         />
                         <TaskDetailPostedMeta createdAt={task.createdAt} />
-                        <TaskDetailApproximateLocation
-                          task={task}
-                          mapImageUrl={mapImageUrl}
-                        />
+                        <TaskDetailApproximateLocation task={task} />
                         <TaskDetailWorkerQuotePanel
                           myQuote={myQuote}
                           canAccessWorkerTools={canAccessWorkerTools}

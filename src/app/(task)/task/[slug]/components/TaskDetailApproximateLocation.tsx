@@ -1,22 +1,21 @@
 'use client'
 
-import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { GlassCard, IconMapPin } from '@ui'
 
-import type { TaskDetailRecord } from './taskDetailUtils'
+import { TaskDetailLocationMap } from './TaskDetailLocationMap'
+import { type TaskDetailRecord, taskMapCoordinates } from './taskDetailUtils'
 
 export type TaskDetailApproximateLocationProps = {
   task: TaskDetailRecord
-  mapImageUrl: string | null
   /** Owner sees full address line when available and copy about sharing after accept. */
   variant?: 'public' | 'owner'
 }
 
 export function TaskDetailApproximateLocation({
   task,
-  mapImageUrl,
   variant = 'public',
 }: TaskDetailApproximateLocationProps) {
   const place = taskPublicLocationLabel(task)
@@ -24,7 +23,9 @@ export function TaskDetailApproximateLocation({
     variant === 'owner' ? task.address?.trim() || place || null : null
   const heading =
     variant === 'owner' ? 'Service location' : 'Approximate location'
-  if (!place && !mapImageUrl && !ownerLine) return null
+  const coords = taskMapCoordinates(task)
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+  if (!place && !coords && !ownerLine) return null
 
   return (
     <GlassCard p={{ base: 5, md: 6 }} borderColor="border" boxShadow="ambient">
@@ -35,40 +36,31 @@ export function TaskDetailApproximateLocation({
             {heading}
           </Text>
         </HStack>
-        {mapImageUrl ? (
-          <Box
-            borderRadius="lg"
-            overflow="hidden"
-            borderWidth="1px"
-            borderColor="border"
-            bg="surfaceContainerLow"
-          >
-            <Image
-              src={mapImageUrl}
-              alt=""
-              w="full"
-              h="auto"
-              maxH="200px"
-              objectFit="cover"
+        {coords ? (
+          mapboxToken?.trim() ? (
+            <TaskDetailLocationMap
+              accessToken={mapboxToken}
+              lat={coords.lat}
+              lng={coords.lng}
             />
-          </Box>
-        ) : (
-          <Box
-            borderRadius="lg"
-            borderWidth="1px"
-            borderColor="border"
-            bg="surfaceContainerLow"
-            minH="140px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            px={4}
-          >
-            <Text fontSize="sm" color="muted" textAlign="center">
-              Map preview needs a Mapbox token in the environment.
-            </Text>
-          </Box>
-        )}
+          ) : (
+            <Box
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="border"
+              bg="surfaceContainerLow"
+              minH="140px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              px={4}
+            >
+              <Text fontSize="sm" color="muted" textAlign="center">
+                Map preview needs a Mapbox token in the environment.
+              </Text>
+            </Box>
+          )
+        ) : null}
         <HStack
           align="flex-start"
           gap={3}

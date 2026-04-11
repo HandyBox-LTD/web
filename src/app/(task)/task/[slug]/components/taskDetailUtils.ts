@@ -171,16 +171,22 @@ export function formatAvgResponseHours(hours: number): string {
   return `${Math.max(1, Math.round(hours / 24))}d`
 }
 
-export function mapboxStaticMapUrl(opts: {
-  lat: number
-  lng: number
-  accessToken: string | undefined
-  width?: number
-  height?: number
-}): string | null {
-  if (!opts.accessToken) return null
-  const w = opts.width ?? 440
-  const h = opts.height ?? 220
-  const { lat, lng } = opts
-  return `https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s+1A56DB(${lng},${lat})/${lng},${lat},12,0/${w}x${h}@2x?access_token=${encodeURIComponent(opts.accessToken)}`
+function parseCoord(value: unknown): number | null {
+  if (value == null) return null
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const n = Number.parseFloat(value.trim())
+    return Number.isFinite(n) ? n : null
+  }
+  return null
+}
+
+/** Task centre for map display; prefers `location` then falls back to flat lat/lng fields. */
+export function taskMapCoordinates(
+  task: TaskDetailRecord,
+): { lat: number; lng: number } | null {
+  const lat = parseCoord(task.location?.lat) ?? parseCoord(task.locationLat)
+  const lng = parseCoord(task.location?.lng) ?? parseCoord(task.locationLng)
+  if (lat == null || lng == null) return null
+  return { lat, lng }
 }
