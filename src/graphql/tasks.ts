@@ -61,7 +61,6 @@ export const TASKS_QUERY = gql`
       id
       title
       description
-      address
       location {
         lat
         lng
@@ -71,13 +70,11 @@ export const TASKS_QUERY = gql`
       locationLng
       locationName
       status
-      createdByUserId
       createdAt
       dateTime
       category
       priceQuotePence
       paymentMethod
-      contactMethod
       images
       quotes {
         id
@@ -108,8 +105,12 @@ export const TASK_QUERY = gql`
       locationLng
       locationName
       status
+      workerUserId
+      selectedQuoteId
       createdByUserId
       createdAt
+      completedAt
+      confirmedAt
       dateTime
       category
       priceQuotePence
@@ -123,6 +124,43 @@ export const TASK_QUERY = gql`
       availability {
         day
         slots
+      }
+      poster {
+        id
+        firstName
+        lastName
+        profile {
+          name
+        }
+      }
+      selectedQuote {
+        id
+        pricePence
+        message
+        workerUserId
+        status
+        createdAt
+      }
+      review {
+        id
+        rating
+        comment
+        createdAt
+        workerUserId
+        reviewer {
+          id
+          firstName
+          lastName
+          profile {
+            name
+          }
+        }
+      }
+      comments {
+        id
+        body
+        createdAt
+        userId
       }
       quotes {
         id
@@ -213,20 +251,6 @@ export const MY_TASKS_QUERY = gql`
         message
         status
         createdAt
-      }
-    }
-  }
-`
-
-export const TASK_WORKFLOW_QUERY = gql`
-  query TaskWorkflow($id: ID!) {
-    taskWorkflow(id: $id) {
-      id
-      status
-      quotes {
-        id
-        status
-        pricePence
       }
     }
   }

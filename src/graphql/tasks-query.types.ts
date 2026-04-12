@@ -30,7 +30,8 @@ export type TaskListItem = {
   locationLat?: number | null
   locationLng?: number | null
   status: string
-  createdByUserId: string
+  /** Present for poster-owned rows; omitted/redacted on public `tasks` list hits. */
+  createdByUserId?: string | null
   createdAt: unknown
   dateTime?: unknown
   category?: TaskCategory | null
@@ -38,6 +39,7 @@ export type TaskListItem = {
   paymentMethod?: string | null
   contactMethod?: string | null
   images?: string[] | null
+  /** Visitor-shaped `tasks` hits return an empty list; poster views include quotes. */
   quotes: TaskQuoteListItem[]
 }
 
