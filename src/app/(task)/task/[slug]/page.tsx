@@ -102,7 +102,9 @@ export default function TaskDetailPage() {
 
   const task = data?.task
 
-  const isOwner = Boolean(me && task && me.id === task.createdByUserId)
+  const isOwner = Boolean(
+    me && task && (me.id === task.createdByUserId || me.id === task.poster?.id),
+  )
   const myQuote = useMemo(() => {
     if (!me || !task) return null
     return task.quotes.find((o) => o.workerUserId === me.id) ?? null
@@ -114,8 +116,12 @@ export default function TaskDetailPage() {
       return
     }
 
-    setWorkerProfileEnabled(getWorkerRegistered(me.id) || Boolean(myQuote))
-  }, [me, myQuote])
+    setWorkerProfileEnabled(
+      getWorkerRegistered(me.id) ||
+        Boolean(myQuote) ||
+        Boolean(task && me && task.workerUserId === me.id),
+    )
+  }, [me, myQuote, task])
 
   const sortedQuotes = useMemo(() => {
     if (!task) return []
@@ -228,7 +234,10 @@ export default function TaskDetailPage() {
   const canAcceptQuotes = Boolean(
     isOwner && task && task.status === TaskStatus.Open,
   )
-  const canAccessWorkerTools = Boolean(workerProfileEnabled || myQuote)
+  const isAssignedWorker = Boolean(me && task && task.workerUserId === me.id)
+  const canAccessWorkerTools = Boolean(
+    workerProfileEnabled || myQuote || isAssignedWorker,
+  )
 
   const introSubtitle = useMemo(() => {
     if (!taskId) return null
